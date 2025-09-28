@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Awards - ICEIMS 2026{% endblock %}
+{% block title %}Conference Awards - ICEIMS 2026{% endblock %}
 
 {% block content %}
 <!-- Awards Hero Section -->
@@ -17,32 +17,52 @@
     </div>
 </section>
 
-<!-- Awards Categories -->
+<!-- Awards Overview -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="section-title mb-4">Award Categories</h2>
+                <p class="section-description">
+                    ICEIMS 2026 proudly presents multiple award categories to recognize and honor exceptional research contributions, 
+                    innovation, and academic excellence in the field of Energy and Intelligent Manufacturing Systems.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Awards Grid -->
 <section class="py-5">
     <div class="container">
         <div class="row g-4">
+            
             <!-- Best Paper Award -->
-            <div class="col-lg-6 mb-4">
-                <div class="award-card">
-                    <div class="award-icon">
-                        <i class="fas fa-trophy text-warning fa-4x"></i>
-                    </div>
-                    <div class="award-content">
-                        <h3 class="award-title">Best Paper Award</h3>
-                        <p class="award-description">
-                            Recognizes the most outstanding research paper presented at the conference, 
-                            judged on innovation, methodology, and contribution to the field.
-                        </p>
-                        <div class="award-prize">
-                            <strong>Prize:</strong> ₹25,000 + Certificate + Trophy
+            <div class="col-lg-4 col-md-6">
+                <div class="modern-award-card">
+                    <div class="award-header">
+                        <div class="award-icon-container">
+                            <i class="fas fa-trophy"></i>
                         </div>
-                        <div class="award-criteria">
+                        <h3 class="award-title">Best Paper Award</h3>
+                        <div class="award-subtitle">Excellence in Research</div>
+                    </div>
+                    <div class="award-body">
+                        <p class="award-description">
+                            Recognizes the most outstanding research paper with exceptional innovation, 
+                            methodology, and significant contribution to the field.
+                        </p>
+                        <div class="award-prize-box">
+                            <div class="prize-amount">₹25,000</div>
+                            <div class="prize-details">+ Certificate + Trophy</div>
+                        </div>
+                        <div class="award-criteria-list">
                             <h6>Selection Criteria:</h6>
                             <ul>
-                                <li>Novelty and Innovation</li>
-                                <li>Technical Quality</li>
-                                <li>Presentation Excellence</li>
-                                <li>Impact on Field</li>
+                                <li><i class="fas fa-check-circle"></i> Novelty and Innovation</li>
+                                <li><i class="fas fa-check-circle"></i> Technical Quality</li>
+                                <li><i class="fas fa-check-circle"></i> Presentation Excellence</li>
+                                <li><i class="fas fa-check-circle"></i> Impact on Field</li>
                             </ul>
                         </div>
                     </div>
@@ -50,27 +70,31 @@
             </div>
 
             <!-- Young Researcher Award -->
-            <div class="col-lg-6 mb-4">
-                <div class="award-card">
-                    <div class="award-icon">
-                        <i class="fas fa-user-graduate text-success fa-4x"></i>
-                    </div>
-                    <div class="award-content">
+            <div class="col-lg-4 col-md-6">
+                <div class="modern-award-card">
+                    <div class="award-header young-researcher">
+                        <div class="award-icon-container">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
                         <h3 class="award-title">Young Researcher Award</h3>
+                        <div class="award-subtitle">Next Generation Excellence</div>
+                    </div>
+                    <div class="award-body">
                         <p class="award-description">
                             Honors outstanding research contributions by young researchers under 35 years, 
-                            encouraging the next generation of scientists and engineers.
+                            encouraging the future leaders in science and engineering.
                         </p>
-                        <div class="award-prize">
-                            <strong>Prize:</strong> ₹15,000 + Certificate + Trophy
+                        <div class="award-prize-box">
+                            <div class="prize-amount">₹15,000</div>
+                            <div class="prize-details">+ Certificate + Trophy</div>
                         </div>
-                        <div class="award-criteria">
+                        <div class="award-criteria-list">
                             <h6>Eligibility:</h6>
                             <ul>
-                                <li>Age below 35 years</li>
-                                <li>First author of the paper</li>
-                                <li>Student or Early Career Researcher</li>
-                                <li>Exceptional research quality</li>
+                                <li><i class="fas fa-check-circle"></i> Age below 35 years</li>
+                                <li><i class="fas fa-check-circle"></i> First author of paper</li>
+                                <li><i class="fas fa-check-circle"></i> Student or Early Career</li>
+                                <li><i class="fas fa-check-circle"></i> Exceptional quality</li>
                             </ul>
                         </div>
                     </div>
@@ -78,56 +102,165 @@
             </div>
 
             <!-- Innovation Award -->
-            <div class="col-lg-6 mb-4">
-                <div class="award-card">
-                    <div class="award-icon">
-                        <i class="fas fa-lightbulb text-primary fa-4x"></i>
-                    </div>
-                    <div class="award-content">
-                        <h3 class="award-title">Innovation Award</h3>
-                        <p class="award-description">
-                            Celebrates the most innovative solution or technology presented, 
-                            with potential for real-world application and industry impact.
-                        </p>
-                        <div class="award-prize">
-                            <strong>Prize:</strong> ₹20,000 + Certificate + Trophy
+            <div class="col-lg-4 col-md-6">
+                <div class="modern-award-card">
+                    <div class="award-header innovation">
+                        <div class="award-icon-container">
+                            <i class="fas fa-lightbulb"></i>
                         </div>
-                        <div class="award-criteria">
+                        <h3 class="award-title">Innovation Award</h3>
+                        <div class="award-subtitle">Creative Solutions</div>
+                    </div>
+                    <div class="award-body">
+                        <p class="award-description">
+                            Celebrates the most innovative solution or technology with significant 
+                            potential for real-world application and industry impact.
+                        </p>
+                        <div class="award-prize-box">
+                            <div class="prize-amount">₹20,000</div>
+                            <div class="prize-details">+ Certificate + Trophy</div>
+                        </div>
+                        <div class="award-criteria-list">
                             <h6>Focus Areas:</h6>
                             <ul>
-                                <li>Practical Innovation</li>
-                                <li>Industry Applications</li>
-                                <li>Commercialization Potential</li>
-                                <li>Societal Impact</li>
+                                <li><i class="fas fa-check-circle"></i> Practical Innovation</li>
+                                <li><i class="fas fa-check-circle"></i> Industry Applications</li>
+                                <li><i class="fas fa-check-circle"></i> Commercial Potential</li>
+                                <li><i class="fas fa-check-circle"></i> Sustainability Impact</li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Lifetime Achievement -->
-            <div class="col-lg-6 mb-4">
-                <div class="award-card">
-                    <div class="award-icon">
-                        <i class="fas fa-medal text-danger fa-4x"></i>
+            <!-- Best Presentation Award -->
+            <div class="col-lg-4 col-md-6">
+                <div class="modern-award-card">
+                    <div class="award-header presentation">
+                        <div class="award-icon-container">
+                            <i class="fas fa-presentation"></i>
+                        </div>
+                        <h3 class="award-title">Best Presentation Award</h3>
+                        <div class="award-subtitle">Communication Excellence</div>
                     </div>
-                    <div class="award-content">
-                        <h3 class="award-title">Lifetime Achievement Award</h3>
+                    <div class="award-body">
                         <p class="award-description">
-                            Honors distinguished researchers for their lifelong contributions 
-                            to Energy and Intelligent Manufacturing Systems research and education.
+                            Recognizes exceptional presentation skills, clear communication of complex ideas, 
+                            and engaging delivery during conference sessions.
                         </p>
-                        <div class="award-prize">
-                            <strong>Recognition:</strong> Gold Medal + Certificate + Special Citation
+                        <div class="award-prize-box">
+                            <div class="prize-amount">₹10,000</div>
+                            <div class="prize-details">+ Certificate + Trophy</div>
                         </div>
-                        <div class="award-criteria">
-                            <h6>Recognition for:</h6>
+                        <div class="award-criteria-list">
+                            <h6>Evaluation Criteria:</h6>
                             <ul>
-                                <li>Decades of Research Excellence</li>
-                                <li>Mentorship and Teaching</li>
-                                <li>Industry Leadership</li>
-                                <li>Global Impact</li>
+                                <li><i class="fas fa-check-circle"></i> Clarity of Communication</li>
+                                <li><i class="fas fa-check-circle"></i> Visual Design Quality</li>
+                                <li><i class="fas fa-check-circle"></i> Audience Engagement</li>
+                                <li><i class="fas fa-check-circle"></i> Q&A Handling</li>
                             </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outstanding Poster Award -->
+            <div class="col-lg-4 col-md-6">
+                <div class="modern-award-card">
+                    <div class="award-header poster">
+                        <div class="award-icon-container">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <h3 class="award-title">Outstanding Poster Award</h3>
+                        <div class="award-subtitle">Visual Excellence</div>
+                    </div>
+                    <div class="award-body">
+                        <p class="award-description">
+                            Awards the best poster presentation with excellent visual design, 
+                            clear content organization, and effective scientific communication.
+                        </p>
+                        <div class="award-prize-box">
+                            <div class="prize-amount">₹8,000</div>
+                            <div class="prize-details">+ Certificate + Trophy</div>
+                        </div>
+                        <div class="award-criteria-list">
+                            <h6>Judging Criteria:</h6>
+                            <ul>
+                                <li><i class="fas fa-check-circle"></i> Visual Design & Layout</li>
+                                <li><i class="fas fa-check-circle"></i> Content Quality</li>
+                                <li><i class="fas fa-check-circle"></i> Scientific Accuracy</li>
+                                <li><i class="fas fa-check-circle"></i> Presentation Skills</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special Recognition Award -->
+            <div class="col-lg-4 col-md-6">
+                <div class="modern-award-card">
+                    <div class="award-header special">
+                        <div class="award-icon-container">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3 class="award-title">Special Recognition Award</h3>
+                        <div class="award-subtitle">Exceptional Contribution</div>
+                    </div>
+                    <div class="award-body">
+                        <p class="award-description">
+                            Honors exceptional contributions to conference activities, outstanding 
+                            collaboration, or significant community service in the field.
+                        </p>
+                        <div class="award-prize-box">
+                            <div class="prize-amount">₹12,000</div>
+                            <div class="prize-details">+ Certificate + Trophy</div>
+                        </div>
+                        <div class="award-criteria-list">
+                            <h6>Recognition Areas:</h6>
+                            <ul>
+                                <li><i class="fas fa-check-circle"></i> Community Service</li>
+                                <li><i class="fas fa-check-circle"></i> Collaborative Research</li>
+                                <li><i class="fas fa-check-circle"></i> Mentorship Excellence</li>
+                                <li><i class="fas fa-check-circle"></i> Industry Partnership</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Award Process Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="award-process-card">
+                    <h2 class="text-center mb-4">Award Selection Process</h2>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="process-step">
+                                <div class="step-number">1</div>
+                                <h5>Nomination</h5>
+                                <p>Papers are automatically considered based on peer review scores and committee recommendations.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="process-step">
+                                <div class="step-number">2</div>
+                                <h5>Evaluation</h5>
+                                <p>Expert jury panel evaluates nominations based on established criteria and conference presentations.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="process-step">
+                                <div class="step-number">3</div>
+                                <h5>Recognition</h5>
+                                <p>Awards are announced during the closing ceremony with trophy presentation and certificates.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -136,103 +269,55 @@
     </div>
 </section>
 
-<!-- Award Selection Process -->
-<section class="award-process py-5 bg-light">
-    <div class="container">
-        <div class="row text-center mb-5">
-            <div class="col-lg-12">
-                <h2 class="section-title">Award Selection Process</h2>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-lg-3">
-                <div class="process-step text-center">
-                    <div class="step-number">1</div>
-                    <h5>Nomination</h5>
-                    <p>Papers are automatically considered based on review scores and presentation quality</p>
-                </div>
-            </div>
-            <div class="col-lg-3">
-                <div class="process-step text-center">
-                    <div class="step-number">2</div>
-                    <h5>Evaluation</h5>
-                    <p>Expert panel reviews nominated works using established criteria</p>
-                </div>
-            </div>
-            <div class="col-lg-3">
-                <div class="process-step text-center">
-                    <div class="step-number">3</div>
-                    <h5>Selection</h5>
-                    <p>Awards committee makes final selections through consensus</p>
-                </div>
-            </div>
-            <div class="col-lg-3">
-                <div class="process-step text-center">
-                    <div class="step-number">4</div>
-                    <h5>Ceremony</h5>
-                    <p>Winners are announced and honored during the closing ceremony</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Previous Winners -->
+<!-- Important Notes -->
 <section class="py-5">
     <div class="container">
-        <div class="row text-center mb-5">
-            <div class="col-lg-12">
-                <h2 class="section-title">Previous Award Winners</h2>
-                <p class="lead">Celebrating our past winners and their contributions</p>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-lg-12">
-                <div class="winners-table-responsive">
-                    <table class="table winners-table">
-                        <thead>
-                            <tr>
-                                <th>Year</th>
-                                <th>Award Category</th>
-                                <th>Winner</th>
-                                <th>Institution</th>
-                                <th>Paper Title</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>2021</td>
-                                <td>Best Paper</td>
-                                <td>Dr. Rajesh Kumar</td>
-                                <td>IIT Delhi</td>
-                                <td>AI-Based Predictive Maintenance in Manufacturing</td>
-                            </tr>
-                            <tr>
-                                <td>2021</td>
-                                <td>Young Researcher</td>
-                                <td>Ms. Priya Sharma</td>
-                                <td>BITS Pilani</td>
-                                <td>Smart Grid Optimization using Machine Learning</td>
-                            </tr>
-                            <tr>
-                                <td>2020</td>
-                                <td>Innovation</td>
-                                <td>Prof. Amit Singh</td>
-                                <td>NIT Kurukshetra</td>
-                                <td>IoT-Enabled Energy Management System</td>
-                            </tr>
-                            <tr>
-                                <td>2020</td>
-                                <td>Lifetime Achievement</td>
-                                <td>Prof. S.K. Gupta</td>
-                                <td>IISc Bangalore</td>
-                                <td>Pioneering work in Renewable Energy Systems</td>
-                            </tr>
-                        </tbody>
-                    </table>
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="award-notes-card">
+                    <h3 class="mb-4 text-center">Important Information</h3>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="note-item">
+                                <i class="fas fa-info-circle"></i>
+                                <div>
+                                    <h6>Eligibility Requirements</h6>
+                                    <p>All registered conference participants with accepted papers are automatically eligible for awards consideration.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="note-item">
+                                <i class="fas fa-calendar-check"></i>
+                                <div>
+                                    <h6>Award Ceremony</h6>
+                                    <p>Winners will be announced during the closing ceremony on November 22, 2026.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="note-item">
+                                <i class="fas fa-certificate"></i>
+                                <div>
+                                    <h6>Recognition</h6>
+                                    <p>All winners receive physical trophies, certificates, and cash prizes as mentioned.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="note-item">
+                                <i class="fas fa-handshake"></i>
+                                <div>
+                                    <h6>Selection Committee</h6>
+                                    <p>Awards are selected by a distinguished panel of international experts and conference committee members.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
 {% endblock %}

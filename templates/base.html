@@ -4,6 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Theme color meta tags for Android browsers -->
+    <meta name="theme-color" content="#a0352f">
+    <meta name="msapplication-navbutton-color" content="#a0352f">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#a0352f">
+    
     <title>{% block title %}ICEIMS 2026 - International Conference on Energy and Intelligent Manufacturing Systems{% endblock %}</title>
     
     <link rel="icon" type="image/svg+xml" href="{% static 'images/conference logo.svg' %}">
@@ -13,7 +19,7 @@
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -30,7 +36,7 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-3">
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:home' %}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:registration' %}">Registration</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:committee' %}">Committee</a></li>
@@ -59,6 +65,11 @@
                     <div class="footer-logo mb-3">
                         <img src="{% static 'images/ICEIMS.svg' %}" alt="ICEIMS Logo" height="80">
                     </div>
+                    <p class="footer-website mb-2">
+                        <a href="https://www.galgotiasuniversity.edu.in/" target="_blank" class="footer-website-link">
+                            <i class="fas fa-globe me-2"></i>www.galgotiasuniversity.edu.in
+                        </a>
+                    </p>
                     <p class="footer-description">
                         Galgotias University, Plot No. 2, Yamuna Expy,<br>
                         opposite Buddha International Circuit,<br>
@@ -102,11 +113,12 @@
                 <div class="col-lg-4 mb-4">
                     <h5 class="footer-title">Socials</h5>
                     <div class="social-links mb-3">
-                        <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                        <a href="#" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-link" title="YouTube"><i class="fab fa-youtube"></i></a>
-                        <a href="#" class="social-link" title="Facebook"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="social-link" title="X (Twitter)"><i class="fab fa-x-twitter"></i></a>
+                        <a href="https://linkedin.com/school/galgotiasuniversity" class="social-link" title="LinkedIn" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://instagram.com/galgotias_university" class="social-link" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://youtube.com/@galgotiasuniversity_1" class="social-link" title="YouTube" target="_blank"><i class="fab fa-youtube"></i></a>
+                        <a href="https://facebook.com/galgotiasuniversity" class="social-link" title="Facebook" target="_blank"><i class="fab fa-facebook"></i></a>
+                        <a href="https://twitter.com/galgotiasgu" class="social-link" title="X (Twitter)" target="_blank"><i class="fab fa-x-twitter"></i></a>
+                        <a href="https://api.whatsapp.com/send/?phone=919971026125&text&app_absent=0" class="social-link" title="WhatsApp" target="_blank"><i class="fab fa-whatsapp"></i></a>
                     </div>
                     
                     <!-- Footer Map -->

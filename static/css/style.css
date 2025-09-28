@@ -156,11 +156,12 @@ input, textarea, select {
 .navbar .container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     min-height: 75px;
     max-width: 100%;
     padding: 0 0.5rem;
     overflow-x: visible;
+    gap: 1rem;
 }
 
 .navbar-collapse {
@@ -169,6 +170,7 @@ input, textarea, select {
     align-items: center;
     flex-grow: 1;
     justify-content: flex-end;
+    margin-left: auto;
 }
 
 .navbar-nav {
@@ -201,6 +203,7 @@ input, textarea, select {
     font-size: 1.7rem;
     font-weight: 800;
     color: #000000 !important;
+    margin-right: 1rem;
 }
 
 .navbar-brand img {
@@ -368,6 +371,12 @@ input, textarea, select {
     .navbar .container {
         min-height: 70px;
         padding: 0 0.75rem;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+    
+    .navbar-brand {
+        margin-right: 0.5rem;
     }
     
     .navbar-brand img {
@@ -1228,20 +1237,39 @@ input, textarea, select {
 .overlay-content {
     color: white;
     text-align: left;
+    background: linear-gradient(
+        45deg, 
+        rgba(0, 0, 0, 0.6), 
+        rgba(0, 0, 0, 0.3)
+    );
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
 }
 
 .overlay-content h4 {
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    color: #ffffff !important;
+    text-shadow: 
+        0 0 3px rgba(0, 0, 0, 0.8),
+        0 2px 4px rgba(0, 0, 0, 0.6),
+        0 4px 8px rgba(0, 0, 0, 0.4);
+    -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.3);
 }
 
 .overlay-content p {
     font-size: 1rem;
-    opacity: 0.9;
+    opacity: 1;
     margin: 0;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    color: #ffffff !important;
+    text-shadow: 
+        0 0 2px rgba(0, 0, 0, 0.8),
+        0 1px 3px rgba(0, 0, 0, 0.6),
+        0 2px 6px rgba(0, 0, 0, 0.4);
+    -webkit-text-stroke: 0.3px rgba(0, 0, 0, 0.3);
 }
 
 .morphing-nav-dots {
@@ -2784,6 +2812,32 @@ footer {
     line-height: 1.6;
 }
 
+/* Footer Website Link */
+.footer-website {
+    margin-bottom: 1rem;
+}
+
+.footer-website-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-website-link:hover {
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(160, 53, 47, 0.3);
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+}
+
 .footer-links {
     list-style: none;
     padding: 0;
@@ -2905,6 +2959,31 @@ footer {
     background: var(--white);
     color: var(--primary-color);
     transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(160, 53, 47, 0.3);
+}
+
+/* Ensure X/Twitter icon is visible with fallback */
+.social-link .fa-x-twitter,
+.social-link .fa-twitter,
+.social-link .fa-whatsapp {
+    font-size: 1.1rem;
+    color: inherit;
+    display: inline-block;
+}
+
+/* Fallback for X/Twitter icon visibility */
+.social-link i {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* WhatsApp icon specific styling */
+.social-link .fa-whatsapp {
+    color: inherit;
+}
+
+.social-link:hover .fa-whatsapp {
+    color: inherit;
 }
 
 .copyright {
@@ -4330,6 +4409,86 @@ footer {
     padding-top: 120px;
 }
 
+/* Universal Hero Section Styles for All Pages */
+.contact-hero,
+.guidelines-hero,
+.registration-hero, 
+.speakers-hero,
+.committee-hero,
+.awards-hero,
+.workshops-hero,
+.panels-hero,
+.networking-hero,
+.previous-hero,
+.schedule-hero,
+.sponsors-hero,
+.tracks-hero,
+.about-hero,
+.attractions-hero {
+    background: var(--gradient-primary) !important;
+    margin-top: 0 !important;
+    padding-top: 120px !important;
+    color: #ffffff !important;
+}
+
+.contact-hero h1,
+.guidelines-hero h1,
+.registration-hero h1,
+.speakers-hero h1,
+.committee-hero h1,
+.awards-hero h1,
+.workshops-hero h1,
+.panels-hero h1,
+.networking-hero h1,
+.previous-hero h1,
+.schedule-hero h1,
+.sponsors-hero h1,
+.tracks-hero h1,
+.about-hero h1,
+.attractions-hero h1 {
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    font-weight: 800 !important;
+}
+
+.contact-hero p,
+.guidelines-hero p,
+.registration-hero p,
+.speakers-hero p,
+.committee-hero p,
+.awards-hero p,
+.workshops-hero p,
+.panels-hero p,
+.networking-hero p,
+.previous-hero p,
+.schedule-hero p,
+.sponsors-hero p,
+.tracks-hero p,
+.about-hero p,
+.attractions-hero p {
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Override Bootstrap bg-primary to use our gradient */
+.bg-primary,
+.bg-gradient-primary {
+    background: var(--gradient-primary) !important;
+}
+
+/* Ensure all text-white classes work properly */
+.text-white,
+.text-white h1,
+.text-white h2,
+.text-white h3,
+.text-white h4,
+.text-white h5,
+.text-white h6,
+.text-white p,
+.text-white .lead {
+    color: #ffffff !important;
+}
+
 .contact-form-card,
 .contact-info-card,
 .social-media-card {
@@ -5731,19 +5890,291 @@ footer {
     padding-top: 120px;
 }
 
-.workshop-card, .panel-card, .award-card, .networking-card, .conference-card {
-    background: var(--white);
-    border-radius: 15px;
-    box-shadow: var(--shadow);
-    padding: 2rem;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+/* Modern Awards Page Styles */
+.modern-award-card {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
     height: 100%;
-    transition: all 0.3s ease;
+    border: 1px solid rgba(160, 53, 47, 0.1);
+    position: relative;
 }
 
-.workshop-card:hover, .panel-card:hover, .award-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
+.modern-award-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.modern-award-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-color);
+}
+
+.award-header {
+    padding: 2rem 2rem 1.5rem 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    position: relative;
+}
+
+.award-header.young-researcher::before {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.award-header.innovation::before {
+    background: linear-gradient(135deg, #007bff, #6f42c1);
+}
+
+.award-header.presentation::before {
+    background: linear-gradient(135deg, #fd7e14, #e83e8c);
+}
+
+.award-header.poster::before {
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+}
+
+.award-header.special::before {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+}
+
+.award-icon-container {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem auto;
+    box-shadow: 0 8px 20px rgba(160, 53, 47, 0.3);
+}
+
+.award-icon-container i {
+    font-size: 2rem;
+    color: white;
+}
+
+.award-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.award-subtitle {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+}
+
+.award-body {
+    padding: 0 2rem 2rem 2rem;
+}
+
+.award-description {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.award-prize-box {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.award-prize-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: skewX(-25deg);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% { left: -50%; }
+    100% { left: 150%; }
+}
+
+.prize-amount {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 0.3rem;
+}
+
+.prize-details {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.award-criteria-list h6 {
+    color: var(--dark-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.award-criteria-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.award-criteria-list li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.award-criteria-list li i {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Award Process Section */
+.award-process-card {
+    background: white;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.process-step {
+    text-align: center;
+    position: relative;
+}
+
+.step-number {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 auto 1rem auto;
+    box-shadow: 0 4px 15px rgba(160, 53, 47, 0.3);
+}
+
+.process-step h5 {
+    color: var(--dark-color);
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+.process-step p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Award Notes Section */
+.award-notes-card {
+    background: white;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(160, 53, 47, 0.1);
+}
+
+.note-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.note-item i {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-top: 0.2rem;
+}
+
+.note-item h6 {
+    color: var(--dark-color);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.note-item p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modern-award-card {
+        margin-bottom: 2rem;
+    }
+    
+    .award-header {
+        padding: 1.5rem 1.5rem 1rem 1.5rem;
+    }
+    
+    .award-body {
+        padding: 0 1.5rem 1.5rem 1.5rem;
+    }
+    
+    .award-icon-container {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .award-icon-container i {
+        font-size: 1.5rem;
+    }
+    
+    .award-title {
+        font-size: 1.2rem;
+    }
+    
+    .prize-amount {
+        font-size: 1.5rem;
+    }
+    
+    .award-process-card,
+    .award-notes-card {
+        padding: 2rem;
+    }
+    
+    .step-number {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
 }
 
 .workshop-badge {
