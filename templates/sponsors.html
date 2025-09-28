@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Sponsors Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="hero-title">Our Sponsors & Partners</h1>
+                <p class="hero-subtitle">Supporting Innovation and Excellence in Engineering, Management, and Computer Science</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Partnership Opportunities -->
+<section class="section-padding">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="section-title">Partnership Opportunities</h2>
+                <p class="section-subtitle">Join us as a sponsor and connect with leading researchers, industry professionals, and academic institutions from around the world.</p>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-lg-3 col-md-6">
+                <div class="sponsor-tier-card platinum-tier">
+                    <div class="tier-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h4 class="tier-title">Platinum</h4>
+                    <div class="tier-price">$50,000+</div>
+                    <ul class="tier-benefits">
+                        <li><i class="fas fa-check"></i> Keynote speaking opportunity</li>
+                        <li><i class="fas fa-check"></i> Premium exhibition space</li>
+                        <li><i class="fas fa-check"></i> Logo on all materials</li>
+                        <li><i class="fas fa-check"></i> VIP networking events</li>
+                        <li><i class="fas fa-check"></i> Social media promotion</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="sponsor-tier-card gold-tier">
+                    <div class="tier-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <h4 class="tier-title">Gold</h4>
+                    <div class="tier-price">$25,000+</div>
+                    <ul class="tier-benefits">
+                        <li><i class="fas fa-check"></i> Exhibition booth</li>
+                        <li><i class="fas fa-check"></i> Logo on website & materials</li>
+                        <li><i class="fas fa-check"></i> Networking opportunities</li>
+                        <li><i class="fas fa-check"></i> Promotional materials</li>
+                        <li><i class="fas fa-check"></i> Conference proceedings</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="sponsor-tier-card silver-tier">
+                    <div class="tier-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h4 class="tier-title">Silver</h4>
+                    <div class="tier-price">$10,000+</div>
+                    <ul class="tier-benefits">
+                        <li><i class="fas fa-check"></i> Logo on website</li>
+                        <li><i class="fas fa-check"></i> Exhibition space</li>
+                        <li><i class="fas fa-check"></i> Promotional materials</li>
+                        <li><i class="fas fa-check"></i> Networking events</li>
+                        <li><i class="fas fa-check"></i> Conference bag inserts</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="sponsor-tier-card bronze-tier">
+                    <div class="tier-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h4 class="tier-title">Bronze</h4>
+                    <div class="tier-price">$5,000+</div>
+                    <ul class="tier-benefits">
+                        <li><i class="fas fa-check"></i> Logo on website</li>
+                        <li><i class="fas fa-check"></i> Promotional materials</li>
+                        <li><i class="fas fa-check"></i> Networking access</li>
+                        <li><i class="fas fa-check"></i> Conference attendance</li>
+                        <li><i class="fas fa-check"></i> Digital materials</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Current Sponsors -->
+{% if all_sponsors %}
+<section class="section-padding bg-light">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="section-title">Our Valued Sponsors</h2>
+                <p class="section-subtitle">Thank you to our sponsors who make ICEIMS 2026 possible</p>
+            </div>
+        </div>
+
+        <!-- All Sponsors Grid -->
+        <div class="sponsor-section">
+            <div class="row g-4 justify-content-center">
+                {% for sponsor in all_sponsors %}
+                <div class="col-lg-3 col-md-4 col-6">
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            {% if sponsor.logo %}
+                                <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" class="img-fluid">
+                            {% else %}
+                                <div class="sponsor-placeholder">
+                                    <i class="fas fa-building"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="sponsor-info">
+                            <h5 class="sponsor-name">{{ sponsor.name }}</h5>
+                            {% if sponsor.website %}
+                                <a href="{{ sponsor.website }}" target="_blank" class="sponsor-link">
+                                    <i class="fas fa-external-link-alt"></i> Visit Website
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Why Sponsor -->
+<section class="section-padding">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="section-title">Why Sponsor ICEIMS 2026?</h2>
+                <p class="section-subtitle">Maximize your impact and reach in the engineering and technology community</p>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4 class="benefit-title">Global Audience</h4>
+                    <p class="benefit-description">Connect with 500+ researchers, engineers, and industry leaders from over 30 countries worldwide.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h4 class="benefit-title">Innovation Hub</h4>
+                    <p class="benefit-description">Showcase your latest technologies and innovations to a highly engaged academic and professional audience.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h4 class="benefit-title">Partnership Opportunities</h4>
+                    <p class="benefit-description">Build strategic partnerships with leading universities, research institutions, and technology companies.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4 class="benefit-title">Brand Visibility</h4>
+                    <p class="benefit-description">Increase brand awareness through extensive marketing campaigns, social media, and conference materials.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h4 class="benefit-title">Talent Pipeline</h4>
+                    <p class="benefit-description">Connect with top graduate students, researchers, and professionals for recruitment opportunities.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h4 class="benefit-title">Thought Leadership</h4>
+                    <p class="benefit-description">Position your organization as an industry leader through keynote opportunities and expert panels.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sponsorship Contact -->
+<section class="section-padding bg-gradient">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="contact-sponsor-card">
+                    <div class="text-center mb-4">
+                        <h2 class="section-title text-white">Become a Sponsor</h2>
+                        <p class="section-subtitle text-white">Ready to partner with us? Let's discuss how we can work together to make ICEIMS 2026 a success.</p>
+                    </div>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="contact-info-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <div class="contact-details">
+                                    <h5 class="contact-title">Sponsorship Manager</h5>
+                                    <p class="contact-text">Dr. Sarah Johnson</p>
+                                    <p class="contact-text">sponsorship@iceims2026.org</p>
+                                    <p class="contact-text">+1 (555) 123-4567</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="contact-info-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="contact-details">
+                                    <h5 class="contact-title">General Inquiries</h5>
+                                    <p class="contact-text">partnerships@iceims2026.org</p>
+                                    <p class="contact-text">Response within 24 hours</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{% url 'conference:contact' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            Contact Us Today
+                        </a>
+                        <a href="#" class="btn btn-light btn-lg ms-3">
+                            <i class="fas fa-download me-2"></i>
+                            Download Prospectus
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

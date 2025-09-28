@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Awards - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<!-- Awards Hero Section -->
+<section class="awards-hero py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">Conference Awards</h1>
+                <p class="lead">Recognizing excellence in research and innovation</p>
+                <p class="mb-0">Celebrating outstanding contributions to Energy and Intelligent Manufacturing Systems</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Awards Categories -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Best Paper Award -->
+            <div class="col-lg-6 mb-4">
+                <div class="award-card">
+                    <div class="award-icon">
+                        <i class="fas fa-trophy text-warning fa-4x"></i>
+                    </div>
+                    <div class="award-content">
+                        <h3 class="award-title">Best Paper Award</h3>
+                        <p class="award-description">
+                            Recognizes the most outstanding research paper presented at the conference, 
+                            judged on innovation, methodology, and contribution to the field.
+                        </p>
+                        <div class="award-prize">
+                            <strong>Prize:</strong> ₹25,000 + Certificate + Trophy
+                        </div>
+                        <div class="award-criteria">
+                            <h6>Selection Criteria:</h6>
+                            <ul>
+                                <li>Novelty and Innovation</li>
+                                <li>Technical Quality</li>
+                                <li>Presentation Excellence</li>
+                                <li>Impact on Field</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Young Researcher Award -->
+            <div class="col-lg-6 mb-4">
+                <div class="award-card">
+                    <div class="award-icon">
+                        <i class="fas fa-user-graduate text-success fa-4x"></i>
+                    </div>
+                    <div class="award-content">
+                        <h3 class="award-title">Young Researcher Award</h3>
+                        <p class="award-description">
+                            Honors outstanding research contributions by young researchers under 35 years, 
+                            encouraging the next generation of scientists and engineers.
+                        </p>
+                        <div class="award-prize">
+                            <strong>Prize:</strong> ₹15,000 + Certificate + Trophy
+                        </div>
+                        <div class="award-criteria">
+                            <h6>Eligibility:</h6>
+                            <ul>
+                                <li>Age below 35 years</li>
+                                <li>First author of the paper</li>
+                                <li>Student or Early Career Researcher</li>
+                                <li>Exceptional research quality</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Innovation Award -->
+            <div class="col-lg-6 mb-4">
+                <div class="award-card">
+                    <div class="award-icon">
+                        <i class="fas fa-lightbulb text-primary fa-4x"></i>
+                    </div>
+                    <div class="award-content">
+                        <h3 class="award-title">Innovation Award</h3>
+                        <p class="award-description">
+                            Celebrates the most innovative solution or technology presented, 
+                            with potential for real-world application and industry impact.
+                        </p>
+                        <div class="award-prize">
+                            <strong>Prize:</strong> ₹20,000 + Certificate + Trophy
+                        </div>
+                        <div class="award-criteria">
+                            <h6>Focus Areas:</h6>
+                            <ul>
+                                <li>Practical Innovation</li>
+                                <li>Industry Applications</li>
+                                <li>Commercialization Potential</li>
+                                <li>Societal Impact</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lifetime Achievement -->
+            <div class="col-lg-6 mb-4">
+                <div class="award-card">
+                    <div class="award-icon">
+                        <i class="fas fa-medal text-danger fa-4x"></i>
+                    </div>
+                    <div class="award-content">
+                        <h3 class="award-title">Lifetime Achievement Award</h3>
+                        <p class="award-description">
+                            Honors distinguished researchers for their lifelong contributions 
+                            to Energy and Intelligent Manufacturing Systems research and education.
+                        </p>
+                        <div class="award-prize">
+                            <strong>Recognition:</strong> Gold Medal + Certificate + Special Citation
+                        </div>
+                        <div class="award-criteria">
+                            <h6>Recognition for:</h6>
+                            <ul>
+                                <li>Decades of Research Excellence</li>
+                                <li>Mentorship and Teaching</li>
+                                <li>Industry Leadership</li>
+                                <li>Global Impact</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Award Selection Process -->
+<section class="award-process py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-12">
+                <h2 class="section-title">Award Selection Process</h2>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="process-step text-center">
+                    <div class="step-number">1</div>
+                    <h5>Nomination</h5>
+                    <p>Papers are automatically considered based on review scores and presentation quality</p>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="process-step text-center">
+                    <div class="step-number">2</div>
+                    <h5>Evaluation</h5>
+                    <p>Expert panel reviews nominated works using established criteria</p>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="process-step text-center">
+                    <div class="step-number">3</div>
+                    <h5>Selection</h5>
+                    <p>Awards committee makes final selections through consensus</p>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="process-step text-center">
+                    <div class="step-number">4</div>
+                    <h5>Ceremony</h5>
+                    <p>Winners are announced and honored during the closing ceremony</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Previous Winners -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-12">
+                <h2 class="section-title">Previous Award Winners</h2>
+                <p class="lead">Celebrating our past winners and their contributions</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-12">
+                <div class="winners-table-responsive">
+                    <table class="table winners-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Award Category</th>
+                                <th>Winner</th>
+                                <th>Institution</th>
+                                <th>Paper Title</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2021</td>
+                                <td>Best Paper</td>
+                                <td>Dr. Rajesh Kumar</td>
+                                <td>IIT Delhi</td>
+                                <td>AI-Based Predictive Maintenance in Manufacturing</td>
+                            </tr>
+                            <tr>
+                                <td>2021</td>
+                                <td>Young Researcher</td>
+                                <td>Ms. Priya Sharma</td>
+                                <td>BITS Pilani</td>
+                                <td>Smart Grid Optimization using Machine Learning</td>
+                            </tr>
+                            <tr>
+                                <td>2020</td>
+                                <td>Innovation</td>
+                                <td>Prof. Amit Singh</td>
+                                <td>NIT Kurukshetra</td>
+                                <td>IoT-Enabled Energy Management System</td>
+                            </tr>
+                            <tr>
+                                <td>2020</td>
+                                <td>Lifetime Achievement</td>
+                                <td>Prof. S.K. Gupta</td>
+                                <td>IISc Bangalore</td>
+                                <td>Pioneering work in Renewable Energy Systems</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

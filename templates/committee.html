@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Committee Members - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<div class="committee-page">
+    <!-- Hero Section -->
+    <section class="committee-hero py-5 bg-primary text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1 class="display-4 fw-bold mb-3">Our Team</h1>
+                    <p class="lead">Meet the distinguished committee members organizing ICEIMS 2026</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Committee Structure -->
+    <section class="committee-structure py-5">
+        <div class="container-fluid">
+            
+            <!-- Chief Patron -->
+            <div class="committee-level">
+                <div class="row justify-content-center">
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card chief-patron">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Chief Patron</h4>
+                                <p class="member-title">Chairman</p>
+                                <p class="member-org">Galgotias University</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patrons -->
+            <div class="committee-level">
+                <div class="row justify-content-center">
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card patron">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Patron 1</h4>
+                                <p class="member-title">Vice Chairman</p>
+                                <p class="member-org">Galgotias University</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card patron">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Patron 2</h4>
+                                <p class="member-title">Chancellor</p>
+                                <p class="member-org">Galgotias University</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conference Chair -->
+            <div class="committee-level">
+                <div class="row justify-content-center">
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card conference-chair">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Conference Chair</h4>
+                                <p class="member-title">Professor</p>
+                                <p class="member-org">Galgotias University</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conference Co-Chairs -->
+            <div class="committee-level">
+                <div class="row justify-content-center">
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card co-chair">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Co-Chair 1</h4>
+                                <p class="member-title">Associate Professor</p>
+                                <p class="member-org">Galgotias University</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card co-chair">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Co-Chair 2</h4>
+                                <p class="member-title">Associate Professor</p>
+                                <p class="member-org">Galgotias University</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Program Committee -->
+            <div class="committee-level">
+                <h3 class="text-center mb-4 section-heading">Technical Program Committee</h3>
+                <div class="row justify-content-center">
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card technical">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">TPC Chair</h4>
+                                <p class="member-title">Professor</p>
+                                <p class="member-org">Institute Name</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card technical">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">TPC Co-Chair</h4>
+                                <p class="member-title">Associate Professor</p>
+                                <p class="member-org">Institute Name</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advisory Committee -->
+            <div class="committee-level">
+                <h3 class="text-center mb-4 section-heading">Advisory Committee</h3>
+                <div class="row justify-content-center">
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card advisory">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Advisory Member 1</h4>
+                                <p class="member-title">Professor</p>
+                                <p class="member-org">Institute Name</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card advisory">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Advisory Member 2</h4>
+                                <p class="member-title">Professor</p>
+                                <p class="member-org">Institute Name</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card advisory">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Advisory Member 3</h4>
+                                <p class="member-title">Professor</p>
+                                <p class="member-org">Institute Name</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card advisory">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Advisory Member 4</h4>
+                                <p class="member-title">Professor</p>
+                                <p class="member-org">Institute Name</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Organizing Committee -->
+            <div class="committee-level">
+                <h3 class="text-center mb-4 section-heading">Organizing Committee</h3>
+                <div class="row justify-content-center">
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card organizing">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Organizing Chair</h4>
+                                <p class="member-title">Professor</p>
+                                <p class="member-org">Galgotias University</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card organizing">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Organizing Co-Chair 1</h4>
+                                <p class="member-title">Associate Professor</p>
+                                <p class="member-org">Galgotias University</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card organizing">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Organizing Co-Chair 2</h4>
+                                <p class="member-title">Associate Professor</p>
+                                <p class="member-org">Galgotias University</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="committee-org-card organizing">
+                            <div class="member-photo">
+                                <i class="fas fa-user fa-3x"></i>
+                            </div>
+                            <div class="member-details">
+                                <h4 class="member-name">Organizing Secretary</h4>
+                                <p class="member-title">Assistant Professor</p>
+                                <p class="member-org">Galgotias University</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</div>
+{% endblock %}

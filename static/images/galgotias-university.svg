@@ -1,0 +1,7 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#f8f9fa"/>
+  <rect x="50" y="50" width="300" height="200" fill="#0d6efd"/>
+  <text x="200" y="130" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="white">Galgotias</text>
+  <text x="200" y="160" font-family="Arial, sans-serif" font-size="20" text-anchor="middle" fill="white">University</text>
+  <text x="200" y="190" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="white">Greater Noida, India</text>
+</svg>

@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Panel Discussions - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<!-- Panels Hero Section -->
+<section class="panels-hero py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">Panel Discussions</h1>
+                <p class="lead">Thought-provoking discussions with industry leaders</p>
+                <p class="mb-0">Expert panels exploring the future of Energy and Intelligent Manufacturing Systems</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Panel Sessions -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Panel 1 -->
+            <div class="col-lg-12 mb-5">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Future of Sustainable Manufacturing</h3>
+                        <div class="panel-meta">
+                            <span class="panel-date"><i class="fas fa-calendar me-2"></i>Day 2 - November 21, 2026</span>
+                            <span class="panel-time"><i class="fas fa-clock me-2"></i>3:00 PM - 4:30 PM</span>
+                            <span class="panel-location"><i class="fas fa-map-marker-alt me-2"></i>Main Auditorium</span>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <p class="panel-description">
+                            Industry experts discuss the challenges and opportunities in implementing sustainable manufacturing practices, 
+                            addressing environmental concerns while maintaining productivity and profitability.
+                        </p>
+                        <div class="panel-topics">
+                            <h6>Discussion Topics:</h6>
+                            <ul>
+                                <li>Green Manufacturing Technologies</li>
+                                <li>Carbon Footprint Reduction</li>
+                                <li>Circular Economy in Manufacturing</li>
+                                <li>Regulatory Compliance and Standards</li>
+                            </ul>
+                        </div>
+                        <div class="panelists">
+                            <h6>Panelists:</h6>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <div class="panelist">
+                                        <img src="{% static 'images/panelist-1.jpg' %}" alt="Dr. Sarah Johnson" class="panelist-image">
+                                        <h6>Dr. Sarah Johnson</h6>
+                                        <p>Sustainability Director, Ford Motors</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="panelist">
+                                        <img src="{% static 'images/panelist-2.jpg' %}" alt="Prof. Michael Chen" class="panelist-image">
+                                        <h6>Prof. Michael Chen</h6>
+                                        <p>Green Technology Expert, Stanford</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="panelist">
+                                        <img src="{% static 'images/panelist-3.jpg' %}" alt="Ms. Priya Gupta" class="panelist-image">
+                                        <h6>Ms. Priya Gupta</h6>
+                                        <p>Environmental Policy Analyst</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="panelist">
+                                        <img src="{% static 'images/panelist-4.jpg' %}" alt="Dr. Raj Patel" class="panelist-image">
+                                        <h6>Dr. Raj Patel</h6>
+                                        <p>CEO, GreenTech Solutions</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="moderator mt-3">
+                            <strong>Moderator:</strong> Prof. David Wilson, MIT Energy Initiative
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 2 -->
+            <div class="col-lg-12 mb-5">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">AI Revolution in Industry 4.0</h3>
+                        <div class="panel-meta">
+                            <span class="panel-date"><i class="fas fa-calendar me-2"></i>Day 3 - November 22, 2026</span>
+                            <span class="panel-time"><i class="fas fa-clock me-2"></i>11:00 AM - 12:30 PM</span>
+                            <span class="panel-location"><i class="fas fa-map-marker-alt me-2"></i>Conference Hall A</span>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <p class="panel-description">
+                            Leading AI researchers and industry practitioners discuss the transformative impact of artificial intelligence 
+                            on manufacturing processes, automation, and the future of work.
+                        </p>
+                        <div class="panel-topics">
+                            <h6>Discussion Topics:</h6>
+                            <ul>
+                                <li>Machine Learning in Manufacturing</li>
+                                <li>Autonomous Manufacturing Systems</li>
+                                <li>Human-AI Collaboration</li>
+                                <li>Ethical AI in Industrial Applications</li>
+                            </ul>
+                        </div>
+                        <div class="panelists">
+                            <h6>Panelists:</h6>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <div class="panelist">
+                                        <img src="{% static 'images/panelist-5.jpg' %}" alt="Dr. Hiroshi Tanaka" class="panelist-image">
+                                        <h6>Dr. Hiroshi Tanaka</h6>
+                                        <p>AI Research Director, Toyota</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="panelist">
+                                        <img src="{% static 'images/panelist-6.jpg' %}" alt="Dr. Anna Mueller" class="panelist-image">
+                                        <h6>Dr. Anna Mueller</h6>
+                                        <p>ML Engineer, Siemens Digital</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="panelist">
+                                        <img src="{% static 'images/panelist-7.jpg' %}" alt="Prof. Arjun Kumar" class="panelist-image">
+                                        <h6>Prof. Arjun Kumar</h6>
+                                        <p>AI Research, IIT Delhi</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="panelist">
+                                        <img src="{% static 'images/panelist-8.jpg' %}" alt="Ms. Lisa Wang" class="panelist-image">
+                                        <h6>Ms. Lisa Wang</h6>
+                                        <p>VP Technology, NVIDIA</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="moderator mt-3">
+                            <strong>Moderator:</strong> Dr. Robert Kim, Carnegie Mellon University
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 3 -->
+            <div class="col-lg-12 mb-5">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Energy Security and Smart Grids</h3>
+                        <div class="panel-meta">
+                            <span class="panel-date"><i class="fas fa-calendar me-2"></i>Day 3 - November 22, 2026</span>
+                            <span class="panel-time"><i class="fas fa-clock me-2"></i>2:00 PM - 3:30 PM</span>
+                            <span class="panel-location"><i class="fas fa-map-marker-alt me-2"></i>Conference Hall B</span>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <p class="panel-description">
+                            Energy experts explore the challenges of energy security, renewable integration, and the role of smart grids 
+                            in creating resilient and sustainable energy systems.
+                        </p>
+                        <div class="panel-topics">
+                            <h6>Discussion Topics:</h6>
+                            <ul>
+                                <li>Grid Modernization Strategies</li>
+                                <li>Renewable Energy Integration</li>
+                                <li>Energy Storage Solutions</li>
+                                <li>Cybersecurity in Smart Grids</li>
+                            </ul>
+                        </div>
+                        <div class="panelists">
+                            <h6>Panelists:</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="panelist">
+                                        <img src="{% static 'images/panelist-9.jpg' %}" alt="Dr. Maria Rodriguez" class="panelist-image">
+                                        <h6>Dr. Maria Rodriguez</h6>
+                                        <p>Grid Technology Expert, GE</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="panelist">
+                                        <img src="{% static 'images/panelist-10.jpg' %}" alt="Prof. James Lee" class="panelist-image">
+                                        <h6>Prof. James Lee</h6>
+                                        <p>Energy Systems, UC Berkeley</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="panelist">
+                                        <img src="{% static 'images/panelist-11.jpg' %}" alt="Dr. Sunita Sharma" class="panelist-image">
+                                        <h6>Dr. Sunita Sharma</h6>
+                                        <p>Renewable Energy Consultant</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="moderator mt-3">
+                            <strong>Moderator:</strong> Dr. Alex Thompson, National Renewable Energy Laboratory
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Panel Information -->
+<section class="panel-info py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-4">
+            <div class="col-lg-12">
+                <h2 class="section-title">Panel Discussion Format</h2>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="format-item text-center">
+                    <i class="fas fa-comments text-primary fa-3x mb-3"></i>
+                    <h5>Interactive Discussions</h5>
+                    <p>Panelists engage in thought-provoking discussions with audience Q&A sessions.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="format-item text-center">
+                    <i class="fas fa-microphone text-success fa-3x mb-3"></i>
+                    <h5>Expert Moderation</h5>
+                    <p>Experienced moderators guide discussions to ensure comprehensive coverage of topics.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="format-item text-center">
+                    <i class="fas fa-network-wired text-info fa-3x mb-3"></i>
+                    <h5>Networking Opportunities</h5>
+                    <p>Connect with panelists and fellow attendees during networking breaks.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

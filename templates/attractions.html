@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tourist Attractions - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<!-- Attractions Hero Section -->
+<section class="attractions-hero py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">Tourist Attractions</h1>
+                <p class="lead">Discover the rich heritage and modern marvels of NCR</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Attractions -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            {% for attraction in tourist_attractions %}
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image">
+                        {% if attraction.image %}
+                        <img src="{{ attraction.image.url }}" alt="{{ attraction.name }}" class="img-fluid">
+                        {% else %}
+                        <img src="{% static 'images/default-attraction.svg' %}" alt="{{ attraction.name }}" class="img-fluid">
+                        {% endif %}
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">{{ attraction.name }}</h5>
+                        <p class="attraction-description">{{ attraction.description|truncatewords:30 }}</p>
+                        {% if attraction.location_url %}
+                        <a href="{{ attraction.location_url }}" class="btn btn-outline-primary btn-sm" target="_blank">View Location</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Default attractions -->
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            <img src="https://images.unsplash.com/photo-1587135941948-670b381f08ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60" 
+                                 alt="Red Fort" class="img-fluid attraction-img" loading="lazy">
+                        </div>
+                        <div class="map-overlay">
+                            <div class="map-placeholder" data-map-src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.0676418051303!2d77.23696431508049!3d28.65648398242925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd0f7e30b04d%3A0xd9d7ea888df1e5a9!2sRed%20Fort!5e0!3m2!1sen!2sin!4v1695900000000!5m2!1sen!2sin">
+                                <div class="loading-map">
+                                    <i class="fas fa-map-marked-alt fa-3x mb-2" style="color: #fff; opacity: 0.7;"></i>
+                                    <p style="color: #fff; opacity: 0.9;">Loading map...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">Red Fort (Lal Qila)</h5>
+                        <p class="attraction-description">A historic fort in Delhi that served as the main residence of the Mughal emperors. UNESCO World Heritage Site showcasing Mughal architecture.</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>45 km from venue</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>1-2 hours</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            <img src="https://images.unsplash.com/photo-1587474260584-136574528ed5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60" 
+                                 alt="India Gate" class="img-fluid attraction-img" loading="lazy">
+                        </div>
+                        <div class="map-overlay">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.1962740808804!2d77.22542331508038!3d28.651883182429595!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd0f3c1f86f9%3A0x8b6fa86f45b2b6d2!2sIndia%20Gate!5e0!3m2!1sen!2sin!4v1695900000000!5m2!1sen!2sin" 
+                                width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">India Gate</h5>
+                        <p class="attraction-description">A war memorial located in New Delhi, commemorating Indian soldiers who died in World War I. Perfect for evening strolls and photography.</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>40 km from venue</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>1 hour</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            <img src="https://images.unsplash.com/photo-1583141475276-3a4e9ef7a8b6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Lotus Temple" class="img-fluid attraction-img">
+                        </div>
+                        <div class="map-overlay">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3504.842285631394!2d77.25808931507897!3d28.553469782512095!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce3e45d85d3e3%3A0x691393414902968e!2sLotus%20Temple!5e0!3m2!1sen!2sin!4v1695900000000!5m2!1sen!2sin" 
+                                width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">Lotus Temple</h5>
+                        <p class="attraction-description">A Baháʼí House of Worship notable for its flower-like shape. Open to all regardless of religion or any other qualification for meditation and prayer.</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>35 km from venue</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>1-2 hours</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            <img src="https://images.unsplash.com/photo-1609920658906-8223bd289001?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60" 
+                                 alt="Qutub Minar" class="img-fluid attraction-img" loading="lazy">
+                        </div>
+                        <div class="map-overlay">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3504.8404474865777!2d77.18338831507864!3d28.524348095743546!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d1dc4c5b7d7d3%3A0xa3e1b2f1b3b4c5d6!2sQutub%20Minar!5e0!3m2!1sen!2sin!4v1695900000000!5m2!1sen!2sin" 
+                                width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">Qutub Minar</h5>
+                        <p class="attraction-description">A UNESCO World Heritage Site, this 73-meter tall minaret is an excellent example of Indo-Islamic architecture dating back to the 12th century.</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>50 km from venue</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>2-3 hours</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            <img src="https://images.unsplash.com/photo-1605379399642-870262d3d051?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Akshardham Temple" class="img-fluid attraction-img">
+                        </div>
+                        <div class="map-overlay">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.6746785937435!2d77.27731441508011!3d28.622429482433825!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce5b5b7e8d1e7%3A0xb8c9e9b7c5d8e9f1!2sSwaminarayan%20Akshardham!5e0!3m2!1sen!2sin!4v1695900000000!5m2!1sen!2sin" 
+                                width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">Akshardham Temple</h5>
+                        <p class="attraction-description">A Hindu temple complex showcasing millennia of traditional and modern Hindu culture, architecture, and spirituality. Features beautiful gardens and exhibitions.</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>25 km from venue</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>3-4 hours</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            <img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Worlds of Wonder" class="img-fluid attraction-img">
+                        </div>
+                        <div class="map-overlay">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3507.4927581757447!2d77.38878631507786!3d28.37382408258547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce6a3c5f8b7e9%3A0xb8c9e9b7c5d8e9f1!2sWorlds%20of%20Wonder!5e0!3m2!1sen!2sin!4v1695900000000!5m2!1sen!2sin" 
+                                width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">Worlds of Wonder</h5>
+                        <p class="attraction-description">An amusement and water park in Noida offering thrilling rides, water slides, and entertainment for families and adventure seekers.</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>15 km from venue</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>4-6 hours</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            <img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="The Great India Place" class="img-fluid attraction-img">
+                        </div>
+                        <div class="map-overlay">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3506.4927581757447!2d77.36878631507786!3d28.47382408258547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce6a3c5f8b7e9%3A0xb8c9e9b7c5d8e9f1!2sGreat%20India%20Place!5e0!3m2!1sen!2sin!4v1695900000000!5m2!1sen!2sin" 
+                                width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">The Great India Place</h5>
+                        <p class="attraction-description">One of India's largest shopping malls featuring international brands, food courts, entertainment zones, and multiplex cinema.</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>10 km from venue</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>2-4 hours</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            <img src="https://images.unsplash.com/photo-1564507592333-c60657eea523?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Taj Mahal" class="img-fluid attraction-img">
+                        </div>
+                        <div class="map-overlay">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3557.3464926842713!2d78.03974271505639!3d27.175014982866936!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39747121a8d3b82f%3A0x5f0c2a7b8e9c1d7e!2sTaj%20Mahal!5e0!3m2!1sen!2sin!4v1695900000000!5m2!1sen!2sin" 
+                                width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">Taj Mahal, Agra</h5>
+                        <p class="attraction-description">One of the Seven Wonders of the World, this UNESCO World Heritage Site is a symbol of love and architectural marvel. Perfect for a day trip.</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>200 km from venue</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>Full day trip</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Humayun's Tomb" class="img-fluid attraction-img">
+                        </div>
+                        <div class="map-overlay">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3503.8947581757447!2d77.25078631507786!3d28.59382408258547!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce26a3c5f8b7e9%3A0xb8c9e9b7c5d8e9f1!2sHumayun's%20Tomb!5e0!3m2!1sen!2sin!4v1695900000000!5m2!1sen!2sin" 
+                                width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">Humayun's Tomb</h5>
+                        <p class="attraction-description">A UNESCO World Heritage Site and the tomb of Mughal Emperor Humayun. This garden-tomb is a precursor to the Taj Mahal in its architecture.</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>40 km from venue</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>1-2 hours</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Travel Tips -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-12">
+                <h2 class="section-title">Travel Tips</h2>
+                <p class="lead">Make the most of your visit to Delhi NCR</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="tip-card text-center p-4">
+                    <i class="fas fa-subway text-primary fa-3x mb-3"></i>
+                    <h5>Metro Connectivity</h5>
+                    <p>Delhi Metro provides excellent connectivity to most tourist attractions. The Blue Line connects to Greater Noida.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="tip-card text-center p-4">
+                    <i class="fas fa-calendar-alt text-success fa-3x mb-3"></i>
+                    <h5>Best Time to Visit</h5>
+                    <p>November weather is pleasant with comfortable temperatures, perfect for sightseeing and outdoor activities.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="tip-card text-center p-4">
+                    <i class="fas fa-mobile-alt text-info fa-3x mb-3"></i>
+                    <h5>Mobile Apps</h5>
+                    <p>Download Delhi Metro app, Uber/Ola for transportation, and Google Translate for language assistance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Transportation Guide -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-12">
+                <h2 class="section-title">Transportation Options</h2>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="transport-option text-center">
+                    <i class="fas fa-car text-primary fa-2x mb-3"></i>
+                    <h6>Taxi/Cab</h6>
+                    <p>Uber, Ola, or hotel arranged cabs for convenient door-to-door service.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="transport-option text-center">
+                    <i class="fas fa-subway text-success fa-2x mb-3"></i>
+                    <h6>Delhi Metro</h6>
+                    <p>Most economical and efficient way to travel within Delhi. Blue Line serves Greater Noida.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="transport-option text-center">
+                    <i class="fas fa-bus text-warning fa-2x mb-3"></i>
+                    <h6>DTC Buses</h6>
+                    <p>Delhi Transport Corporation buses connect various parts of the city at low cost.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="transport-option text-center">
+                    <i class="fas fa-bicycle text-info fa-2x mb-3"></i>
+                    <h6>Auto Rickshaw</h6>
+                    <p>Traditional three-wheelers for short distances and local transportation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Lazy load maps on hover for better performance
+document.addEventListener('DOMContentLoaded', function() {
+    const mapPlaceholders = document.querySelectorAll('.map-placeholder');
+    
+    mapPlaceholders.forEach(placeholder => {
+        let mapLoaded = false;
+        
+        placeholder.addEventListener('mouseenter', function() {
+            if (!mapLoaded) {
+                const mapSrc = this.getAttribute('data-map-src');
+                const iframe = document.createElement('iframe');
+                iframe.src = mapSrc;
+                iframe.className = 'map-iframe';
+                iframe.allowFullscreen = true;
+                iframe.loading = 'lazy';
+                iframe.referrerPolicy = 'no-referrer-when-downgrade';
+                
+                // Replace placeholder with iframe
+                this.innerHTML = '';
+                this.appendChild(iframe);
+                
+                // Fade in the iframe once loaded
+                iframe.onload = function() {
+                    iframe.classList.add('loaded');
+                };
+                
+                mapLoaded = true;
+            }
+        });
+    });
+    
+    // Performance optimization: Pause animations when not visible
+    const observerOptions = {
+        threshold: 0.1
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            } else {
+                entry.target.style.animationPlayState = 'paused';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all animated elements
+    const animatedElements = document.querySelectorAll('[class*="animate"], [class*="attraction-img"]');
+    animatedElements.forEach(el => observer.observe(el));
+});
+</script>
+{% endblock %}

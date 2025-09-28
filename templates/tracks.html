@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Conference Tracks - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<!-- Tracks Hero Section -->
+<section class="tracks-hero py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">Conference Tracks</h1>
+                <p class="lead">Explore our diverse range of research areas</p>
+                <p class="mb-0">Regular and special tracks covering cutting-edge topics in Energy and Intelligent Manufacturing</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Regular Tracks -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-12 text-center">
+                <h2 class="section-title">Regular Tracks</h2>
+                <p class="lead">Core research areas in Energy and Intelligent Manufacturing Systems</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for track in regular_tracks %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="track-card h-100">
+                    <div class="track-header">
+                        <h5 class="track-number">Track {{ track.track_number }}</h5>
+                    </div>
+                    <div class="track-body">
+                        <h6 class="track-title">{{ track.title }}</h6>
+                        {% if track.description %}
+                        <p class="track-description">{{ track.description|truncatewords:20 }}</p>
+                        {% endif %}
+                        {% if track.track_chair %}
+                        <p class="track-chair"><strong>Chair:</strong> {{ track.track_chair }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Default Regular Tracks -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="track-card h-100">
+                    <div class="track-header">
+                        <h5 class="track-number">Track 1</h5>
+                    </div>
+                    <div class="track-body">
+                        <h6 class="track-title">Renewable Energy Systems</h6>
+                        <p class="track-description">Solar, wind, and hybrid energy systems for sustainable power generation.</p>
+                        <p class="track-chair"><strong>Chair:</strong> Dr. Rajesh Kumar, IIT Delhi</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="track-card h-100">
+                    <div class="track-header">
+                        <h5 class="track-number">Track 2</h5>
+                    </div>
+                    <div class="track-body">
+                        <h6 class="track-title">Smart Manufacturing</h6>
+                        <p class="track-description">Industry 4.0, IoT integration, and intelligent manufacturing processes.</p>
+                        <p class="track-chair"><strong>Chair:</strong> Prof. Priya Sharma, BITS Pilani</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="track-card h-100">
+                    <div class="track-header">
+                        <h5 class="track-number">Track 3</h5>
+                    </div>
+                    <div class="track-body">
+                        <h6 class="track-title">Energy Storage Systems</h6>
+                        <p class="track-description">Battery technologies, supercapacitors, and energy storage optimization.</p>
+                        <p class="track-chair"><strong>Chair:</strong> Dr. Amit Singh, NIT Kurukshetra</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="track-card h-100">
+                    <div class="track-header">
+                        <h5 class="track-number">Track 4</h5>
+                    </div>
+                    <div class="track-body">
+                        <h6 class="track-title">Artificial Intelligence in Manufacturing</h6>
+                        <p class="track-description">Machine learning, deep learning, and AI applications in manufacturing.</p>
+                        <p class="track-chair"><strong>Chair:</strong> Dr. Neha Agarwal, IIT Bombay</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="track-card h-100">
+                    <div class="track-header">
+                        <h5 class="track-number">Track 5</h5>
+                    </div>
+                    <div class="track-body">
+                        <h6 class="track-title">Smart Grid Technologies</h6>
+                        <p class="track-description">Grid modernization, smart meters, and distributed energy resources.</p>
+                        <p class="track-chair"><strong>Chair:</strong> Prof. Suresh Patel, IIT Kanpur</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="track-card h-100">
+                    <div class="track-header">
+                        <h5 class="track-number">Track 6</h5>
+                    </div>
+                    <div class="track-body">
+                        <h6 class="track-title">Sustainable Manufacturing</h6>
+                        <p class="track-description">Green manufacturing, circular economy, and environmental sustainability.</p>
+                        <p class="track-chair"><strong>Chair:</strong> Dr. Kavita Gupta, NSIT Delhi</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Special Tracks -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-12 text-center">
+                <h2 class="section-title">Special Sessions/Tracks</h2>
+                <p class="lead">Focused sessions on emerging and specialized topics</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for track in special_tracks %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="track-card special h-100">
+                    <div class="track-header">
+                        <h5 class="track-number">Track {{ track.track_number }}</h5>
+                        <span class="badge bg-success">Special</span>
+                    </div>
+                    <div class="track-body">
+                        <h6 class="track-title">{{ track.title }}</h6>
+                        {% if track.description %}
+                        <p class="track-description">{{ track.description|truncatewords:20 }}</p>
+                        {% endif %}
+                        {% if track.track_chair %}
+                        <p class="track-chair"><strong>Chair:</strong> {{ track.track_chair }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Default Special Tracks -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="track-card special h-100">
+                    <div class="track-header">
+                        <h5 class="track-number">Track S1</h5>
+                        <span class="badge bg-success">Special</span>
+                    </div>
+                    <div class="track-body">
+                        <h6 class="track-title">Digital Twins in Manufacturing</h6>
+                        <p class="track-description">Virtual modeling, simulation, and real-time monitoring of manufacturing processes.</p>
+                        <p class="track-chair"><strong>Chair:</strong> Dr. Maria Rodriguez, Siemens</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="track-card special h-100">
+                    <div class="track-header">
+                        <h5 class="track-number">Track S2</h5>
+                        <span class="badge bg-success">Special</span>
+                    </div>
+                    <div class="track-body">
+                        <h6 class="track-title">Blockchain in Energy Systems</h6>
+                        <p class="track-description">Decentralized energy trading, smart contracts, and blockchain applications in energy sector.</p>
+                        <p class="track-chair"><strong>Chair:</strong> Prof. John Wilson, Stanford University</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="track-card special h-100">
+                    <div class="track-header">
+                        <h5 class="track-number">Track S3</h5>
+                        <span class="badge bg-success">Special</span>
+                    </div>
+                    <div class="track-body">
+                        <h6 class="track-title">Cybersecurity in Smart Manufacturing</h6>
+                        <p class="track-description">Industrial cybersecurity, threat detection, and secure manufacturing systems.</p>
+                        <p class="track-chair"><strong>Chair:</strong> Dr. Lisa Chen, MIT</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Submission Guidelines -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-4">
+                <h2 class="section-title">Paper Submission Guidelines</h2>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="guideline-item text-center">
+                    <i class="fas fa-file-upload text-primary fa-3x mb-3"></i>
+                    <h5>Submit Your Paper</h5>
+                    <p>Submit your research paper to the most relevant track through our online submission system.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="guideline-item text-center">
+                    <i class="fas fa-search text-success fa-3x mb-3"></i>
+                    <h5>Peer Review Process</h5>
+                    <p>All papers undergo rigorous peer review by experts in the respective track areas.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="guideline-item text-center">
+                    <i class="fas fa-award text-warning fa-3x mb-3"></i>
+                    <h5>Best Paper Awards</h5>
+                    <p>Outstanding papers from each track are eligible for best paper awards and recognition.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

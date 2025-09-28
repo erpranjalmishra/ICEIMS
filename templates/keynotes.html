@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Keynote Speakers - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<!-- Speakers Hero Section -->
+<section class="speakers-hero py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">Keynote Speakers</h1>
+                <p class="lead">Distinguished experts sharing cutting-edge insights</p>
+                <p class="mb-0">Leading researchers and industry pioneers in Energy and Intelligent Manufacturing Systems</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Keynote Speakers -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Keynote Speaker 1 -->
+            <div class="col-lg-6 mb-5">
+                <div class="keynote-speaker-card featured">
+                    <div class="speaker-image-wrapper">
+                        <img src="{% static 'images/speaker-1.jpg' %}" alt="Dr. Sarah Johnson" class="speaker-image">
+                        <div class="speaker-overlay">
+                            <div class="speaker-social">
+                                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="social-link"><i class="fas fa-globe"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="speaker-info">
+                        <h3 class="speaker-name">Dr. Sarah Johnson</h3>
+                        <p class="speaker-title">Professor of Energy Systems</p>
+                        <p class="speaker-university">Massachusetts Institute of Technology, USA</p>
+                        
+                        <div class="keynote-details">
+                            <h5 class="keynote-title">"Sustainable Energy Solutions for Industry 4.0"</h5>
+                            <p class="keynote-abstract">
+                                Dr. Johnson will explore the integration of renewable energy systems with intelligent manufacturing processes, 
+                                discussing breakthrough technologies and their impact on sustainable industrial development.
+                            </p>
+                            <div class="keynote-meta">
+                                <span class="keynote-date"><i class="fas fa-calendar me-2"></i>Day 1 - Opening Ceremony</span>
+                                <span class="keynote-time"><i class="fas fa-clock me-2"></i>9:00 AM - 10:00 AM</span>
+                            </div>
+                        </div>
+                        
+                        <div class="speaker-bio mt-3">
+                            <h6>Biography</h6>
+                            <p class="bio-text">
+                                Dr. Sarah Johnson is a renowned expert in sustainable energy systems with over 20 years of experience. 
+                                She has published 150+ papers and holds 25 patents in energy optimization and smart manufacturing technologies.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keynote Speaker 2 -->
+            <div class="col-lg-6 mb-5">
+                <div class="keynote-speaker-card featured">
+                    <div class="speaker-image-wrapper">
+                        <img src="{% static 'images/speaker-2.jpg' %}" alt="Prof. Hiroshi Tanaka" class="speaker-image">
+                        <div class="speaker-overlay">
+                            <div class="speaker-social">
+                                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="social-link"><i class="fas fa-globe"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="speaker-info">
+                        <h3 class="speaker-name">Prof. Hiroshi Tanaka</h3>
+                        <p class="speaker-title">Director of AI Research Center</p>
+                        <p class="speaker-university">Tokyo Institute of Technology, Japan</p>
+                        
+                        <div class="keynote-details">
+                            <h5 class="keynote-title">"AI-Driven Manufacturing: The Future is Now"</h5>
+                            <p class="keynote-abstract">
+                                Prof. Tanaka will present cutting-edge AI applications in manufacturing, including predictive maintenance, 
+                                quality control, and autonomous production systems transforming modern industry.
+                            </p>
+                            <div class="keynote-meta">
+                                <span class="keynote-date"><i class="fas fa-calendar me-2"></i>Day 2 - Technical Session</span>
+                                <span class="keynote-time"><i class="fas fa-clock me-2"></i>11:30 AM - 12:30 PM</span>
+                            </div>
+                        </div>
+                        
+                        <div class="speaker-bio mt-3">
+                            <h6>Biography</h6>
+                            <p class="bio-text">
+                                Prof. Tanaka is a pioneer in artificial intelligence applications for manufacturing. He leads multiple 
+                                international research projects and has received numerous awards for his contributions to smart manufacturing.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keynote Speaker 3 -->
+            <div class="col-lg-6 mb-5">
+                <div class="keynote-speaker-card">
+                    <div class="speaker-image-wrapper">
+                        <img src="{% static 'images/speaker-3.jpg' %}" alt="Dr. Maria Rodriguez" class="speaker-image">
+                        <div class="speaker-overlay">
+                            <div class="speaker-social">
+                                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="social-link"><i class="fas fa-globe"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="speaker-info">
+                        <h3 class="speaker-name">Dr. Maria Rodriguez</h3>
+                        <p class="speaker-title">Chief Innovation Officer</p>
+                        <p class="speaker-university">Siemens Digital Industries, Germany</p>
+                        
+                        <div class="keynote-details">
+                            <h5 class="keynote-title">"Digital Twins in Smart Manufacturing"</h5>
+                            <p class="keynote-abstract">
+                                Dr. Rodriguez will demonstrate how digital twin technology is revolutionizing manufacturing processes, 
+                                enabling real-time optimization and predictive analytics.
+                            </p>
+                            <div class="keynote-meta">
+                                <span class="keynote-date"><i class="fas fa-calendar me-2"></i>Day 2 - Industry Panel</span>
+                                <span class="keynote-time"><i class="fas fa-clock me-2"></i>2:00 PM - 3:00 PM</span>
+                            </div>
+                        </div>
+                        
+                        <div class="speaker-bio mt-3">
+                            <h6>Biography</h6>
+                            <p class="bio-text">
+                                Dr. Rodriguez leads digital transformation initiatives at Siemens, focusing on Industry 4.0 solutions. 
+                                She has extensive experience in implementing smart manufacturing systems across global industries.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keynote Speaker 4 -->
+            <div class="col-lg-6 mb-5">
+                <div class="keynote-speaker-card">
+                    <div class="speaker-image-wrapper">
+                        <img src="{% static 'images/speaker-4.jpg' %}" alt="Prof. David Chen" class="speaker-image">
+                        <div class="speaker-overlay">
+                            <div class="speaker-social">
+                                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="social-link"><i class="fas fa-globe"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="speaker-info">
+                        <h3 class="speaker-name">Prof. David Chen</h3>
+                        <p class="speaker-title">Chair of Sustainable Engineering</p>
+                        <p class="speaker-university">Stanford University, USA</p>
+                        
+                        <div class="keynote-details">
+                            <h5 class="keynote-title">"Green Manufacturing: Challenges and Opportunities"</h5>
+                            <p class="keynote-abstract">
+                                Prof. Chen will address environmental challenges in manufacturing and present innovative approaches 
+                                to achieve sustainable production while maintaining efficiency and quality.
+                            </p>
+                            <div class="keynote-meta">
+                                <span class="keynote-date"><i class="fas fa-calendar me-2"></i>Day 3 - Closing Session</span>
+                                <span class="keynote-time"><i class="fas fa-clock me-2"></i>10:00 AM - 11:00 AM</span>
+                            </div>
+                        </div>
+                        
+                        <div class="speaker-bio mt-3">
+                            <h6>Biography</h6>
+                            <p class="bio-text">
+                                Prof. Chen is a leading authority on sustainable manufacturing practices. His research focuses on 
+                                environmental impact reduction and circular economy principles in industrial processes.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Keynote Schedule Section -->
+<section class="keynote-schedule py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-12">
+                <h2 class="section-title">Keynote Schedule</h2>
+                <p class="lead">Complete schedule of all keynote presentations</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="schedule-timeline">
+                    <!-- Day 1 -->
+                    <div class="schedule-day">
+                        <h4 class="day-title">Day 1 - November 20, 2026</h4>
+                        <div class="schedule-events">
+                            <div class="schedule-event">
+                                <div class="event-time">9:00 - 10:00 AM</div>
+                                <div class="event-details">
+                                    <h5>Opening Keynote</h5>
+                                    <p><strong>Dr. Sarah Johnson</strong> - "Sustainable Energy Solutions for Industry 4.0"</p>
+                                    <span class="event-location">Main Auditorium</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Day 2 -->
+                    <div class="schedule-day">
+                        <h4 class="day-title">Day 2 - November 21, 2026</h4>
+                        <div class="schedule-events">
+                            <div class="schedule-event">
+                                <div class="event-time">11:30 - 12:30 PM</div>
+                                <div class="event-details">
+                                    <h5>Technical Keynote</h5>
+                                    <p><strong>Prof. Hiroshi Tanaka</strong> - "AI-Driven Manufacturing: The Future is Now"</p>
+                                    <span class="event-location">Main Auditorium</span>
+                                </div>
+                            </div>
+                            <div class="schedule-event">
+                                <div class="event-time">2:00 - 3:00 PM</div>
+                                <div class="event-details">
+                                    <h5>Industry Keynote</h5>
+                                    <p><strong>Dr. Maria Rodriguez</strong> - "Digital Twins in Smart Manufacturing"</p>
+                                    <span class="event-location">Conference Hall A</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Day 3 -->
+                    <div class="schedule-day">
+                        <h4 class="day-title">Day 3 - November 22, 2026</h4>
+                        <div class="schedule-events">
+                            <div class="schedule-event">
+                                <div class="event-time">10:00 - 11:00 AM</div>
+                                <div class="event-details">
+                                    <h5>Closing Keynote</h5>
+                                    <p><strong>Prof. David Chen</strong> - "Green Manufacturing: Challenges and Opportunities"</p>
+                                    <span class="event-location">Main Auditorium</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-12">
+                <h2 class="mb-4">Don't Miss These Inspiring Sessions</h2>
+                <p class="lead mb-4">Register now to attend these world-class keynote presentations</p>
+                <a href="#registration" class="btn btn-light btn-lg px-5">
+                    <i class="fas fa-ticket-alt me-2"></i>Register Now
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

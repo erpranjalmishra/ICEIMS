@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Previous Conferences - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<!-- Previous Conferences Hero Section -->
+<section class="previous-hero py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">Previous Conferences</h1>
+                <p class="lead">A legacy of excellence in Energy and Intelligent Manufacturing Systems</p>
+                <p class="mb-0">Explore our conference history and achievements</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Previous Editions -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-6 mb-4">
+                <div class="conference-card">
+                    <h4>ICEIMS 2025</h4>
+                    <p class="conference-date">November 15-17, 2025</p>
+                    <p class="conference-venue">Galgotias University, Greater Noida</p>
+                    <p>Successfully concluded with 200+ participants from 15 countries.</p>
+                    <a href="#" class="btn btn-outline-primary">View Proceedings</a>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="conference-card">
+                    <h4>ICEIMS 2024</h4>
+                    <p class="conference-date">November 20-22, 2024</p>
+                    <p class="conference-venue">Galgotias University, Greater Noida</p>
+                    <p>Featured breakthrough research in AI and sustainable manufacturing.</p>
+                    <a href="#" class="btn btn-outline-primary">View Proceedings</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

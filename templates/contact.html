@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<!-- Contact Hero Section -->
+<section class="contact-hero py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">Contact Us</h1>
+                <p class="lead">Get in touch with the ICEIMS 2026 organizing committee</p>
+                <p class="mb-0">We're here to help with any questions about the conference</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Information Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Contact Form -->
+            <div class="col-lg-8">
+                <div class="contact-form-wrapper">
+                    <h2 class="section-title text-start">Send us a Message</h2>
+                    <div class="contact-form-card p-4">
+                        <form id="contactForm" method="post" action="">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="firstName" name="first_name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="lastName" name="last_name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone">
+                                </div>
+                                <div class="col-12">
+                                    <label for="organization" class="form-label">Organization/Institution</label>
+                                    <input type="text" class="form-control" id="organization" name="organization">
+                                </div>
+                                <div class="col-12">
+                                    <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="subject" name="subject" required>
+                                        <option value="">Select a subject</option>
+                                        <option value="general">General Inquiry</option>
+                                        <option value="submission">Paper Submission</option>
+                                        <option value="registration">Registration</option>
+                                        <option value="accommodation">Accommodation</option>
+                                        <option value="sponsorship">Sponsorship</option>
+                                        <option value="technical">Technical Support</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="message" name="message" rows="6" placeholder="Please provide details about your inquiry..." required></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter">
+                                        <label class="form-check-label" for="newsletter">
+                                            Subscribe to conference updates and newsletters
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        <i class="fas fa-paper-plane me-2"></i>Send Message
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="col-lg-4">
+                <div class="contact-info-wrapper">
+                    <h2 class="section-title text-start">Get in Touch</h2>
+                    
+                    <!-- Conference Details -->
+                    <div class="contact-info-card p-4 mb-4">
+                        <div class="contact-item d-flex mb-4">
+                            <div class="contact-icon me-3">
+                                <i class="fas fa-map-marker-alt text-primary fa-lg"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h5 class="fw-bold mb-2">Conference Venue</h5>
+                                <p class="mb-0">
+                                    Galgotias University<br>
+                                    Plot No. 2, Yamuna Expressway<br>
+                                    Sector 17A, Greater Noida<br>
+                                    Uttar Pradesh 203201, India
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item d-flex mb-4">
+                            <div class="contact-icon me-3">
+                                <i class="fas fa-envelope text-primary fa-lg"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h5 class="fw-bold mb-2">Email</h5>
+                                <p class="mb-1">
+                                    <strong>General Inquiries:</strong><br>
+                                    <a href="mailto:info@iceims2026.org">info@iceims2026.org</a>
+                                </p>
+                                <p class="mb-1">
+                                    <strong>Paper Submissions:</strong><br>
+                                    <a href="mailto:submissions@iceims2026.org">submissions@iceims2026.org</a>
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Registration:</strong><br>
+                                    <a href="mailto:registration@iceims2026.org">registration@iceims2026.org</a>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item d-flex mb-4">
+                            <div class="contact-icon me-3">
+                                <i class="fas fa-phone text-primary fa-lg"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h5 class="fw-bold mb-2">Phone</h5>
+                                <p class="mb-1">
+                                    <strong>Main Office:</strong><br>
+                                    <a href="tel:+911204589500">+91 120 458 9500</a>
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Conference Desk:</strong><br>
+                                    <a href="tel:+911204589501">+91 120 458 9501</a>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item d-flex">
+                            <div class="contact-icon me-3">
+                                <i class="fas fa-clock text-primary fa-lg"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h5 class="fw-bold mb-2">Office Hours</h5>
+                                <p class="mb-1"><strong>Monday - Friday:</strong> 9:00 AM - 6:00 PM</p>
+                                <p class="mb-0"><strong>Saturday:</strong> 10:00 AM - 4:00 PM</p>
+                                <p class="mb-0"><em>Indian Standard Time (IST)</em></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Media -->
+                    <div class="social-media-card p-4">
+                        <h5 class="fw-bold mb-3">Follow Us</h5>
+                        <div class="social-links d-flex gap-3">
+                            <a href="#" class="social-link" title="LinkedIn">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            <a href="#" class="social-link" title="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="social-link" title="Facebook">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                            <a href="#" class="social-link" title="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="social-link" title="YouTube">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section -->
+<section class="map-section py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-4">
+                <h2 class="section-title">Find Us</h2>
+                <p class="lead">Galgotias University Campus Location</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="map-wrapper">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3510.760786121869!2d77.53913702536056!3d28.366080946130964!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cc7365a740e65%3A0xd0d60a62e55ab171!2sGalgotias%20University!5e0!3m2!1sen!2sin!4v1759061748281!5m2!1sen!2sin" 
+                        width="100%" 
+                        height="450" 
+                        style="border:0; border-radius: 15px;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade"
+                        title="Galgotias University Location">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                How do I submit a paper to ICEIMS 2026?
+                            </button>
+                        </h2>
+                        <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Papers can be submitted through our online submission portal. Please ensure your paper follows the IEEE format and guidelines. The submission deadline is September 17, 2026.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                What are the registration fees?
+                            </button>
+                        </h2>
+                        <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Registration fees vary based on your category (student, academic, industry) and IEEE membership status. Early bird discounts are available until October 1, 2026. Please visit our registration page for detailed fee structure.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                Is accommodation provided?
+                            </button>
+                        </h2>
+                        <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                We have partnered with several hotels near the venue to provide discounted accommodation for conference attendees. Booking details and partner hotel information will be available on our website soon.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq4">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
+                                How can I become a sponsor?
+                            </button>
+                        </h2>
+                        <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                We offer various sponsorship packages to support the conference. Please contact us at <a href="mailto:sponsorship@iceims2026.org">sponsorship@iceims2026.org</a> for detailed sponsorship opportunities and benefits.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

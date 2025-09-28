@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Networking Events - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<!-- Networking Hero Section -->
+<section class="networking-hero py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">Networking Events</h1>
+                <p class="lead">Connect, collaborate, and build lasting professional relationships</p>
+                <p class="mb-0">Structured networking opportunities throughout ICEIMS 2026</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Networking Events -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4 mb-4">
+                <div class="networking-card">
+                    <div class="networking-icon">
+                        <i class="fas fa-cocktail text-primary fa-3x"></i>
+                    </div>
+                    <h4>Welcome Reception</h4>
+                    <p class="event-time">Day 1 - 6:00 PM - 8:00 PM</p>
+                    <p>Kick off the conference with an informal networking reception. Meet fellow attendees and speakers.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="networking-card">
+                    <div class="networking-icon">
+                        <i class="fas fa-utensils text-success fa-3x"></i>
+                    </div>
+                    <h4>Conference Dinner</h4>
+                    <p class="event-time">Day 2 - 7:00 PM - 10:00 PM</p>
+                    <p>Join us for an elegant dinner featuring keynote address and cultural entertainment.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="networking-card">
+                    <div class="networking-icon">
+                        <i class="fas fa-coffee text-warning fa-3x"></i>
+                    </div>
+                    <h4>Coffee Breaks</h4>
+                    <p class="event-time">All Days - Between Sessions</p>
+                    <p>Structured coffee breaks designed for meaningful conversations and idea exchange.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registration Rates - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<!-- Registration Hero Section -->
+<section class="registration-hero py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">Registration Rates</h1>
+                <p class="lead">Early Bird and Standard Registration Pricing</p>
+                <p class="mb-0">Secure your spot at ICEIMS 2026 with our competitive rates</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Registration Rates Table -->
+<section class="registration-rates py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="rates-table-wrapper">
+                    <div class="table-responsive">
+                        <table class="table rates-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="category-header">Category</th>
+                                    <th colspan="2" class="early-bird-header">Early Bird Rates (Upto October 15, 2025)</th>
+                                    <th colspan="2" class="standard-rates-header">Standard Rates (After October 15, 2025)</th>
+                                </tr>
+                                <tr>
+                                    <th class="member-header">IEEE Member</th>
+                                    <th class="non-member-header">Non-IEEE Member</th>
+                                    <th class="member-header">IEEE Member</th>
+                                    <th class="non-member-header">Non-IEEE Member</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="category-cell">Indian Author (Academia/Industry)</td>
+                                    <td class="rate-cell">₹9500</td>
+                                    <td class="rate-cell">₹10620</td>
+                                    <td class="rate-cell">₹10620</td>
+                                    <td class="rate-cell">₹11800</td>
+                                </tr>
+                                <tr>
+                                    <td class="category-cell">Indian Student Author</td>
+                                    <td class="rate-cell">₹7080</td>
+                                    <td class="rate-cell">₹8260</td>
+                                    <td class="rate-cell">₹8260</td>
+                                    <td class="rate-cell">₹8850</td>
+                                </tr>
+                                <tr>
+                                    <td class="category-cell">Indian Student Attendee (Non-Author)</td>
+                                    <td class="rate-cell">₹3540</td>
+                                    <td class="rate-cell">₹4130</td>
+                                    <td class="rate-cell">₹4130</td>
+                                    <td class="rate-cell">₹4720</td>
+                                </tr>
+                                <tr>
+                                    <td class="category-cell">Indian Professional Attendee (Non-Author)</td>
+                                    <td class="rate-cell">₹5900</td>
+                                    <td class="rate-cell">₹6490</td>
+                                    <td class="rate-cell">₹6490</td>
+                                    <td class="rate-cell">₹6490</td>
+                                </tr>
+                                <tr>
+                                    <td class="category-cell">Tutorial only (Indian Student)</td>
+                                    <td class="rate-cell">₹590</td>
+                                    <td class="rate-cell">₹750</td>
+                                    <td class="rate-cell">₹750</td>
+                                    <td class="rate-cell">₹1000</td>
+                                </tr>
+                                <tr>
+                                    <td class="category-cell">Foreign Author (Academia/Industry)</td>
+                                    <td class="rate-cell">$300</td>
+                                    <td class="rate-cell">$400</td>
+                                    <td class="rate-cell">$400</td>
+                                    <td class="rate-cell">$450</td>
+                                </tr>
+                                <tr>
+                                    <td class="category-cell">Foreign Student Author</td>
+                                    <td class="rate-cell">$150</td>
+                                    <td class="rate-cell">$200</td>
+                                    <td class="rate-cell">$200</td>
+                                    <td class="rate-cell">$250</td>
+                                </tr>
+                                <tr>
+                                    <td class="category-cell">Foreign Student Attendee (Non-Author)</td>
+                                    <td class="rate-cell">$100</td>
+                                    <td class="rate-cell">$150</td>
+                                    <td class="rate-cell">$150</td>
+                                    <td class="rate-cell">$200</td>
+                                </tr>
+                                <tr>
+                                    <td class="category-cell">Foreign Professional Attendee (Additional Page)</td>
+                                    <td class="rate-cell">$15/Page</td>
+                                    <td class="rate-cell">$15/Page</td>
+                                    <td class="rate-cell">$15/Page</td>
+                                    <td class="rate-cell">$15/Page</td>
+                                </tr>
+                                <tr>
+                                    <td class="category-cell">Indian Professional Attendee (Additional Page)</td>
+                                    <td class="rate-cell">₹1000/Page</td>
+                                    <td class="rate-cell">₹1000/Page</td>
+                                    <td class="rate-cell">₹1000/Page</td>
+                                    <td class="rate-cell">₹1000/Page</td>
+                                </tr>
+                                <tr>
+                                    <td class="category-cell">Foreign Professional Attendee (Non-Author)</td>
+                                    <td class="rate-cell">$150</td>
+                                    <td class="rate-cell">$200</td>
+                                    <td class="rate-cell">$200</td>
+                                    <td class="rate-cell">$250</td>
+                                </tr>
+                                <tr>
+                                    <td class="category-cell">Tutorial only (Foreign Student)</td>
+                                    <td class="rate-cell">$15</td>
+                                    <td class="rate-cell">$30</td>
+                                    <td class="rate-cell">$30</td>
+                                    <td class="rate-cell">$50</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="table-notes mt-3">
+                        <p class="text-muted"><small>* All rates are inclusive of GST 18%.</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Registration Information -->
+<section class="registration-info py-5 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="info-card">
+                    <h3 class="info-title">Important Registration Information</h3>
+                    <div class="info-content">
+                        <div class="info-item">
+                            <i class="fas fa-file-alt text-primary me-3"></i>
+                            <div>
+                                <strong>Paper Submission:</strong> An author may register for a maximum of two papers, with the registration fee paid separately for each paper.
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <i class="fas fa-money-bill-wave text-success me-3"></i>
+                            <div>
+                                <strong>Extra Page Charge:</strong> ₹1000/- INR per page (Indian author) and $15 per page (International author) will be chargeable to the author's during registration process.
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <i class="fas fa-calendar-check text-info me-3"></i>
+                            <div>
+                                <strong>Early Bird Deadline:</strong> Take advantage of early bird rates until <strong>October 15, 2025</strong>.
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <i class="fas fa-user-graduate text-warning me-3"></i>
+                            <div>
+                                <strong>Student Registration:</strong> Valid student ID required for student rates. Student presenters must be registered as authors.
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <i class="fas fa-users text-secondary me-3"></i>
+                            <div>
+                                <strong>IEEE Membership:</strong> IEEE member rates apply to current IEEE members only. Membership verification required.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="payment-card">
+                    <h4 class="payment-title">
+                        <i class="fas fa-credit-card me-2"></i>Pay Now - Indian Authors
+                    </h4>
+                    <div class="payment-button-wrapper">
+                        <button class="btn btn-primary btn-lg w-100 mb-3">
+                            <i class="fas fa-rupee-sign me-2"></i>Pay Now - Indian Authors
+                        </button>
+                        <button class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-dollar-sign me-2"></i>Pay Now - International Authors
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Account Details Section -->
+<section class="account-details py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="account-card">
+                    <h3 class="account-title text-center mb-4">Account Details</h3>
+                    <div class="account-info">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <strong class="detail-label">Name of Account:</strong>
+                                    <span class="detail-value">GU Conferences</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <strong class="detail-label">Account Number:</strong>
+                                    <span class="detail-value">671700010025845</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <strong class="detail-label">IFSC Code:</strong>
+                                    <span class="detail-value">PUNB0671700</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <strong class="detail-label">Bank Name:</strong>
+                                    <span class="detail-value">Punjab National Bank, Noida</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="detail-item">
+                                    <strong class="detail-label">SWIFT Code:</strong>
+                                    <span class="detail-value">PUNBINBBMSN</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Registration Process -->
+<section class="registration-process py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-12">
+                <h2 class="section-title text-white">Registration Process</h2>
+                <p class="lead">Simple steps to complete your registration</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h5>Select Category</h5>
+                    <p>Choose your registration category based on your status and IEEE membership</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h5>Make Payment</h5>
+                    <p>Complete payment through online portal or bank transfer</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h5>Submit Documents</h5>
+                    <p>Upload payment receipt and required verification documents</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h5>Confirmation</h5>
+                    <p>Receive registration confirmation and conference materials</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact for Registration -->
+<section class="registration-contact py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-12">
+                <h2 class="section-title">Need Help with Registration?</h2>
+                <p class="lead mb-4">Our registration team is here to assist you</p>
+                <div class="contact-info d-flex justify-content-center gap-4 flex-wrap">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope text-primary me-2"></i>
+                        <a href="mailto:registration@iceims2026.org">registration@iceims2026.org</a>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone text-success me-2"></i>
+                        <a href="tel:+911204589501">+91 120 458 9501</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

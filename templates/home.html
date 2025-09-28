@@ -1,0 +1,985 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section with Slider -->
+<section id="home" class="hero-section">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-indicators">
+            {% for slide in slider_images %}
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ forloop.counter0 }}" 
+                    {% if forloop.first %}class="active"{% endif %} aria-current="true" 
+                    aria-label="Slide {{ forloop.counter }}"></button>
+            {% empty %}
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" 
+                    class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" 
+                    aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" 
+                    aria-label="Slide 3"></button>
+            {% endfor %}
+        </div>
+        
+        <div class="carousel-inner">
+            {% for slide in slider_images %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}" data-bs-interval="4000">
+                <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title }}">
+                <div class="carousel-overlay"></div>
+            </div>
+            {% empty %}
+            <div class="carousel-item active" data-bs-interval="4000">
+                <img src="{% static 'images/m1.jpg' %}" class="d-block w-100" alt="ICEIMS 2026 Conference">
+                <div class="carousel-overlay"></div>
+            </div>
+            <div class="carousel-item" data-bs-interval="4000">
+                <img src="{% static 'images/m2.jpg' %}" class="d-block w-100" alt="Welcome to ICEIMS">
+                <div class="carousel-overlay"></div>
+            </div>
+            <div class="carousel-item" data-bs-interval="4000">
+                <img src="{% static 'images/m3.jpg' %}" class="d-block w-100" alt="Call for Papers">
+                <div class="carousel-overlay"></div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+</section>
+
+<!-- Conference Timeline Section -->
+<section class="conference-timeline py-5 bg-white">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-12">
+                <h2 class="section-title">Conference Timeline</h2>
+                <p class="lead text-muted">Important milestones for ICEIMS 2026</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="timeline-container">
+                    <div class="timeline-track">
+                        <!-- Timeline Item 1 - Call for Papers -->
+                        <div class="timeline-item active">
+                            <div class="timeline-marker">
+                                <div class="timeline-circle active">
+                                    <i class="fas fa-bullhorn"></i>
+                                </div>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">25th April, 2025</div>
+                                <h5 class="timeline-title">Call for Papers</h5>
+                                <p class="timeline-description">Submission portal opens for research papers</p>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Item 2 - Submission Deadline -->
+                        <div class="timeline-item passed">
+                            <div class="timeline-marker">
+                                <div class="timeline-circle passed">
+                                    <i class="fas fa-upload"></i>
+                                </div>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">17th September, 2025</div>
+                                <h5 class="timeline-title">Last date of Submission</h5>
+                                <p class="timeline-description">Final deadline for paper submissions</p>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Item 3 - Acceptance Notification -->
+                        <div class="timeline-item upcoming">
+                            <div class="timeline-marker">
+                                <div class="timeline-circle upcoming">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">7th October, 2025</div>
+                                <h5 class="timeline-title">Acceptance Notification</h5>
+                                <p class="timeline-description">Authors will be notified about paper acceptance</p>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Item 4 - Camera Ready -->
+                        <div class="timeline-item upcoming">
+                            <div class="timeline-marker">
+                                <div class="timeline-circle upcoming">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">16th October, 2025</div>
+                                <h5 class="timeline-title">Final Camera-Ready Paper</h5>
+                                <p class="timeline-description">Submit final version of accepted papers</p>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Item 5 - Registration Deadline -->
+                        <div class="timeline-item upcoming">
+                            <div class="timeline-marker">
+                                <div class="timeline-circle upcoming">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">20th October, 2025</div>
+                                <h5 class="timeline-title">Registration Deadline</h5>
+                                <p class="timeline-description">Complete conference registration process</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2 class="section-title mb-4">About Galgotias University</h2>
+                <p class="lead">{{ conference_settings.about_text|default:"The university began operations in the 2011-2012 academic session and welcomed its first batch of students in July 2011. Since then, it has grown exponentially to become one of India's premier educational institutions, nurturing more than 30K+ students from across the globe. With a commitment to academic excellence and innovation, Galgotias University has established itself as a leader in providing world-class education across diverse fields of engineering, management, law, and applied sciences." }}</p>
+                <div class="university-stats row mt-4">
+                    <div class="col-4 text-center">
+                        <h3 class="text-primary fw-bold">30K+</h3>
+                        <p class="small">Students</p>
+                    </div>
+                    <div class="col-4 text-center">
+                        <h3 class="text-primary fw-bold">20</h3>
+                        <p class="small">Schools</p>
+                    </div>
+                    <div class="col-4 text-center">
+                        <h3 class="text-primary fw-bold">200+</h3>
+                        <p class="small">Programs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="morphing-gallery-container">
+                    <div class="gallery-morphing-frame">
+                        <div class="morphing-image-wrapper">
+                            <div class="morphing-image-container active" data-index="0">
+                                <img src="{% static 'images/g1.webp' %}" alt="Galgotias University Campus">
+                                <div class="image-overlay">
+                                    <div class="overlay-content">
+                                        <h4>Modern Campus</h4>
+                                        <p>State-of-the-art facilities</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="morphing-image-container" data-index="1">
+                                <img src="{% static 'images/g2.webp' %}" alt="University Facilities">
+                                <div class="image-overlay">
+                                    <div class="overlay-content">
+                                        <h4>Advanced Labs</h4>
+                                        <p>Cutting-edge technology</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="morphing-image-container" data-index="2">
+                                <img src="{% static 'images/g3.webp' %}" alt="Student Life">
+                                <div class="image-overlay">
+                                    <div class="overlay-content">
+                                        <h4>Student Life</h4>
+                                        <p>Vibrant campus culture</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="morphing-image-container" data-index="3">
+                                <img src="{% static 'images/g4.webp' %}" alt="Technology Hub">
+                                <div class="image-overlay">
+                                    <div class="overlay-content">
+                                        <h4>Innovation Hub</h4>
+                                        <p>Research excellence</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="morphing-image-container" data-index="4">
+                                <img src="{% static 'images/g5.jpg' %}" alt="Infrastructure">
+                                <div class="image-overlay">
+                                    <div class="overlay-content">
+                                        <h4>Infrastructure</h4>
+                                        <p>World-class facilities</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="morphing-nav-dots">
+                            <div class="nav-dot active" data-index="0"></div>
+                            <div class="nav-dot" data-index="1"></div>
+                            <div class="nav-dot" data-index="2"></div>
+                            <div class="nav-dot" data-index="3"></div>
+                            <div class="nav-dot" data-index="4"></div>
+                        </div>
+                        
+                        <div class="morphing-progress-ring">
+                            <svg class="progress-ring" width="60" height="60">
+                                <circle class="progress-ring-circle" stroke="#c23338" stroke-width="2" fill="transparent" r="28" cx="30" cy="30"/>
+                            </svg>
+                            <div class="progress-ring-center">
+                                <span class="progress-text">1/5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Conference Objective Section -->
+<section class="py-5 conference-objective-bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="section-title">Conference Objective</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="objective-content">
+                    <p class="lead text-center">{{ conference_settings.conference_objective|default:"ICCCA is a non-profit conference that provides an opportunity for practicing engineers, academicians, and researchers to meet in a forum to discuss various issues and future directions in the field of Engineering and Technologies." }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Conference Tracks Section -->
+<section id="tracks" class="py-5 tracks-section">
+    <div class="container">
+        <!-- Track Content -->
+        <div class="tab-content" id="trackTabContent">
+            <!-- Regular Tracks -->
+            <div class="tab-pane fade show active" id="regular" role="tabpanel">
+                <div class="row g-3">
+                    {% for track in regular_tracks %}
+                    <div class="col-lg-4 col-md-6 mb-3">
+                        <div class="enhanced-track-card regular h-100">
+                            <div class="track-icon">
+                                <i class="fas fa-microchip"></i>
+                            </div>
+                            <div class="track-header">
+                                <span class="track-number">Track {{ track.track_number }}</span>
+                            </div>
+                            <div class="track-content">
+                                <h5 class="track-title">{{ track.title }}</h5>
+                                {% if track.description %}
+                                <p class="track-description">{{ track.description|truncatewords:15 }}</p>
+                                {% endif %}
+                                {% if track.track_chair %}
+                                <div class="track-chair">
+                                    <i class="fas fa-user me-2"></i>
+                                    <span>{{ track.track_chair }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <!-- Empty state - no content shown -->
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Special Sessions -->
+            <div class="tab-pane fade" id="special" role="tabpanel">
+                <div class="row g-4">
+                    {% for track in special_tracks %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="enhanced-track-card special h-100">
+                            <div class="special-badge">
+                                <i class="fas fa-star"></i>
+                                <span>Special</span>
+                            </div>
+                            <div class="track-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="track-header">
+                                <span class="track-number">Session {{ track.track_number }}</span>
+                            </div>
+                            <div class="track-content">
+                                <h5 class="track-title">{{ track.title }}</h5>
+                                {% if track.description %}
+                                <p class="track-description">{{ track.description|truncatewords:15 }}</p>
+                                {% endif %}
+                                {% if track.track_chair %}
+                                <div class="track-chair">
+                                    <i class="fas fa-user me-2"></i>
+                                    <span>{{ track.track_chair }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <!-- Sample Special Sessions -->
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="enhanced-track-card special h-100">
+                            <div class="special-badge">
+                                <i class="fas fa-star"></i>
+                                <span>Special</span>
+                            </div>
+                            <div class="track-icon">
+                                <i class="fas fa-microscope"></i>
+                            </div>
+                            <div class="track-header">
+                                <span class="track-number">Session 1</span>
+                            </div>
+                            <div class="track-content">
+                                <h5 class="track-title">Applications of AI & ML in Sustainable Analytics</h5>
+                                <p class="track-description">Advanced machine learning techniques for Industry 6.0 applications and sustainable manufacturing analytics.</p>
+                                <div class="track-topics">
+                                    <span class="topic-tag">Deep Learning</span>
+                                    <span class="topic-tag">Industry 6.0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="enhanced-track-card special h-100">
+                            <div class="special-badge">
+                                <i class="fas fa-star"></i>
+                                <span>Special</span>
+                            </div>
+                            <div class="track-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <div class="track-header">
+                                <span class="track-number">Session 2</span>
+                            </div>
+                            <div class="track-content">
+                                <h5 class="track-title">Sustainable Manufacturing Technologies</h5>
+                                <p class="track-description">Innovative approaches to eco-friendly manufacturing processes and circular economy principles.</p>
+                                <div class="track-topics">
+                                    <span class="topic-tag">Circular Economy</span>
+                                    <span class="topic-tag">Eco-Manufacturing</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="enhanced-track-card special h-100">
+                            <div class="special-badge">
+                                <i class="fas fa-star"></i>
+                                <span>Special</span>
+                            </div>
+                            <div class="track-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <div class="track-header">
+                                <span class="track-number">Session 3</span>
+                            </div>
+                            <div class="track-content">
+                                <h5 class="track-title">Digital Transformation in Manufacturing</h5>
+                                <p class="track-description">Digital twins, cloud computing, and blockchain technologies for modern manufacturing systems.</p>
+                                <div class="track-topics">
+                                    <span class="topic-tag">Digital Twins</span>
+                                    <span class="topic-tag">Blockchain</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Call to Action -->
+        <div class="row mt-3">
+            <div class="col-12 text-center">
+                <div class="tracks-cta">
+                    <h4 class="text-white mb-3">Ready to Submit Your Research?</h4>
+                    <p class="text-white-50 mb-4">Choose the most suitable track for your research and contribute to advancing the field</p>
+                    <a href="{% url 'conference:guidelines' %}" class="btn btn-light btn-lg me-3">
+                        <i class="fas fa-file-alt me-2"></i>Submission Guidelines
+                    </a>
+                    <a href="{% url 'conference:registration' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Register Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Committee Members Section -->
+<section id="committee" class="py-5 bg-light">
+    <div class="container-fluid">
+        <div class="row text-center mb-5">
+            <div class="col-lg-12">
+                <h2 class="section-title">Committee Members</h2>
+            </div>
+        </div>
+        
+        <div class="marquee-container">
+            <div class="marquee-content">
+                {% for member in committee_members %}
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        {% if member.image %}
+                        <img src="{{ member.image.url }}" alt="{{ member.name }}">
+                        {% else %}
+                        <img src="{% static 'images/default-person.svg' %}" alt="{{ member.name }}">
+                        {% endif %}
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">{{ member.name }}</h5>
+                        <p class="member-title">{{ member.title }}</p>
+                        <p class="member-org">{{ member.organization }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <!-- Default committee members for demo -->
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        <img src="{% static 'images/default-person.svg' %}" alt="Dr. Aanjey M. Tripathi">
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">Dr. Aanjey M. Tripathi</h5>
+                        <p class="member-title">Professor</p>
+                        <p class="member-org">Galgotias University, India</p>
+                    </div>
+                </div>
+                
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        <img src="{% static 'images/default-person.svg' %}" alt="Dr. Kuldeep S. Kaswan">
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">Dr. Kuldeep S. Kaswan</h5>
+                        <p class="member-title">Professor</p>
+                        <p class="member-org">Galgotias University, India</p>
+                    </div>
+                </div>
+                
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        <img src="{% static 'images/default-person.svg' %}" alt="Dr. Abdul Aleem">
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">Dr. Abdul Aleem</h5>
+                        <p class="member-title">Professor</p>
+                        <p class="member-org">Galgotias University, India</p>
+                    </div>
+                </div>
+                
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        <img src="{% static 'images/default-person.svg' %}" alt="Dr. Gaurav Agarwal">
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">Dr. Gaurav Agarwal</h5>
+                        <p class="member-title">Professor</p>
+                        <p class="member-org">Galgotias University, India</p>
+                    </div>
+                </div>
+                
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        <img src="{% static 'images/default-person.svg' %}" alt="Dr. Sunita Yadav">
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">Dr. Sunita Yadav</h5>
+                        <p class="member-title">Dean, SCSE</p>
+                        <p class="member-org">Galgotias University, India</p>
+                    </div>
+                </div>
+                
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        <img src="{% static 'images/default-person.svg' %}" alt="Dr. Dipti Srinivasan">
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">Dr. Dipti Srinivasan</h5>
+                        <p class="member-title">Professor</p>
+                        <p class="member-org">National University of Singapore</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Duplicate content for seamless loop -->
+            <div class="marquee-content" aria-hidden="true">
+                {% for member in committee_members %}
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        {% if member.image %}
+                        <img src="{{ member.image.url }}" alt="{{ member.name }}">
+                        {% else %}
+                        <img src="{% static 'images/default-person.svg' %}" alt="{{ member.name }}">
+                        {% endif %}
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">{{ member.name }}</h5>
+                        <p class="member-title">{{ member.title }}</p>
+                        <p class="member-org">{{ member.organization }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <!-- Duplicate default members -->
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        <img src="{% static 'images/default-person.svg' %}" alt="Dr. Aanjey M. Tripathi">
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">Dr. Aanjey M. Tripathi</h5>
+                        <p class="member-title">Professor</p>
+                        <p class="member-org">Galgotias University, India</p>
+                    </div>
+                </div>
+                
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        <img src="{% static 'images/default-person.svg' %}" alt="Dr. Kuldeep S. Kaswan">
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">Dr. Kuldeep S. Kaswan</h5>
+                        <p class="member-title">Professor</p>
+                        <p class="member-org">Galgotias University, India</p>
+                    </div>
+                </div>
+                
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        <img src="{% static 'images/default-person.svg' %}" alt="Dr. Abdul Aleem">
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">Dr. Abdul Aleem</h5>
+                        <p class="member-title">Professor</p>
+                        <p class="member-org">Galgotias University, India</p>
+                    </div>
+                </div>
+                
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        <img src="{% static 'images/default-person.svg' %}" alt="Dr. Gaurav Agarwal">
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">Dr. Gaurav Agarwal</h5>
+                        <p class="member-title">Professor</p>
+                        <p class="member-org">Galgotias University, India</p>
+                    </div>
+                </div>
+                
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        <img src="{% static 'images/default-person.svg' %}" alt="Dr. Sunita Yadav">
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">Dr. Sunita Yadav</h5>
+                        <p class="member-title">Dean, SCSE</p>
+                        <p class="member-org">Galgotias University, India</p>
+                    </div>
+                </div>
+                
+                <div class="committee-marquee-card">
+                    <div class="member-photo">
+                        <img src="{% static 'images/default-person.svg' %}" alt="Dr. Dipti Srinivasan">
+                    </div>
+                    <div class="member-details">
+                        <h5 class="member-name">Dr. Dipti Srinivasan</h5>
+                        <p class="member-title">Professor</p>
+                        <p class="member-org">National University of Singapore</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Conference Topics & Key Highlights Section -->
+<section class="py-5 topics-highlights-section">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-12">
+                <h1 class="topics-main-title">Conference Topics & <span class="highlight-text">Key Highlights</span></h1>
+            </div>
+        </div>
+        
+        <div class="row g-5">
+            <!-- Conference Topics -->
+            <div class="col-lg-6">
+                <div class="topics-card h-100">
+                    <h2 class="topics-card-title">Conference Topics</h2>
+                    <div class="topics-content">
+                        <div class="topics-placeholder">
+                            <div class="placeholder-box">
+                                <p class="placeholder-text">To be listed soon</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Key Highlights -->
+            <div class="col-lg-6">
+                <div class="highlights-card h-100">
+                    <h2 class="highlights-card-title">Key Highlights</h2>
+                    <div class="highlights-content">
+                        <div class="highlight-item">
+                            <div class="highlight-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="highlight-text-content">
+                                <h5 class="highlight-title">Focus Areas:</h5>
+                                <p class="highlight-description">Advanced computing, information security, AI, and emerging trends in communication technologies.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="highlight-item">
+                            <div class="highlight-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="highlight-text-content">
+                                <h5 class="highlight-title">Global Participation:</h5>
+                                <p class="highlight-description">International researchers, practitioners, and experts sharing cutting-edge research.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="highlight-item">
+                            <div class="highlight-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="highlight-text-content">
+                                <h5 class="highlight-title">Expert Sessions:</h5>
+                                <p class="highlight-description">Keynote addresses and technical talks from industry leaders and academic pioneers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Tourist Attractions Section -->
+<section id="attractions" class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-12">
+                <h2 class="section-title">Tourist Attractions</h2>
+                <p class="lead">Discover the rich heritage and modern marvels of NCR</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% for attraction in tourist_attractions|slice:":3" %}
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            {% if attraction.image %}
+                            <img src="{{ attraction.image.url }}" alt="{{ attraction.name }}" class="img-fluid attraction-img">
+                            {% else %}
+                            <img src="{% static 'images/default-attraction.svg' %}" alt="{{ attraction.name }}" class="img-fluid attraction-img">
+                            {% endif %}
+                        </div>
+                        <div class="map-overlay">
+                            {% if attraction.location_url %}
+                            <div class="map-placeholder" data-map-src="{{ attraction.location_url }}">
+                                <div class="loading-map">
+                                    <i class="fas fa-map-marked-alt fa-2x mb-2" style="color: #fff; opacity: 0.7;"></i>
+                                    <p style="color: #fff; opacity: 0.9; font-size: 0.9rem;">Hover to view map</p>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="loading-map">
+                                <i class="fas fa-map-marked-alt fa-2x mb-2" style="color: #fff; opacity: 0.7;"></i>
+                                <p style="color: #fff; opacity: 0.9; font-size: 0.9rem;">Map unavailable</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">{{ attraction.name }}</h5>
+                        <p class="attraction-description">{{ attraction.description|truncatewords:20 }}</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>Distance varies</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>1-2 hours</span>
+                        </div>
+                        {% if attraction.location_url %}
+                        <a href="{{ attraction.location_url }}" class="btn btn-outline-primary btn-sm" target="_blank">View Location</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Sample attractions for home page preview -->
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            <img src="https://images.unsplash.com/photo-1587135941948-670b381f08ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60" 
+                                 alt="Red Fort" class="img-fluid attraction-img" loading="lazy">
+                        </div>
+                        <div class="map-overlay">
+                            <div class="loading-map">
+                                <i class="fas fa-map-marked-alt fa-2x mb-2" style="color: #fff; opacity: 0.7;"></i>
+                                <p style="color: #fff; opacity: 0.9; font-size: 0.9rem;">Quick View</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">Red Fort (Lal Qila)</h5>
+                        <p class="attraction-description">A historic fort in Delhi that served as the main residence of the Mughal emperors. UNESCO World Heritage Site.</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>45 km from venue</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>1-2 hours</span>
+                        </div>
+                        <a href="#" class="btn btn-outline-primary btn-sm">View Location</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            <img src="https://images.unsplash.com/photo-1587474260584-136574528ed5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60" 
+                                 alt="India Gate" class="img-fluid attraction-img" loading="lazy">
+                        </div>
+                        <div class="map-overlay">
+                            <div class="loading-map">
+                                <i class="fas fa-map-marked-alt fa-2x mb-2" style="color: #fff; opacity: 0.7;"></i>
+                                <p style="color: #fff; opacity: 0.9; font-size: 0.9rem;">Quick View</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">India Gate</h5>
+                        <p class="attraction-description">A war memorial in New Delhi, commemorating Indian soldiers. Perfect for evening strolls and photography.</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>40 km from venue</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>1 hour</span>
+                        </div>
+                        <a href="#" class="btn btn-outline-primary btn-sm">View Location</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-4">
+                <div class="attraction-card h-100">
+                    <div class="attraction-image-container">
+                        <div class="attraction-image">
+                            <img src="https://images.unsplash.com/photo-1583141475276-3a4e9ef7a8b6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60" 
+                                 alt="Lotus Temple" class="img-fluid attraction-img" loading="lazy">
+                        </div>
+                        <div class="map-overlay">
+                            <div class="loading-map">
+                                <i class="fas fa-map-marked-alt fa-2x mb-2" style="color: #fff; opacity: 0.7;"></i>
+                                <p style="color: #fff; opacity: 0.9; font-size: 0.9rem;">Quick View</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="attraction-content p-4">
+                        <h5 class="attraction-title">Lotus Temple</h5>
+                        <p class="attraction-description">A Bahá'í House of Worship known for its distinctive lotus-shaped architecture and peaceful environment.</p>
+                        <div class="attraction-meta mb-3">
+                            <span class="distance"><i class="fas fa-map-marker-alt me-2"></i>35 km from venue</span>
+                            <span class="time"><i class="fas fa-clock me-2"></i>1-2 hours</span>
+                        </div>
+                        <a href="#" class="btn btn-outline-primary btn-sm">View Location</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- View More Button -->
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <a href="{% url 'conference:attractions' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-eye me-2"></i>View All Attractions
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sponsors & Partners Section -->
+<section class="py-5 sponsors-section">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="row text-center mb-4">
+            <div class="col-lg-12">
+                <h2 class="section-title text-dark mb-3">Sponsors & Partners</h2>
+                <p class="lead text-muted">Proudly supported by industry leaders and academic institutions</p>
+            </div>
+        </div>
+        
+        <!-- Sponsors Slider -->
+        <div class="sponsors-slider-container">
+            <div class="sponsors-track">
+                {% for sponsor in sponsors %}
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        {% if sponsor.website %}
+                        <a href="{{ sponsor.website }}" target="_blank" class="sponsor-link">
+                            <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" class="sponsor-logo">
+                            <div class="sponsor-overlay">
+                                <span class="sponsor-name">{{ sponsor.name }}</span>
+                            </div>
+                        </a>
+                        {% else %}
+                        <div class="sponsor-link">
+                            <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" class="sponsor-logo">
+                            <div class="sponsor-overlay">
+                                <span class="sponsor-name">{{ sponsor.name }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <!-- First set of sample sponsors -->
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        <div class="sponsor-link">
+                            <div class="sponsor-placeholder">
+                                <i class="fas fa-building fa-2x mb-2"></i>
+                                <span class="sponsor-name">IEEE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        <div class="sponsor-link">
+                            <div class="sponsor-placeholder">
+                                <i class="fas fa-university fa-2x mb-2"></i>
+                                <span class="sponsor-name">IEEE Xplore</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        <div class="sponsor-link">
+                            <div class="sponsor-placeholder">
+                                <i class="fas fa-industry fa-2x mb-2"></i>
+                                <span class="sponsor-name">Industry Partner</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        <div class="sponsor-link">
+                            <div class="sponsor-placeholder">
+                                <i class="fas fa-graduation-cap fa-2x mb-2"></i>
+                                <span class="sponsor-name">Academic Partner</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        <div class="sponsor-link">
+                            <div class="sponsor-placeholder">
+                                <i class="fas fa-handshake fa-2x mb-2"></i>
+                                <span class="sponsor-name">Technology Partner</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        <div class="sponsor-link">
+                            <div class="sponsor-placeholder">
+                                <i class="fas fa-globe fa-2x mb-2"></i>
+                                <span class="sponsor-name">Global Partner</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Duplicate set for seamless loop -->
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        <div class="sponsor-link">
+                            <div class="sponsor-placeholder">
+                                <i class="fas fa-building fa-2x mb-2"></i>
+                                <span class="sponsor-name">IEEE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        <div class="sponsor-link">
+                            <div class="sponsor-placeholder">
+                                <i class="fas fa-university fa-2x mb-2"></i>
+                                <span class="sponsor-name">IEEE Xplore</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        <div class="sponsor-link">
+                            <div class="sponsor-placeholder">
+                                <i class="fas fa-industry fa-2x mb-2"></i>
+                                <span class="sponsor-name">Industry Partner</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        <div class="sponsor-link">
+                            <div class="sponsor-placeholder">
+                                <i class="fas fa-graduation-cap fa-2x mb-2"></i>
+                                <span class="sponsor-name">Academic Partner</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        <div class="sponsor-link">
+                            <div class="sponsor-placeholder">
+                                <i class="fas fa-handshake fa-2x mb-2"></i>
+                                <span class="sponsor-name">Technology Partner</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        <div class="sponsor-link">
+                            <div class="sponsor-placeholder">
+                                <i class="fas fa-globe fa-2x mb-2"></i>
+                                <span class="sponsor-name">Global Partner</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Become a Sponsor CTA -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <div class="sponsor-cta">
+                    <h5 class="text-dark mb-2">Want to sponsor ICEIMS 2026?</h5>
+                    <p class="text-muted mb-3">Join our prestigious list of sponsors and reach the global research community</p>
+                    <a href="{% url 'conference:contact' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-handshake me-2"></i>Become a Sponsor
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

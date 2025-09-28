@@ -1,0 +1,652 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Conference Schedule - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<!-- Schedule Hero Section -->
+<section class="schedule-hero py-5 bg-gradient-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">Conference Schedule</h1>
+                <p class="lead">Complete Program Schedule for ICEIMS 2026</p>
+                <p class="mb-0">November 20-22, 2026 | Galgotias University, Greater Noida</p>
+                <div class="schedule-stats mt-4">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <h3 class="stat-number">3</h3>
+                                <p class="stat-label">Conference Days</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <h3 class="stat-number">12+</h3>
+                                <p class="stat-label">Keynote Sessions</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <h3 class="stat-number">50+</h3>
+                                <p class="stat-label">Technical Sessions</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <h3 class="stat-number">20+</h3>
+                                <p class="stat-label">Workshops</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Overview -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="schedule-overview">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="overview-card">
+                                <div class="overview-icon">
+                                    <i class="fas fa-calendar-day"></i>
+                                </div>
+                                <h5>Day 1 - Opening</h5>
+                                <p>Registration, Opening Ceremony, Keynote Sessions</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="overview-card">
+                                <div class="overview-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h5>Day 2 - Technical</h5>
+                                <p>Technical Sessions, Workshops, Panels, Networking</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="overview-card">
+                                <div class="overview-icon">
+                                    <i class="fas fa-award"></i>
+                                </div>
+                                <h5>Day 3 - Closing</h5>
+                                <p>Final Sessions, Awards Ceremony, Closing</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Schedule Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="schedule-tabs">
+                    <ul class="nav nav-pills nav-fill" id="scheduleTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="day1-tab" data-bs-toggle="tab" data-bs-target="#day1" type="button">
+                                <i class="fas fa-calendar-day me-2"></i>
+                                <span>Day 1</span>
+                                <small>Nov 20, 2026</small>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="day2-tab" data-bs-toggle="tab" data-bs-target="#day2" type="button">
+                                <i class="fas fa-users me-2"></i>
+                                <span>Day 2</span>
+                                <small>Nov 21, 2026</small>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="day3-tab" data-bs-toggle="tab" data-bs-target="#day3" type="button">
+                                <i class="fas fa-award me-2"></i>
+                                <span>Day 3</span>
+                                <small>Nov 22, 2026</small>
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content mt-4" id="scheduleTabContent">
+                        <!-- Day 1 -->
+                        <div class="tab-pane fade show active" id="day1" role="tabpanel">
+                            <div class="schedule-day-content">
+                                <div class="day-header">
+                                    <h3 class="day-title">Day 1 - Thursday, November 20, 2026</h3>
+                                    <p class="day-subtitle">Opening Day - Registration, Keynotes & Welcome Reception</p>
+                                </div>
+                                
+                                <!-- Morning Session -->
+                                <div class="session-group">
+                                    <h5 class="session-title"><i class="fas fa-sun text-warning me-2"></i>Morning Session</h5>
+                                    
+                                    <div class="schedule-item featured">
+                                        <div class="time-slot">
+                                            <div class="time">8:00 - 9:00 AM</div>
+                                            <div class="duration">60 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Registration & Welcome Coffee</div>
+                                            <div class="event-description">Conference registration, badge collection, networking coffee</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Main Foyer & Reception Desk</span>
+                                                <span class="category registration">Registration</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item keynote">
+                                        <div class="time-slot">
+                                            <div class="time">9:00 - 9:30 AM</div>
+                                            <div class="duration">30 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Opening Ceremony</div>
+                                            <div class="event-description">Welcome address by Conference Chair and University Officials</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Main Auditorium</span>
+                                                <span class="category ceremony">Ceremony</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item keynote">
+                                        <div class="time-slot">
+                                            <div class="time">9:30 - 10:30 AM</div>
+                                            <div class="duration">60 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Keynote 1: "Future of Artificial Intelligence in Industry"</div>
+                                            <div class="event-speaker">Dr. Sarah Johnson, MIT</div>
+                                            <div class="event-description">Exploring cutting-edge AI applications and their transformative impact on modern industries</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Main Auditorium</span>
+                                                <span class="category keynote">Keynote</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item break">
+                                        <div class="time-slot">
+                                            <div class="time">10:30 - 11:00 AM</div>
+                                            <div class="duration">30 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Coffee Break & Networking</div>
+                                            <div class="event-description">Refreshments and networking opportunity</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Conference Lobby</span>
+                                                <span class="category break">Break</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item keynote">
+                                        <div class="time-slot">
+                                            <div class="time">11:00 - 12:00 PM</div>
+                                            <div class="duration">60 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Keynote 2: "Sustainable Technology Solutions"</div>
+                                            <div class="event-speaker">Prof. Michael Chen, Stanford University</div>
+                                            <div class="event-description">Green technologies and sustainable development in the digital age</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Main Auditorium</span>
+                                                <span class="category keynote">Keynote</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Afternoon Session -->
+                                <div class="session-group">
+                                    <h5 class="session-title"><i class="fas fa-sun text-warning me-2"></i>Afternoon Session</h5>
+                                    
+                                    <div class="schedule-item break">
+                                        <div class="time-slot">
+                                            <div class="time">12:00 - 1:00 PM</div>
+                                            <div class="duration">60 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Lunch Break</div>
+                                            <div class="event-description">Networking lunch with conference participants</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>University Cafeteria</span>
+                                                <span class="category break">Lunch</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item technical">
+                                        <div class="time-slot">
+                                            <div class="time">1:00 - 2:30 PM</div>
+                                            <div class="duration">90 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Technical Session 1A: Machine Learning & AI</div>
+                                            <div class="event-description">Research presentations on ML algorithms and AI applications</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Conference Hall A</span>
+                                                <span class="category technical">Technical</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item technical">
+                                        <div class="time-slot">
+                                            <div class="time">1:00 - 2:30 PM</div>
+                                            <div class="duration">90 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Technical Session 1B: Cybersecurity & Privacy</div>
+                                            <div class="event-description">Latest research in cybersecurity and data privacy protection</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Conference Hall B</span>
+                                                <span class="category technical">Technical</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item break">
+                                        <div class="time-slot">
+                                            <div class="time">2:30 - 3:00 PM</div>
+                                            <div class="duration">30 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Tea Break</div>
+                                            <div class="event-description">Refreshments and poster session preview</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Conference Lobby</span>
+                                                <span class="category break">Break</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item workshop">
+                                        <div class="time-slot">
+                                            <div class="time">3:00 - 5:00 PM</div>
+                                            <div class="duration">120 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Workshop: "Hands-on Deep Learning"</div>
+                                            <div class="event-speaker">Dr. Priya Sharma, IIT Delhi</div>
+                                            <div class="event-description">Interactive workshop on deep learning frameworks and applications</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Computer Lab 1</span>
+                                                <span class="category workshop">Workshop</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Evening Session -->
+                                <div class="session-group">
+                                    <h5 class="session-title"><i class="fas fa-moon text-info me-2"></i>Evening Session</h5>
+                                    
+                                    <div class="schedule-item featured">
+                                        <div class="time-slot">
+                                            <div class="time">6:00 - 8:00 PM</div>
+                                            <div class="duration">120 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Welcome Reception & Networking Dinner</div>
+                                            <div class="event-description">Welcome reception with cultural program and networking dinner</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>University Banquet Hall</span>
+                                                <span class="category social">Social</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Day 2 -->
+                        <div class="tab-pane fade" id="day2" role="tabpanel">
+                            <div class="schedule-day-content">
+                                <div class="day-header">
+                                    <h3 class="day-title">Day 2 - Friday, November 21, 2026</h3>
+                                    <p class="day-subtitle">Main Conference Day - Technical Sessions, Workshops & Panel Discussions</p>
+                                </div>
+                                
+                                <!-- Morning Session -->
+                                <div class="session-group">
+                                    <h5 class="session-title"><i class="fas fa-sun text-warning me-2"></i>Morning Session</h5>
+                                    
+                                    <div class="schedule-item keynote">
+                                        <div class="time-slot">
+                                            <div class="time">9:00 - 10:00 AM</div>
+                                            <div class="duration">60 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Keynote 3: "Quantum Computing: The Next Frontier"</div>
+                                            <div class="event-speaker">Prof. Hiroshi Tanaka, University of Tokyo</div>
+                                            <div class="event-description">Exploring quantum computing applications and future possibilities</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Main Auditorium</span>
+                                                <span class="category keynote">Keynote</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item break">
+                                        <div class="time-slot">
+                                            <div class="time">10:00 - 10:30 AM</div>
+                                            <div class="duration">30 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Coffee Break</div>
+                                            <div class="event-description">Networking and poster session viewing</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Conference Lobby</span>
+                                                <span class="category break">Break</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="parallel-sessions">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <div class="schedule-item technical">
+                                                    <div class="time-slot">
+                                                        <div class="time">10:30 - 12:00 PM</div>
+                                                        <div class="duration">90 min</div>
+                                                    </div>
+                                                    <div class="event-details">
+                                                        <div class="event-title">Technical Session 2A: IoT & Smart Systems</div>
+                                                        <div class="event-description">Internet of Things and smart system implementations</div>
+                                                        <div class="event-meta">
+                                                            <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Hall A</span>
+                                                            <span class="category technical">Technical</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="schedule-item technical">
+                                                    <div class="time-slot">
+                                                        <div class="time">10:30 - 12:00 PM</div>
+                                                        <div class="duration">90 min</div>
+                                                    </div>
+                                                    <div class="event-details">
+                                                        <div class="event-title">Technical Session 2B: Data Science & Analytics</div>
+                                                        <div class="event-description">Big data analytics and business intelligence</div>
+                                                        <div class="event-meta">
+                                                            <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Hall B</span>
+                                                            <span class="category technical">Technical</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Afternoon Session -->
+                                <div class="session-group">
+                                    <h5 class="session-title"><i class="fas fa-sun text-warning me-2"></i>Afternoon Session</h5>
+                                    
+                                    <div class="schedule-item break">
+                                        <div class="time-slot">
+                                            <div class="time">12:00 - 1:00 PM</div>
+                                            <div class="duration">60 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Lunch Break & Poster Session</div>
+                                            <div class="event-description">Lunch with interactive poster presentations</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Cafeteria & Poster Hall</span>
+                                                <span class="category break">Lunch</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item panel">
+                                        <div class="time-slot">
+                                            <div class="time">1:00 - 2:30 PM</div>
+                                            <div class="duration">90 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Panel Discussion: "Ethics in AI and Technology"</div>
+                                            <div class="event-speaker">Moderated by Prof. David Wilson, Oxford</div>
+                                            <div class="event-description">Industry experts discuss ethical implications of modern technology</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Main Auditorium</span>
+                                                <span class="category panel">Panel</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item break">
+                                        <div class="time-slot">
+                                            <div class="time">2:30 - 3:00 PM</div>
+                                            <div class="duration">30 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Tea Break</div>
+                                            <div class="event-description">Networking and exhibition viewing</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Exhibition Area</span>
+                                                <span class="category break">Break</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="parallel-sessions">
+                                        <div class="row g-3">
+                                            <div class="col-md-4">
+                                                <div class="schedule-item workshop">
+                                                    <div class="time-slot">
+                                                        <div class="time">3:00 - 5:00 PM</div>
+                                                        <div class="duration">120 min</div>
+                                                    </div>
+                                                    <div class="event-details">
+                                                        <div class="event-title">Workshop A: "Cloud Computing"</div>
+                                                        <div class="event-meta">
+                                                            <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Lab 1</span>
+                                                            <span class="category workshop">Workshop</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="schedule-item workshop">
+                                                    <div class="time-slot">
+                                                        <div class="time">3:00 - 5:00 PM</div>
+                                                        <div class="duration">120 min</div>
+                                                    </div>
+                                                    <div class="event-details">
+                                                        <div class="event-title">Workshop B: "Blockchain"</div>
+                                                        <div class="event-meta">
+                                                            <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Lab 2</span>
+                                                            <span class="category workshop">Workshop</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="schedule-item technical">
+                                                    <div class="time-slot">
+                                                        <div class="time">3:00 - 4:30 PM</div>
+                                                        <div class="duration">90 min</div>
+                                                    </div>
+                                                    <div class="event-details">
+                                                        <div class="event-title">Session 3: Mobile Computing</div>
+                                                        <div class="event-meta">
+                                                            <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Hall C</span>
+                                                            <span class="category technical">Technical</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Evening Session -->
+                                <div class="session-group">
+                                    <h5 class="session-title"><i class="fas fa-moon text-info me-2"></i>Evening Session</h5>
+                                    
+                                    <div class="schedule-item featured">
+                                        <div class="time-slot">
+                                            <div class="time">6:00 - 9:00 PM</div>
+                                            <div class="duration">180 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Conference Gala Dinner</div>
+                                            <div class="event-description">Formal dinner with cultural performances and networking</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Grand Ballroom</span>
+                                                <span class="category social">Gala</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Day 3 -->
+                        <div class="tab-pane fade" id="day3" role="tabpanel">
+                            <div class="schedule-day-content">
+                                <div class="day-header">
+                                    <h3 class="day-title">Day 3 - Saturday, November 22, 2026</h3>
+                                    <p class="day-subtitle">Closing Day - Final Sessions, Awards & Farewell</p>
+                                </div>
+                                
+                                <!-- Morning Session -->
+                                <div class="session-group">
+                                    <h5 class="session-title"><i class="fas fa-sun text-warning me-2"></i>Morning Session</h5>
+                                    
+                                    <div class="schedule-item keynote">
+                                        <div class="time-slot">
+                                            <div class="time">9:00 - 10:00 AM</div>
+                                            <div class="duration">60 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Keynote 4: "Future of Computing: Beyond Silicon"</div>
+                                            <div class="event-speaker">Prof. David Chen, Cambridge University</div>
+                                            <div class="event-description">Exploring next-generation computing paradigms and technologies</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Main Auditorium</span>
+                                                <span class="category keynote">Keynote</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item break">
+                                        <div class="time-slot">
+                                            <div class="time">10:00 - 10:30 AM</div>
+                                            <div class="duration">30 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Coffee Break</div>
+                                            <div class="event-description">Final networking opportunity</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Conference Lobby</span>
+                                                <span class="category break">Break</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item technical">
+                                        <div class="time-slot">
+                                            <div class="time">10:30 - 11:30 AM</div>
+                                            <div class="duration">60 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Best Papers Session</div>
+                                            <div class="event-description">Presentation of outstanding research papers</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Main Auditorium</span>
+                                                <span class="category technical">Technical</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item featured">
+                                        <div class="time-slot">
+                                            <div class="time">11:30 - 12:30 PM</div>
+                                            <div class="duration">60 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Awards Ceremony</div>
+                                            <div class="event-description">Recognition of outstanding contributions and achievements</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Main Auditorium</span>
+                                                <span class="category ceremony">Awards</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Closing -->
+                                <div class="session-group">
+                                    <h5 class="session-title"><i class="fas fa-flag-checkered text-success me-2"></i>Closing Session</h5>
+                                    
+                                    <div class="schedule-item featured">
+                                        <div class="time-slot">
+                                            <div class="time">12:30 - 1:00 PM</div>
+                                            <div class="duration">30 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Closing Ceremony</div>
+                                            <div class="event-description">Conference summary, future announcements, and farewell</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>Main Auditorium</span>
+                                                <span class="category ceremony">Closing</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="schedule-item break">
+                                        <div class="time-slot">
+                                            <div class="time">1:00 - 2:00 PM</div>
+                                            <div class="duration">60 min</div>
+                                        </div>
+                                        <div class="event-details">
+                                            <div class="event-title">Farewell Lunch</div>
+                                            <div class="event-description">Final networking and farewell lunch</div>
+                                            <div class="event-meta">
+                                                <span class="venue"><i class="fas fa-map-marker-alt me-1"></i>University Cafeteria</span>
+                                                <span class="category social">Farewell</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Download Schedule -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h4 class="mb-3">Download Complete Schedule</h4>
+                <div class="schedule-downloads">
+                    <a href="#" class="btn btn-primary me-3">
+                        <i class="fas fa-download me-2"></i>PDF Schedule
+                    </a>
+                    <a href="#" class="btn btn-outline-primary">
+                        <i class="fas fa-calendar-plus me-2"></i>Add to Calendar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

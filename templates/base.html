@@ -1,0 +1,342 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ICEIMS 2026 - International Conference on Energy and Intelligent Manufacturing Systems{% endblock %}</title>
+    
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/conference logo.svg' %}">
+    <link rel="shortcut icon" type="image/svg+xml" href="{% static 'images/conference logo.svg' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/conference logo.svg' %}">
+    
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'conference:home' %}">
+                <img src="{% static 'images/ICEIMS.svg' %}" alt="ICEIMS Logo" class="navbar-logo">
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:home' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:registration' %}">Registration</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:committee' %}">Committee</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:speakers' %}">Speakers</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:guidelines' %}">Guidelines</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:schedule' %}">Schedule</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:awards' %}">Awards</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:contact' %}">Contact</a></li>
+                    <li class="nav-item header-time-container">
+                        <span id="header-time" class="header-time">--:--:--</span>
+                    </li>
+                    <li class="nav-item submit-paper-priority"><a class="nav-link submit-paper-btn" href="#submit-paper">Submit Paper</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
+    
+    <!-- Footer -->
+    <footer class="text-white py-5" style="background: #000000;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="footer-logo mb-3">
+                        <img src="{% static 'images/ICEIMS.svg' %}" alt="ICEIMS Logo" height="80">
+                    </div>
+                    <p class="footer-description">
+                        Galgotias University, Plot No. 2, Yamuna Expy,<br>
+                        opposite Buddha International Circuit,<br>
+                        Sector 17A, Greater Noida,<br>
+                        Uttar Pradesh 203201
+                    </p>
+                    
+                    <!-- Current Time and Visitor Counter -->
+                    <div class="footer-stats mt-3">
+                        <div class="footer-stat-item mb-2">
+                            <i class="fas fa-clock me-2"></i>
+                            <span class="footer-stat-label">Current Time:</span>
+                            <span id="current-time" class="footer-stat-value">--:--:--</span>
+                        </div>
+                        <div class="footer-stat-item">
+                            <i class="fas fa-users me-2"></i>
+                            <span class="footer-stat-label">Visitors:</span>
+                            <span id="visitor-count" class="footer-stat-value">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <h5 class="footer-title">Useful Links</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="{% url 'conference:about' %}">About</a></li>
+                        <li><a href="{% url 'conference:tracks' %}">Tracks</a></li>
+                        <li><a href="{% url 'conference:committee' %}">Committee</a></li>
+                        <li><a href="{% url 'conference:attractions' %}">Tourist Attractions</a></li>
+                        <li><a href="{% url 'conference:contact' %}">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 mb-4">
+                    <ul class="list-unstyled footer-links" style="margin-top: 2.5rem;">
+                        <li><a href="{% url 'conference:speakers' %}">Keynote Speakers</a></li>
+                        <li><a href="{% url 'conference:guidelines' %}">Guidelines</a></li>
+                        <li><a href="{% url 'conference:registration' %}">Registration</a></li>
+                        <li><a href="{% url 'conference:workshops' %}">Workshops</a></li>
+                        <li><a href="{% url 'conference:schedule' %}">Schedule</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5 class="footer-title">Socials</h5>
+                    <div class="social-links mb-3">
+                        <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-link" title="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-link" title="X (Twitter)"><i class="fab fa-x-twitter"></i></a>
+                    </div>
+                    
+                    <!-- Footer Map -->
+                    <div class="footer-map mt-4">
+                        <h6 class="footer-map-title">Location</h6>
+                        <div class="footer-map-wrapper">
+                            <iframe 
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3510.760786121869!2d77.53913702536056!3d28.366080946130964!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cc7365a740e65%3A0xd0d60a62e55ab171!2sGalgotias%20University!5e0!3m2!1sen!2sin!4v1759061748281!5m2!1sen!2sin" 
+                                width="100%" 
+                                height="200" 
+                                style="border:0; border-radius: 10px;" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade"
+                                title="Galgotias University Location">
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Fixed Back to Top Button -->
+    <button class="btn-back-to-top" id="backToTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <!-- Go to Top Arrow (Lower Left) -->
+    <button class="btn-go-to-top" id="goToTop" onclick="scrollToTop()">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+    
+    <!-- AI Chatbot -->
+    <div class="ai-chatbot" id="aiChatbot">
+        <div class="chatbot-toggle" id="chatbotToggle">
+            <i class="fas fa-robot"></i>
+            <span class="chatbot-name">Galgotias AI</span>
+        </div>
+        
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header">
+                <div class="chatbot-title">
+                    <i class="fas fa-robot me-2"></i>
+                    <span>Galgotias AI - Conference Assistant</span>
+                </div>
+                <button class="chatbot-close" id="chatbotClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="chatbot-messages" id="chatbotMessages">
+                <div class="message bot-message">
+                    <div class="message-content">
+                        <i class="fas fa-robot me-2"></i>
+                        Hello! I'm Galgotias AI, your ICEIMS 2026 conference assistant. I can help you with conference details, registration information, tourist attractions, and more. How can I assist you today?
+                    </div>
+                    <div class="message-time"></div>
+                </div>
+            </div>
+            
+            <div class="chatbot-input-area">
+                <div class="quick-questions">
+                    <button class="quick-btn" data-question="Tell me about ICEIMS 2026">About Conference</button>
+                    <button class="quick-btn" data-question="What are the registration rates?">Registration</button>
+                    <button class="quick-btn" data-question="What tourist attractions are nearby?">Attractions</button>
+                    <button class="quick-btn" data-question="Who are the keynote speakers?">Speakers</button>
+                </div>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="chatbotInput" placeholder="Ask me anything about the conference...">
+                    <button class="btn btn-primary" id="chatbotSend" type="button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/pure-gemini.js' %}"></script>
+    
+    <!-- Time and Visitor Counter Script -->
+    <script>
+        // Update current time every second
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeOptions = {
+                timeZone: 'Asia/Kolkata',
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            
+            const timeString = now.toLocaleTimeString('en-IN', timeOptions);
+            const dateString = now.toLocaleDateString('en-IN', {
+                timeZone: 'Asia/Kolkata',
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+            
+            const currentTimeElement = document.getElementById('current-time');
+            if (currentTimeElement) {
+                currentTimeElement.innerHTML = `${timeString} <small>${dateString}</small>`;
+            }
+            
+            // Update header time (time only)
+            const headerTimeElement = document.getElementById('header-time');
+            if (headerTimeElement) {
+                headerTimeElement.textContent = timeString;
+            }
+        }
+        
+        // Initialize visitor counter from localStorage
+        function initVisitorCounter() {
+            let visitorCount = localStorage.getItem('iceims2026_visitors');
+            
+            if (!visitorCount) {
+                // First time visitor - start with a base count to make it look realistic
+                visitorCount = Math.floor(Math.random() * 1000) + 2500;
+                localStorage.setItem('iceims2026_visitors', visitorCount);
+            } else {
+                // Increment for returning visitors (simulate new visits)
+                visitorCount = parseInt(visitorCount) + Math.floor(Math.random() * 3) + 1;
+                localStorage.setItem('iceims2026_visitors', visitorCount);
+            }
+            
+            const visitorCountElement = document.getElementById('visitor-count');
+            if (visitorCountElement) {
+                // Animate the counter
+                animateCounter(visitorCountElement, parseInt(visitorCount));
+            }
+        }
+        
+        // Animate counter from 0 to target value
+        function animateCounter(element, target) {
+            let current = 0;
+            const increment = target / 100;
+            const duration = 2000; // 2 seconds
+            const stepTime = duration / 100;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target.toLocaleString();
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current).toLocaleString();
+                }
+            }, stepTime);
+        }
+        
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Back to Top Buttons functionality
+        function toggleBackToTopButtons() {
+            const backToTopBtn = document.getElementById('backToTop');
+            const goToTopBtn = document.getElementById('goToTop');
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > 300) {
+                if (backToTopBtn) backToTopBtn.classList.add('show');
+                if (goToTopBtn) goToTopBtn.classList.add('show');
+            } else {
+                if (backToTopBtn) backToTopBtn.classList.remove('show');
+                if (goToTopBtn) goToTopBtn.classList.remove('show');
+            }
+        }
+        
+        // Map hover functionality for attractions
+        function initMapHoverEffect() {
+            const mapPlaceholders = document.querySelectorAll('.map-placeholder');
+            
+            mapPlaceholders.forEach(placeholder => {
+                let mapLoaded = false;
+                
+                placeholder.addEventListener('mouseenter', function() {
+                    if (!mapLoaded) {
+                        const mapSrc = this.getAttribute('data-map-src');
+                        if (mapSrc) {
+                            const iframe = document.createElement('iframe');
+                            iframe.src = mapSrc;
+                            iframe.className = 'map-iframe';
+                            iframe.allowFullscreen = true;
+                            iframe.loading = 'lazy';
+                            iframe.referrerPolicy = 'no-referrer-when-downgrade';
+                            
+                            // Replace placeholder with iframe
+                            this.innerHTML = '';
+                            this.appendChild(iframe);
+                            
+                            // Fade in the iframe once loaded
+                            iframe.onload = function() {
+                                iframe.classList.add('loaded');
+                            };
+                            
+                            mapLoaded = true;
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000); // Update every second
+            initVisitorCounter();
+            
+            // Setup scroll event listener for back to top buttons
+            window.addEventListener('scroll', toggleBackToTopButtons);
+            toggleBackToTopButtons(); // Check initial position
+            
+            // Initialize map hover effects
+            initMapHoverEffect();
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

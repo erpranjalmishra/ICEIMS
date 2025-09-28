@@ -1,0 +1,6 @@
+<svg width="140" height="60" xmlns="http://www.w3.org/2000/svg">
+  <rect width="140" height="60" fill="#00629B"/>
+  <text x="70" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">IEEE</text>
+  <text x="70" y="40" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="white">Xplore</text>
+  <text x="70" y="53" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="white">Digital Library</text>
+</svg>

@@ -1,0 +1,2295 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Secret Animations Test - ICEIMS 2026{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Animation Test Styles */
+.animation-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 0;
+    overflow: hidden;
+}
+
+.test-section {
+    background: white;
+    margin: 2rem 0;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+/* Floating Elements */
+.floating-element {
+    position: absolute;
+    animation: float 3s ease-in-out infinite;
+}
+
+.floating-1 { top: 10%; left: 10%; animation-delay: 0s; }
+.floating-2 { top: 20%; right: 15%; animation-delay: 1s; }
+.floating-3 { bottom: 20%; left: 20%; animation-delay: 2s; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+/* Bounce Animation */
+.bounce-element {
+    animation: bounce 2s infinite;
+    display: inline-block;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-15px); }
+    60% { transform: translateY(-10px); }
+}
+
+/* Pulse Animation */
+.pulse-element {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Rotate Animation */
+.rotate-element {
+    animation: rotate 3s linear infinite;
+    display: inline-block;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Slide In Animations */
+.slide-in-left {
+    animation: slideInLeft 1s ease-out;
+}
+
+.slide-in-right {
+    animation: slideInRight 1s ease-out;
+}
+
+.slide-in-up {
+    animation: slideInUp 1s ease-out;
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Fade Animations */
+.fade-in {
+    animation: fadeIn 2s ease-in;
+}
+
+.fade-in-delay-1 { animation-delay: 0.5s; animation-fill-mode: both; }
+.fade-in-delay-2 { animation-delay: 1s; animation-fill-mode: both; }
+.fade-in-delay-3 { animation-delay: 1.5s; animation-fill-mode: both; }
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Zoom Animations */
+.zoom-in {
+    animation: zoomIn 1s ease-out;
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Flip Animation */
+.flip-element {
+    animation: flip 2s infinite;
+    transform-style: preserve-3d;
+}
+
+@keyframes flip {
+    0% { transform: rotateY(0); }
+    50% { transform: rotateY(180deg); }
+    100% { transform: rotateY(0); }
+}
+
+/* Shake Animation */
+.shake-element {
+    animation: shake 1s ease-in-out infinite;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Typing Animation */
+.typing-text {
+    font-family: 'Courier New', monospace;
+    border-right: 3px solid #667eea;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: typing 4s steps(40, end), blink-cursor 0.5s infinite;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink-cursor {
+    50% { border-color: transparent; }
+}
+
+/* Gradient Animation */
+.gradient-bg {
+    background: linear-gradient(-45deg, #ff6b35, #f7931e, #667eea, #764ba2);
+    background-size: 400% 400%;
+    animation: gradientShift 4s ease infinite;
+    padding: 2rem;
+    border-radius: 15px;
+    color: white;
+    text-align: center;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Morphing Button */
+.morph-button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.morph-button:hover {
+    transform: scale(1.05);
+    border-radius: 10px;
+    background: #ff6b35;
+}
+
+.morph-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    transform: translate(-50%, -50%);
+}
+
+.morph-button:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Loading Spinner */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Interactive Card */
+.interactive-card {
+    perspective: 1000px;
+    width: 300px;
+    height: 200px;
+    margin: 2rem auto;
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+.interactive-card:hover .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.card-front {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.card-back {
+    background: linear-gradient(135deg, #ff6b35, #f7931e);
+    color: white;
+    transform: rotateY(180deg);
+}
+
+/* Particle Effect */
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #667eea;
+    border-radius: 50%;
+    animation: particles 3s infinite;
+}
+
+@keyframes particles {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Wave Animation */
+.wave {
+    position: relative;
+    background: #667eea;
+    height: 100px;
+    overflow: hidden;
+}
+
+.wave::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: wave 2s infinite;
+}
+
+@keyframes wave {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* 🚀 UNTHINKABLE AMAZING ANIMATIONS START HERE */
+
+/* Matrix Rain Effect */
+.matrix-rain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    background: black;
+    overflow: hidden;
+}
+
+.matrix-column {
+    position: absolute;
+    top: -100%;
+    width: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+    animation: matrixFall linear infinite;
+}
+
+@keyframes matrixFall {
+    to { top: 100%; }
+}
+
+/* Impossible Geometry */
+.impossible-triangle {
+    width: 200px;
+    height: 200px;
+    position: relative;
+    margin: 2rem auto;
+    animation: impossibleSpin 8s linear infinite;
+}
+
+.triangle-side {
+    position: absolute;
+    width: 100px;
+    height: 20px;
+    background: linear-gradient(45deg, #ff6b35, #667eea);
+    transform-origin: left center;
+}
+
+.side-1 { transform: rotate(0deg) translateX(50px); }
+.side-2 { transform: rotate(120deg) translateX(50px); }
+.side-3 { transform: rotate(240deg) translateX(50px); }
+
+@keyframes impossibleSpin {
+    0% { transform: rotateY(0deg) rotateX(0deg); }
+    25% { transform: rotateY(90deg) rotateX(15deg); }
+    50% { transform: rotateY(180deg) rotateX(0deg); }
+    75% { transform: rotateY(270deg) rotateX(-15deg); }
+    100% { transform: rotateY(360deg) rotateX(0deg); }
+}
+
+/* Liquid Morphing */
+.liquid-morph {
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(45deg, #ff6b35, #667eea, #764ba2, #f7931e);
+    background-size: 400% 400%;
+    border-radius: 50%;
+    position: relative;
+    animation: liquidMorph 6s ease-in-out infinite, gradientShift 3s ease infinite;
+    margin: 2rem auto;
+    overflow: hidden;
+}
+
+@keyframes liquidMorph {
+    0%, 100% { 
+        border-radius: 50%;
+        transform: scale(1) rotate(0deg);
+    }
+    16% { 
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        transform: scale(1.1) rotate(60deg);
+    }
+    32% { 
+        border-radius: 68% 32% 32% 68% / 68% 68% 32% 32%;
+        transform: scale(0.9) rotate(120deg);
+    }
+    48% { 
+        border-radius: 45% 55% 80% 20% / 55% 20% 80% 45%;
+        transform: scale(1.2) rotate(180deg);
+    }
+    64% { 
+        border-radius: 20% 80% 45% 55% / 80% 45% 55% 20%;
+        transform: scale(0.8) rotate(240deg);
+    }
+    80% { 
+        border-radius: 70% 30% 30% 70% / 30% 70% 70% 30%;
+        transform: scale(1.05) rotate(300deg);
+    }
+}
+
+/* DNA Helix */
+.dna-helix {
+    position: relative;
+    width: 200px;
+    height: 400px;
+    margin: 2rem auto;
+    perspective: 1000px;
+}
+
+.dna-strand {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    animation: dnaRotate 4s linear infinite;
+}
+
+.dna-strand:nth-child(2) {
+    animation-delay: -2s;
+}
+
+.dna-base {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.dna-strand:nth-child(1) .dna-base {
+    background: #ff6b35;
+    box-shadow: 0 0 10px #ff6b35;
+}
+
+.dna-strand:nth-child(2) .dna-base {
+    background: #667eea;
+    box-shadow: 0 0 10px #667eea;
+}
+
+@keyframes dnaRotate {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+}
+
+/* Quantum Particles */
+.quantum-field {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin: 2rem auto;
+    background: radial-gradient(circle, rgba(102,126,234,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.quantum-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #00ffff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+    animation: quantumFloat 3s infinite ease-in-out;
+}
+
+@keyframes quantumFloat {
+    0%, 100% { 
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    25% { 
+        transform: translate(50px, -30px) scale(1.5);
+        opacity: 0.7;
+    }
+    50% { 
+        transform: translate(-20px, 40px) scale(0.5);
+        opacity: 0.3;
+    }
+    75% { 
+        transform: translate(-40px, -20px) scale(1.2);
+        opacity: 0.8;
+    }
+}
+
+/* Holographic Text */
+.holographic-text {
+    font-size: 4rem;
+    font-weight: bold;
+    text-align: center;
+    background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #06ffa5, #ffbe0b);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: holographicShift 2s ease-in-out infinite, textGlow 1s ease-in-out infinite alternate;
+    text-shadow: 0 0 20px rgba(131, 56, 236, 0.5);
+    position: relative;
+}
+
+.holographic-text::before {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    z-index: -1;
+    animation: glitch 0.1s infinite;
+}
+
+@keyframes holographicShift {
+    0%, 100% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+    50% { background-position: 100% 50%; filter: hue-rotate(180deg); }
+}
+
+@keyframes textGlow {
+    0% { text-shadow: 0 0 20px rgba(131, 56, 236, 0.5); }
+    100% { text-shadow: 0 0 40px rgba(131, 56, 236, 1), 0 0 80px rgba(131, 56, 236, 0.5); }
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+
+/* Cosmic Portal */
+.cosmic-portal {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 2rem auto;
+    border-radius: 50%;
+    background: radial-gradient(circle, #000428 0%, #004e92 100%);
+    animation: portalSpin 10s linear infinite;
+    overflow: hidden;
+}
+
+.portal-ring {
+    position: absolute;
+    border: 2px solid;
+    border-radius: 50%;
+    border-color: transparent #00ffff transparent #ff00ff;
+    animation: ringRotate linear infinite;
+}
+
+.ring-1 { width: 280px; height: 280px; top: 10px; left: 10px; animation-duration: 2s; }
+.ring-2 { width: 240px; height: 240px; top: 30px; left: 30px; animation-duration: 3s; animation-direction: reverse; }
+.ring-3 { width: 200px; height: 200px; top: 50px; left: 50px; animation-duration: 1.5s; }
+.ring-4 { width: 160px; height: 160px; top: 70px; left: 70px; animation-duration: 4s; animation-direction: reverse; }
+
+@keyframes portalSpin {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes ringRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Tessellation Pattern */
+.tessellation {
+    width: 400px;
+    height: 400px;
+    margin: 2rem auto;
+    background: repeating-conic-gradient(
+        from 0deg,
+        #ff6b35 0deg 60deg,
+        #667eea 60deg 120deg,
+        #764ba2 120deg 180deg,
+        #f7931e 180deg 240deg,
+        #ff6b35 240deg 300deg,
+        #667eea 300deg 360deg
+    );
+    animation: tessellationShift 8s ease-in-out infinite;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+@keyframes tessellationShift {
+    0%, 100% { 
+        transform: rotate(0deg) scale(1);
+        filter: hue-rotate(0deg);
+    }
+    33% { 
+        transform: rotate(120deg) scale(1.2);
+        filter: hue-rotate(120deg);
+    }
+    66% { 
+        transform: rotate(240deg) scale(0.8);
+        filter: hue-rotate(240deg);
+    }
+}
+
+/* Fractal Tree */
+.fractal-container {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin: 2rem auto;
+    overflow: hidden;
+}
+
+.fractal-branch {
+    position: absolute;
+    background: linear-gradient(90deg, #8B4513, #228B22);
+    transform-origin: bottom center;
+    animation: fractalGrow 6s ease-in-out infinite;
+}
+
+.branch-level-1 {
+    width: 8px;
+    height: 80px;
+    bottom: 0;
+    left: 50%;
+    animation-delay: 0s;
+}
+
+.branch-level-2 {
+    width: 6px;
+    height: 60px;
+    animation-delay: 1s;
+}
+
+.branch-level-3 {
+    width: 4px;
+    height: 40px;
+    animation-delay: 2s;
+}
+
+@keyframes fractalGrow {
+    0% { 
+        height: 0;
+        opacity: 0;
+        transform: rotate(0deg) scale(0);
+    }
+    50% { 
+        height: var(--branch-height);
+        opacity: 1;
+        transform: rotate(var(--branch-angle)) scale(1);
+    }
+    100% { 
+        height: var(--branch-height);
+        opacity: 0.8;
+        transform: rotate(var(--branch-angle)) scale(1.1);
+    }
+}
+
+/* Impossible Staircase (Penrose Stairs) */
+.penrose-stairs {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 2rem auto;
+    animation: penroseRotate 12s linear infinite;
+    transform-style: preserve-3d;
+}
+
+.stair-step {
+    position: absolute;
+    width: 60px;
+    height: 20px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: 2px solid #333;
+    transform-style: preserve-3d;
+}
+
+.step-1 { transform: rotateX(0deg) translateZ(0px); }
+.step-2 { transform: rotateX(0deg) rotateY(90deg) translateZ(30px) translateX(30px); }
+.step-3 { transform: rotateX(0deg) rotateY(180deg) translateZ(60px) translateX(30px); }
+.step-4 { transform: rotateX(0deg) rotateY(270deg) translateZ(30px) translateX(30px); }
+
+@keyframes penroseRotate {
+    0% { transform: rotateY(0deg) rotateX(15deg); }
+    100% { transform: rotateY(360deg) rotateX(15deg); }
+}
+
+/* Quantum Tunnel */
+.quantum-tunnel {
+    position: relative;
+    width: 400px;
+    height: 200px;
+    margin: 2rem auto;
+    perspective: 1000px;
+    overflow: hidden;
+    background: #000;
+    border-radius: 10px;
+}
+
+.tunnel-ring {
+    position: absolute;
+    border: 2px solid #00ffff;
+    border-radius: 50%;
+    left: 50%;
+    top: 50%;
+    transform-origin: center;
+    animation: tunnelExpand linear infinite;
+    box-shadow: 
+        0 0 10px #00ffff,
+        inset 0 0 10px #00ffff;
+}
+
+@keyframes tunnelExpand {
+    0% {
+        width: 10px;
+        height: 10px;
+        margin-left: -5px;
+        margin-top: -5px;
+        opacity: 1;
+        transform: translateZ(1000px);
+    }
+    100% {
+        width: 400px;
+        height: 400px;
+        margin-left: -200px;
+        margin-top: -200px;
+        opacity: 0;
+        transform: translateZ(-1000px);
+    }
+}
+
+/* Möbius Strip */
+.mobius-strip {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 2rem auto;
+    animation: mobiusRotate 8s linear infinite;
+    transform-style: preserve-3d;
+}
+
+.mobius-segment {
+    position: absolute;
+    width: 40px;
+    height: 6px;
+    background: linear-gradient(90deg, #ff6b35, #667eea);
+    border-radius: 3px;
+    transform-origin: center;
+}
+
+@keyframes mobiusRotate {
+    0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+    25% { transform: rotateX(90deg) rotateY(90deg) rotateZ(45deg); }
+    50% { transform: rotateX(180deg) rotateY(180deg) rotateZ(90deg); }
+    75% { transform: rotateX(270deg) rotateY(270deg) rotateZ(135deg); }
+    100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg); }
+}
+
+/* Kaleidoscope */
+.kaleidoscope {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 2rem auto;
+    border-radius: 50%;
+    overflow: hidden;
+    background: conic-gradient(
+        from 0deg,
+        #ff6b35, #667eea, #764ba2, #f7931e,
+        #ff6b35, #667eea, #764ba2, #f7931e
+    );
+    animation: kaleidoscopeRotate 6s linear infinite;
+}
+
+.kaleidoscope::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    background: repeating-conic-gradient(
+        from 30deg,
+        transparent 0deg 10deg,
+        rgba(255,255,255,0.1) 10deg 20deg
+    );
+    transform: translate(-50%, -50%);
+    animation: kaleidoscopeReverse 4s linear infinite reverse;
+}
+
+@keyframes kaleidoscopeRotate {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes kaleidoscopeReverse {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* 🔥 EVEN MORE INSANE ANIMATIONS */
+
+/* Time Warp Effect */
+.time-warp {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin: 2rem auto;
+    background: radial-gradient(circle, #000 0%, #1a1a2e 50%, #16213e 100%);
+    border-radius: 50%;
+    overflow: hidden;
+    animation: timeWarpPulse 4s ease-in-out infinite;
+}
+
+.time-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #00ffff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: timeRipple 3s ease-out infinite;
+    opacity: 0;
+}
+
+@keyframes timeWarpPulse {
+    0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+    50% { transform: scale(1.1) rotate(180deg); filter: brightness(1.5); }
+}
+
+@keyframes timeRipple {
+    0% { width: 20px; height: 20px; opacity: 1; }
+    100% { width: 400px; height: 400px; opacity: 0; }
+}
+
+/* Hypercube (4D Tesseract) */
+.hypercube {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 2rem auto;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    animation: hypercubeRotate 10s linear infinite;
+}
+
+.cube-face {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border: 2px solid #ff6b35;
+    background: rgba(102, 126, 234, 0.1);
+    transform-style: preserve-3d;
+}
+
+/* Inner cube */
+.inner-cube .cube-face {
+    border-color: #667eea;
+    background: rgba(255, 107, 53, 0.1);
+}
+
+@keyframes hypercubeRotate {
+    0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) rotateW(0deg); }
+    100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg) rotateW(360deg); }
+}
+
+/* Neural Network */
+.neural-network {
+    position: relative;
+    width: 500px;
+    height: 300px;
+    margin: 2rem auto;
+    background: #0a0a0a;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.neuron {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #00ffff;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #00ffff;
+    animation: neuronPulse 2s ease-in-out infinite;
+}
+
+.synapse {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #00ffff 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: synapseSignal 1s linear infinite;
+    box-shadow: 0 0 5px #00ffff;
+}
+
+@keyframes neuronPulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.5); opacity: 1; }
+}
+
+@keyframes synapseSignal {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Galaxy Spiral */
+.galaxy-spiral {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin: 2rem auto;
+    background: radial-gradient(circle, #000 0%, #0a0a23 100%);
+    border-radius: 50%;
+    overflow: hidden;
+    animation: galaxyRotate 20s linear infinite;
+}
+
+.spiral-arm {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent 0%, #ffd700 20%, #ff6b35 50%, #667eea 80%, transparent 100%);
+    transform-origin: left center;
+    border-radius: 2px;
+    box-shadow: 0 0 10px #ffd700;
+}
+
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    animation: starTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes galaxyRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes starTwinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+}
+
+/* Particle Accelerator */
+.particle-accelerator {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin: 2rem auto;
+    border: 4px solid #333;
+    border-radius: 50%;
+    background: radial-gradient(circle, #001 0%, #002 100%);
+    overflow: hidden;
+}
+
+.particle-beam {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: #ff0080;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #ff0080, 0 0 40px #ff0080;
+    animation: particleOrbit 2s linear infinite;
+    transform-origin: 0 0;
+}
+
+.collision-point {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    transform: translate(-50%, -50%);
+    animation: collisionExplosion 1s ease-out infinite;
+}
+
+@keyframes particleOrbit {
+    0% { transform: translate(-50%, -50%) rotate(0deg) translateX(180px); }
+    100% { transform: translate(-50%, -50%) rotate(360deg) translateX(180px); }
+}
+
+@keyframes collisionExplosion {
+    0% { 
+        background: transparent;
+        box-shadow: none;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    10% { 
+        background: #fff;
+        box-shadow: 0 0 50px #fff, 0 0 100px #ff0080;
+        transform: translate(-50%, -50%) scale(3);
+    }
+    100% { 
+        background: transparent;
+        box-shadow: none;
+        transform: translate(-50%, -50%) scale(0);
+    }
+}
+
+/* Dimensional Rift */
+.dimensional-rift {
+    position: relative;
+    width: 300px;
+    height: 400px;
+    margin: 2rem auto;
+    background: linear-gradient(45deg, #000, #1a0033, #000);
+    border-radius: 50px;
+    overflow: hidden;
+    animation: riftFlicker 3s ease-in-out infinite;
+}
+
+.rift-edge {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 3px solid #8a2be2;
+    border-radius: 50px;
+    box-shadow: 
+        inset 0 0 50px #8a2be2,
+        0 0 50px #8a2be2;
+    animation: riftPulse 2s ease-in-out infinite;
+}
+
+.rift-energy {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #8a2be2;
+    animation: energyFlow 4s linear infinite;
+}
+
+@keyframes riftFlicker {
+    0%, 100% { filter: brightness(1) contrast(1); }
+    50% { filter: brightness(1.5) contrast(2); }
+}
+
+@keyframes riftPulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.05); opacity: 1; }
+}
+
+@keyframes energyFlow {
+    0% { top: 100%; left: 50%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 0%; left: 50%; opacity: 0; }
+}
+
+/* Black Hole Simulation */
+.black-hole {
+    position: relative;
+    width: 350px;
+    height: 350px;
+    margin: 2rem auto;
+    background: radial-gradient(circle, #000 20%, transparent 21%),
+                radial-gradient(circle, rgba(255,165,0,0.8) 40%, transparent 41%),
+                radial-gradient(circle, rgba(255,69,0,0.6) 60%, transparent 61%);
+    border-radius: 50%;
+    animation: blackHoleRotate 8s linear infinite;
+}
+
+.accretion-disk {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    border: 20px solid transparent;
+    border-image: conic-gradient(
+        from 0deg,
+        #ff4500, #ffa500, #ffff00, #ff6347,
+        #ff4500, #ffa500, #ffff00, #ff6347
+    ) 1;
+    transform: translate(-50%, -50%);
+    animation: accretionSpin 3s linear infinite;
+}
+
+.hawking-radiation {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fff;
+    animation: radiationEscape 5s linear infinite;
+}
+
+@keyframes blackHoleRotate {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes accretionSpin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes radiationEscape {
+    0% { 
+        transform: translate(-50%, -50%) rotate(0deg) translateX(100px);
+        opacity: 1;
+    }
+    100% { 
+        transform: translate(-50%, -50%) rotate(360deg) translateX(200px);
+        opacity: 0;
+    }
+}
+
+/* Holodeck Grid */
+.holodeck {
+    position: relative;
+    width: 400px;
+    height: 300px;
+    margin: 2rem auto;
+    background: #000;
+    perspective: 800px;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.holodeck-grid {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(0deg, transparent 90%, #00ffff 100%),
+        linear-gradient(90deg, transparent 90%, #00ffff 100%);
+    background-size: 20px 20px;
+    animation: holodeckFlow 4s linear infinite;
+    transform: rotateX(75deg) translateZ(-100px);
+}
+
+@keyframes holodeckFlow {
+    0% { transform: rotateX(75deg) translateZ(-100px) translateY(0); }
+    100% { transform: rotateX(75deg) translateZ(-100px) translateY(20px); }
+}
+
+/* Plasma Ball */
+.plasma-ball {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 2rem auto;
+    background: radial-gradient(circle, #1a0033 0%, #000 100%);
+    border-radius: 50%;
+    border: 3px solid #333;
+    overflow: hidden;
+}
+
+.plasma-bolt {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 80px;
+    background: linear-gradient(0deg, transparent 0%, #8a2be2 50%, #fff 100%);
+    transform-origin: bottom center;
+    animation: plasmaBolt 0.5s linear infinite;
+    border-radius: 2px;
+    box-shadow: 0 0 10px #8a2be2;
+}
+
+@keyframes plasmaBolt {
+    0% { 
+        transform: translate(-50%, -100%) rotate(0deg);
+        opacity: 1;
+    }
+    100% { 
+        transform: translate(-50%, -100%) rotate(360deg);
+        opacity: 0.3;
+    }
+}
+
+/* Wormhole */
+.wormhole {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 2rem auto;
+    background: #000;
+    border-radius: 50%;
+    overflow: hidden;
+    animation: wormholeRotate 6s linear infinite;
+}
+
+.wormhole-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border: 2px solid #ff6b35;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: wormholeExpand 2s ease-out infinite;
+}
+
+@keyframes wormholeRotate {
+    0% { transform: rotate(0deg) scale(1); filter: hue-rotate(0deg); }
+    100% { transform: rotate(360deg) scale(1); filter: hue-rotate(360deg); }
+}
+
+@keyframes wormholeExpand {
+    0% { 
+        width: 10px; height: 10px; 
+        opacity: 1; 
+        box-shadow: 0 0 20px #ff6b35;
+    }
+    100% { 
+        width: 300px; height: 300px; 
+        opacity: 0; 
+        box-shadow: 0 0 100px #ff6b35;
+    }
+}
+
+/* Crystalline Structure */
+.crystalline {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 2rem auto;
+    transform-style: preserve-3d;
+    animation: crystallineRotate 8s linear infinite;
+}
+
+.crystal-face {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(45deg, rgba(102,126,234,0.3), rgba(255,107,53,0.3));
+    border: 1px solid #fff;
+    backdrop-filter: blur(5px);
+    animation: crystalShimmer 3s ease-in-out infinite;
+}
+
+@keyframes crystallineRotate {
+    0% { transform: rotateX(0deg) rotateY(0deg); }
+    100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+@keyframes crystalShimmer {
+    0%, 100% { opacity: 0.3; filter: brightness(1); }
+    50% { opacity: 0.8; filter: brightness(2); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="animation-container">
+    <!-- Floating Background Elements -->
+    <div class="floating-element">
+        <i class="fas fa-star" style="color: rgba(255,255,255,0.2); font-size: 2rem;"></i>
+    </div>
+    <div class="floating-element floating-1">
+        <i class="fas fa-circle" style="color: rgba(255,255,255,0.1); font-size: 1.5rem;"></i>
+    </div>
+    <div class="floating-element floating-2">
+        <i class="fas fa-square" style="color: rgba(255,255,255,0.15); font-size: 1.2rem;"></i>
+    </div>
+    <div class="floating-element floating-3">
+        <i class="fas fa-triangle" style="color: rgba(255,255,255,0.2); font-size: 1.8rem;"></i>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="text-center mb-5 slide-in-up">
+            <h1 class="text-white mb-3">🎨 Secret Animations Test Lab</h1>
+            <p class="text-white-50">Hidden page for testing various CSS animations</p>
+        </div>
+
+        <!-- Typing Animation Section -->
+        <div class="test-section slide-in-left">
+            <h2 class="mb-4">📝 Typing Animation</h2>
+            <div class="typing-text" style="width: fit-content;">
+                Welcome to ICEIMS 2026 Animation Testing!
+            </div>
+        </div>
+
+        <!-- Basic Animations Section -->
+        <div class="test-section slide-in-right">
+            <h2 class="mb-4">🎯 Basic Animations</h2>
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <div class="bounce-element">
+                        <i class="fas fa-basketball-ball" style="font-size: 3rem; color: #ff6b35;"></i>
+                        <p class="mt-2">Bounce</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="pulse-element">
+                        <i class="fas fa-heart" style="font-size: 3rem; color: #e74c3c;"></i>
+                        <p class="mt-2">Pulse</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="rotate-element">
+                        <i class="fas fa-cog" style="font-size: 3rem; color: #667eea;"></i>
+                        <p class="mt-2">Rotate</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="shake-element">
+                        <i class="fas fa-bell" style="font-size: 3rem; color: #f39c12;"></i>
+                        <p class="mt-2">Shake</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fade In Sequence -->
+        <div class="test-section">
+            <h2 class="mb-4">✨ Fade In Sequence</h2>
+            <div class="row">
+                <div class="col-md-3 fade-in fade-in-delay-1">
+                    <div class="text-center p-3 bg-primary text-white rounded">
+                        <h4>Step 1</h4>
+                        <p>First to appear</p>
+                    </div>
+                </div>
+                <div class="col-md-3 fade-in fade-in-delay-2">
+                    <div class="text-center p-3 bg-success text-white rounded">
+                        <h4>Step 2</h4>
+                        <p>Second to appear</p>
+                    </div>
+                </div>
+                <div class="col-md-3 fade-in fade-in-delay-3">
+                    <div class="text-center p-3 bg-warning text-white rounded">
+                        <h4>Step 3</h4>
+                        <p>Third to appear</p>
+                    </div>
+                </div>
+                <div class="col-md-3 fade-in" style="animation-delay: 2s; animation-fill-mode: both;">
+                    <div class="text-center p-3 bg-danger text-white rounded">
+                        <h4>Step 4</h4>
+                        <p>Last to appear</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Elements -->
+        <div class="test-section">
+            <h2 class="mb-4">🎮 Interactive Elements</h2>
+            
+            <!-- Flip Card -->
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="interactive-card">
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <div>
+                                    <h4>ICEIMS 2026</h4>
+                                    <p>Hover to flip!</p>
+                                </div>
+                            </div>
+                            <div class="card-back">
+                                <div>
+                                    <h4>March 15-17</h4>
+                                    <p>Tech City!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-center">
+                        <button class="morph-button mb-3">
+                            Morphing Button - Hover Me!
+                        </button>
+                        <div class="spinner mb-3"></div>
+                        <p>Loading animation example</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gradient Background -->
+        <div class="test-section p-0">
+            <div class="gradient-bg">
+                <h2>🌈 Animated Gradient Background</h2>
+                <p>This background continuously shifts colors</p>
+            </div>
+        </div>
+
+        <!-- Wave Effect -->
+        <div class="test-section p-0">
+            <h2 class="p-4 mb-0">🌊 Wave Animation</h2>
+            <div class="wave"></div>
+            <p class="p-4 mb-0">Animated wave effect</p>
+        </div>
+
+        <!-- Zoom Animation -->
+        <div class="test-section zoom-in">
+            <h2 class="mb-4">🔍 Zoom In Effect</h2>
+            <div class="text-center">
+                <i class="fas fa-search" style="font-size: 4rem; color: #667eea;"></i>
+                <p class="mt-3">This entire section zoomed in when it loaded</p>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="test-section">
+            <h2 class="mb-4">📋 Test Instructions</h2>
+            <div class="alert alert-info">
+                <h5>🔒 Hidden Page Access:</h5>
+                <p><strong>URL:</strong> <code>/secret-animations-test/</code></p>
+                <p><strong>Purpose:</strong> Test various CSS animations without affecting the main website</p>
+                <p><strong>Features:</strong></p>
+                <ul>
+                    <li>✅ Not linked in navigation</li>
+                    <li>✅ Direct URL access only</li>
+                    <li>✅ Multiple animation types</li>
+                    <li>✅ Interactive elements</li>
+                    <li>✅ Performance testing</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="text-center mt-5">
+            <a href="{% url 'conference:home' %}" class="btn btn-light btn-lg">
+                <i class="fas fa-home me-2"></i>Back to Home
+            </a>
+        </div>
+
+        <!-- 🚀 UNTHINKABLE AMAZING ANIMATIONS SECTION -->
+        <div class="test-section">
+            <h2 class="mb-4 text-center">🚀 UNTHINKABLE AMAZING ANIMATIONS</h2>
+            <p class="text-center text-muted mb-5">Mind-bending, reality-defying visual effects!</p>
+
+            <!-- Matrix Rain Background -->
+            <div class="matrix-rain" id="matrixRain"></div>
+
+            <!-- Holographic Text -->
+            <div class="holographic-text mb-5" data-text="ICEIMS 2026">
+                ICEIMS 2026
+            </div>
+
+            <!-- Liquid Morphing Blob -->
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <h4 class="text-center">🌊 Liquid Morphing</h4>
+                    <div class="liquid-morph"></div>
+                    <p class="text-center text-muted">Shape-shifting liquid blob</p>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="text-center">🧬 DNA Helix</h4>
+                    <div class="dna-helix">
+                        <div class="dna-strand" id="dnaStrand1"></div>
+                        <div class="dna-strand" id="dnaStrand2"></div>
+                    </div>
+                    <p class="text-center text-muted">Double helix structure</p>
+                </div>
+            </div>
+
+            <!-- Quantum Field -->
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <h4 class="text-center">⚛️ Quantum Field</h4>
+                    <div class="quantum-field" id="quantumField"></div>
+                    <p class="text-center text-muted">Quantum particles in motion</p>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="text-center">🌀 Cosmic Portal</h4>
+                    <div class="cosmic-portal">
+                        <div class="portal-ring ring-1"></div>
+                        <div class="portal-ring ring-2"></div>
+                        <div class="portal-ring ring-3"></div>
+                        <div class="portal-ring ring-4"></div>
+                    </div>
+                    <p class="text-center text-muted">Interdimensional gateway</p>
+                </div>
+            </div>
+
+            <!-- Impossible Geometry -->
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <h4 class="text-center">🔺 Impossible Triangle</h4>
+                    <div class="impossible-triangle">
+                        <div class="triangle-side side-1"></div>
+                        <div class="triangle-side side-2"></div>
+                        <div class="triangle-side side-3"></div>
+                    </div>
+                    <p class="text-center text-muted">Penrose triangle illusion</p>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="text-center">🏗️ Penrose Stairs</h4>
+                    <div class="penrose-stairs">
+                        <div class="stair-step step-1"></div>
+                        <div class="stair-step step-2"></div>
+                        <div class="stair-step step-3"></div>
+                        <div class="stair-step step-4"></div>
+                    </div>
+                    <p class="text-center text-muted">Infinite staircase</p>
+                </div>
+            </div>
+
+            <!-- Advanced Patterns -->
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <h4 class="text-center">🔷 Tessellation</h4>
+                    <div class="tessellation"></div>
+                    <p class="text-center text-muted">Mathematical patterns</p>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="text-center">🎭 Kaleidoscope</h4>
+                    <div class="kaleidoscope"></div>
+                    <p class="text-center text-muted">Symmetric color patterns</p>
+                </div>
+            </div>
+
+            <!-- Fractal Tree -->
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <h4 class="text-center">🌳 Fractal Tree</h4>
+                    <div class="fractal-container" id="fractalTree"></div>
+                    <p class="text-center text-muted">Self-similar branching</p>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="text-center">🌀 Möbius Strip</h4>
+                    <div class="mobius-strip" id="mobiusStrip"></div>
+                    <p class="text-center text-muted">Non-orientable surface</p>
+                </div>
+            </div>
+
+            <!-- Quantum Tunnel -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <h4 class="text-center">🚇 Quantum Tunnel</h4>
+                    <div class="quantum-tunnel" id="quantumTunnel"></div>
+                    <p class="text-center text-muted">Infinite depth illusion</p>
+                </div>
+            </div>
+
+            <!-- Performance Warning -->
+            <div class="alert alert-warning mt-5">
+                <h5>⚠️ Performance Notice:</h5>
+                <p>These animations are computationally intensive. If you experience lag, try closing other browser tabs or reducing browser window size.</p>
+                <button class="btn btn-sm btn-warning" onclick="toggleAnimations()">
+                    <i class="fas fa-pause"></i> Toggle All Animations
+                </button>
+            </div>
+        </div>
+
+        <!-- 🔥 NEXT LEVEL INSANE ANIMATIONS -->
+        <div class="test-section">
+            <h2 class="mb-4 text-center">🔥 NEXT LEVEL INSANE ANIMATIONS</h2>
+            <p class="text-center text-muted mb-5">Reality-bending physics and sci-fi effects!</p>
+
+            <!-- Time Warp & Black Hole -->
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <h4 class="text-center">⏰ Time Warp</h4>
+                    <div class="time-warp" id="timeWarp"></div>
+                    <p class="text-center text-muted">Spacetime distortion field</p>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="text-center">🕳️ Black Hole</h4>
+                    <div class="black-hole">
+                        <div class="accretion-disk"></div>
+                        <div class="hawking-radiation" id="hawkingRad"></div>
+                    </div>
+                    <p class="text-center text-muted">Gravitational singularity</p>
+                </div>
+            </div>
+
+            <!-- Hypercube & Neural Network -->
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <h4 class="text-center">🧊 4D Hypercube</h4>
+                    <div class="hypercube" id="hypercube">
+                        <div class="outer-cube"></div>
+                        <div class="inner-cube"></div>
+                    </div>
+                    <p class="text-center text-muted">Tesseract visualization</p>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="text-center">🧠 Neural Network</h4>
+                    <div class="neural-network" id="neuralNet"></div>
+                    <p class="text-center text-muted">AI brain simulation</p>
+                </div>
+            </div>
+
+            <!-- Galaxy & Particle Accelerator -->
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <h4 class="text-center">🌌 Galaxy Spiral</h4>
+                    <div class="galaxy-spiral" id="galaxy"></div>
+                    <p class="text-center text-muted">Milky Way simulation</p>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="text-center">⚛️ Particle Accelerator</h4>
+                    <div class="particle-accelerator">
+                        <div class="particle-beam" style="animation-delay: 0s;"></div>
+                        <div class="particle-beam" style="animation-delay: 1s; background: #00ff80;"></div>
+                        <div class="collision-point"></div>
+                    </div>
+                    <p class="text-center text-muted">Large Hadron Collider</p>
+                </div>
+            </div>
+
+            <!-- Dimensional Rift & Wormhole -->
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <h4 class="text-center">🌀 Dimensional Rift</h4>
+                    <div class="dimensional-rift">
+                        <div class="rift-edge"></div>
+                        <div class="rift-energy" id="riftEnergy"></div>
+                    </div>
+                    <p class="text-center text-muted">Portal between worlds</p>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="text-center">🌊 Wormhole</h4>
+                    <div class="wormhole" id="wormhole"></div>
+                    <p class="text-center text-muted">Einstein-Rosen bridge</p>
+                </div>
+            </div>
+
+            <!-- Holodeck & Plasma Ball -->
+            <div class="row mb-5">
+                <div class="col-md-6">
+                    <h4 class="text-center">🎮 Holodeck Grid</h4>
+                    <div class="holodeck">
+                        <div class="holodeck-grid"></div>
+                    </div>
+                    <p class="text-center text-muted">Star Trek holographic matrix</p>
+                </div>
+                <div class="col-md-6">
+                    <h4 class="text-center">⚡ Plasma Ball</h4>
+                    <div class="plasma-ball" id="plasmaBall"></div>
+                    <p class="text-center text-muted">Electric discharge simulation</p>
+                </div>
+            </div>
+
+            <!-- Crystalline Structure -->
+            <div class="row mb-5">
+                <div class="col-12 text-center">
+                    <h4>💎 Crystalline Structure</h4>
+                    <div class="crystalline" id="crystalline"></div>
+                    <p class="text-muted">Molecular crystal formation</p>
+                </div>
+            </div>
+
+            <!-- Ultimate Performance Warning -->
+            <div class="alert alert-danger mt-5">
+                <h5>🚨 EXTREME PERFORMANCE WARNING:</h5>
+                <p><strong>These animations use advanced 3D transforms and may cause:</strong></p>
+                <ul>
+                    <li>High GPU usage</li>
+                    <li>Increased battery drain on laptops</li>
+                    <li>Potential lag on older devices</li>
+                    <li>Browser freezing if too many run simultaneously</li>
+                </ul>
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-danger me-2" onclick="pauseIntensiveAnimations()">
+                        <i class="fas fa-stop"></i> Pause Intensive Animations
+                    </button>
+                    <button class="btn btn-sm btn-success" onclick="resumeIntensiveAnimations()">
+                        <i class="fas fa-play"></i> Resume All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Particle Effects -->
+    <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 20%; animation-delay: 0.5s;"></div>
+    <div class="particle" style="left: 30%; animation-delay: 1s;"></div>
+    <div class="particle" style="left: 40%; animation-delay: 1.5s;"></div>
+    <div class="particle" style="left: 50%; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 60%; animation-delay: 2.5s;"></div>
+    <div class="particle" style="left: 70%; animation-delay: 3s;"></div>
+    <div class="particle" style="left: 80%; animation-delay: 3.5s;"></div>
+    <div class="particle" style="left: 90%; animation-delay: 4s;"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add some JavaScript animations for enhanced effects
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎨 UNTHINKABLE ANIMATIONS LOADED!');
+    
+    // 🚀 AMAZING ANIMATION INITIALIZERS
+
+    // Matrix Rain Effect
+    function createMatrixRain() {
+        const matrixContainer = document.getElementById('matrixRain');
+        if (!matrixContainer) return;
+        
+        const characters = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+        
+        for (let i = 0; i < 50; i++) {
+            const column = document.createElement('div');
+            column.className = 'matrix-column';
+            column.style.left = Math.random() * 100 + '%';
+            column.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            column.style.animationDelay = Math.random() * 2 + 's';
+            
+            let text = '';
+            for (let j = 0; j < 20; j++) {
+                text += characters.charAt(Math.floor(Math.random() * characters.length)) + '<br>';
+            }
+            column.innerHTML = text;
+            
+            matrixContainer.appendChild(column);
+        }
+    }
+
+    // DNA Helix Generator
+    function createDNAHelix() {
+        const strand1 = document.getElementById('dnaStrand1');
+        const strand2 = document.getElementById('dnaStrand2');
+        if (!strand1 || !strand2) return;
+        
+        for (let i = 0; i < 40; i++) {
+            const base1 = document.createElement('div');
+            const base2 = document.createElement('div');
+            
+            base1.className = 'dna-base';
+            base2.className = 'dna-base';
+            
+            base1.style.top = (i * 10) + 'px';
+            base2.style.top = (i * 10) + 'px';
+            
+            base1.style.left = Math.sin(i * 0.3) * 80 + 100 + 'px';
+            base2.style.left = Math.sin(i * 0.3 + Math.PI) * 80 + 100 + 'px';
+            
+            strand1.appendChild(base1);
+            strand2.appendChild(base2);
+        }
+    }
+
+    // Quantum Particles
+    function createQuantumParticles() {
+        const quantumField = document.getElementById('quantumField');
+        if (!quantumField) return;
+        
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'quantum-particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 3 + 's';
+            particle.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            
+            // Add quantum entanglement effect
+            particle.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 0 20px #ff00ff, 0 0 40px #ff00ff, 0 0 60px #ff00ff';
+                this.style.transform = 'scale(3)';
+            });
+            
+            particle.addEventListener('mouseleave', function() {
+                this.style.boxShadow = '0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff';
+                this.style.transform = 'scale(1)';
+            });
+            
+            quantumField.appendChild(particle);
+        }
+    }
+
+    // Fractal Tree Generator
+    function createFractalTree() {
+        const container = document.getElementById('fractalTree');
+        if (!container) return;
+        
+        function createBranch(x, y, angle, length, depth) {
+            if (depth === 0 || length < 2) return;
+            
+            const branch = document.createElement('div');
+            branch.className = 'fractal-branch branch-level-' + (4 - depth);
+            branch.style.left = x + 'px';
+            branch.style.bottom = y + 'px';
+            branch.style.height = length + 'px';
+            branch.style.transform = `rotate(${angle}deg)`;
+            branch.style.setProperty('--branch-height', length + 'px');
+            branch.style.setProperty('--branch-angle', angle + 'deg');
+            branch.style.animationDelay = (4 - depth) + 's';
+            
+            container.appendChild(branch);
+            
+            // Create child branches
+            setTimeout(() => {
+                const endX = x + Math.sin(angle * Math.PI / 180) * length;
+                const endY = y + Math.cos(angle * Math.PI / 180) * length;
+                
+                createBranch(endX, endY, angle - 30, length * 0.7, depth - 1);
+                createBranch(endX, endY, angle + 30, length * 0.7, depth - 1);
+            }, (4 - depth) * 1000);
+        }
+        
+        // Start the fractal tree
+        createBranch(200, 0, 0, 80, 4);
+    }
+
+    // Möbius Strip Generator
+    function createMobiusStrip() {
+        const mobius = document.getElementById('mobiusStrip');
+        if (!mobius) return;
+        
+        for (let i = 0; i < 16; i++) {
+            const segment = document.createElement('div');
+            segment.className = 'mobius-segment';
+            
+            const angle = (i / 16) * Math.PI * 2;
+            const twist = (i / 16) * Math.PI;
+            
+            segment.style.transform = `
+                rotateY(${angle * 180 / Math.PI}deg) 
+                translateZ(60px) 
+                rotateX(${twist * 180 / Math.PI}deg)
+            `;
+            
+            segment.style.filter = `hue-rotate(${i * 22.5}deg)`;
+            
+            mobius.appendChild(segment);
+        }
+    }
+
+    // Quantum Tunnel Rings
+    function createQuantumTunnel() {
+        const tunnel = document.getElementById('quantumTunnel');
+        if (!tunnel) return;
+        
+        for (let i = 0; i < 20; i++) {
+            const ring = document.createElement('div');
+            ring.className = 'tunnel-ring';
+            ring.style.animationDelay = (i * 0.1) + 's';
+            ring.style.animationDuration = '2s';
+            
+            tunnel.appendChild(ring);
+        }
+    }
+
+    // Interactive Effects
+    function addInteractiveEffects() {
+        // Holographic text glitch on hover
+        const holoText = document.querySelector('.holographic-text');
+        if (holoText) {
+            holoText.addEventListener('mouseenter', function() {
+                this.style.animation = 'holographicShift 0.1s ease-in-out infinite, textGlow 0.1s ease-in-out infinite, glitch 0.05s infinite';
+            });
+            
+            holoText.addEventListener('mouseleave', function() {
+                this.style.animation = 'holographicShift 2s ease-in-out infinite, textGlow 1s ease-in-out infinite alternate';
+            });
+        }
+
+        // Liquid morph responds to mouse
+        const liquidMorph = document.querySelector('.liquid-morph');
+        if (liquidMorph) {
+            liquidMorph.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width - 0.5) * 100;
+                const y = ((e.clientY - rect.top) / rect.height - 0.5) * 100;
+                
+                this.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+            });
+            
+            liquidMorph.addEventListener('mouseleave', function() {
+                this.style.transform = 'translate(0, 0) scale(1)';
+            });
+        }
+
+        // Cosmic portal responds to clicks
+        const cosmicPortal = document.querySelector('.cosmic-portal');
+        if (cosmicPortal) {
+            cosmicPortal.addEventListener('click', function() {
+                this.style.animation = 'portalSpin 1s linear infinite';
+                setTimeout(() => {
+                    this.style.animation = 'portalSpin 10s linear infinite';
+                }, 2000);
+            });
+        }
+    }
+
+    // Performance Toggle
+    window.toggleAnimations = function() {
+        const animatedElements = document.querySelectorAll('*[class*="animate"], *[class*="morph"], *[class*="quantum"], *[class*="matrix"], *[class*="dna"], *[class*="holographic"]');
+        
+        animatedElements.forEach(el => {
+            if (el.style.animationPlayState === 'paused') {
+                el.style.animationPlayState = 'running';
+            } else {
+                el.style.animationPlayState = 'paused';
+            }
+        });
+    };
+
+    // 🔥 NEW INSANE ANIMATIONS FUNCTIONS
+    
+    // Time Warp Ripples
+    function createTimeWarpRipples() {
+        const timeWarp = document.getElementById('timeWarp');
+        if (!timeWarp) return;
+        
+        setInterval(() => {
+            const ripple = document.createElement('div');
+            ripple.className = 'time-ripple';
+            ripple.style.animationDelay = Math.random() * 2 + 's';
+            ripple.style.borderColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            timeWarp.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 3000);
+        }, 800);
+    }
+
+    // Hypercube Construction
+    function createHypercube() {
+        const hypercube = document.getElementById('hypercube');
+        if (!hypercube) return;
+        
+        // Outer cube faces
+        const outerCube = document.createElement('div');
+        outerCube.className = 'outer-cube';
+        
+        // Inner cube faces  
+        const innerCube = document.createElement('div');
+        innerCube.className = 'inner-cube';
+        
+        // Create 8 faces for tesseract visualization
+        for (let i = 0; i < 8; i++) {
+            const face = document.createElement('div');
+            face.className = 'cube-face';
+            
+            const angle = (i / 8) * 360;
+            const distance = i < 4 ? 100 : 150;
+            
+            face.style.transform = `
+                rotateY(${angle}deg) 
+                translateZ(${distance}px) 
+                rotateX(${i * 45}deg)
+            `;
+            face.style.filter = `hue-rotate(${angle}deg)`;
+            
+            if (i < 4) {
+                outerCube.appendChild(face);
+            } else {
+                innerCube.appendChild(face);
+            }
+        }
+        
+        hypercube.appendChild(outerCube);
+        hypercube.appendChild(innerCube);
+    }
+
+    // Neural Network Generator
+    function createNeuralNetwork() {
+        const neuralNet = document.getElementById('neuralNet');
+        if (!neuralNet) return;
+        
+        // Create neurons
+        const layers = [6, 8, 6, 4]; // 4 layers with different neuron counts
+        let allNeurons = [];
+        
+        layers.forEach((neuronCount, layerIndex) => {
+            const layerNeurons = [];
+            for (let i = 0; i < neuronCount; i++) {
+                const neuron = document.createElement('div');
+                neuron.className = 'neuron';
+                
+                const x = (layerIndex * 120) + 50;
+                const y = (i * 35) + 50 - (neuronCount * 17.5);
+                
+                neuron.style.left = x + 'px';
+                neuron.style.top = y + 'px';
+                neuron.style.animationDelay = Math.random() * 2 + 's';
+                
+                neuralNet.appendChild(neuron);
+                layerNeurons.push({element: neuron, x: x, y: y});
+            }
+            allNeurons.push(layerNeurons);
+        });
+        
+        // Create synapses between layers
+        for (let layer = 0; layer < allNeurons.length - 1; layer++) {
+            allNeurons[layer].forEach(fromNeuron => {
+                allNeurons[layer + 1].forEach(toNeuron => {
+                    if (Math.random() > 0.3) { // 70% connection probability
+                        const synapse = document.createElement('div');
+                        synapse.className = 'synapse';
+                        
+                        const dx = toNeuron.x - fromNeuron.x;
+                        const dy = toNeuron.y - fromNeuron.y;
+                        const distance = Math.sqrt(dx*dx + dy*dy);
+                        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                        
+                        synapse.style.left = fromNeuron.x + 'px';
+                        synapse.style.top = fromNeuron.y + 'px';
+                        synapse.style.width = distance + 'px';
+                        synapse.style.transform = `rotate(${angle}deg)`;
+                        synapse.style.animationDelay = Math.random() * 1 + 's';
+                        
+                        neuralNet.appendChild(synapse);
+                    }
+                });
+            });
+        }
+    }
+
+    // Galaxy with Stars
+    function createGalaxy() {
+        const galaxy = document.getElementById('galaxy');
+        if (!galaxy) return;
+        
+        // Create spiral arms
+        for (let arm = 0; arm < 4; arm++) {
+            const spiralArm = document.createElement('div');
+            spiralArm.className = 'spiral-arm';
+            spiralArm.style.transform = `translate(-50%, -50%) rotate(${arm * 90}deg)`;
+            spiralArm.style.animationDelay = arm * 0.5 + 's';
+            galaxy.appendChild(spiralArm);
+        }
+        
+        // Create random stars
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            
+            const distance = Math.random() * 180 + 20;
+            const angle = Math.random() * 360;
+            
+            star.style.left = Math.cos(angle * Math.PI / 180) * distance + 200 + 'px';
+            star.style.top = Math.sin(angle * Math.PI / 180) * distance + 200 + 'px';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            
+            galaxy.appendChild(star);
+        }
+    }
+
+    // Hawking Radiation
+    function createHawkingRadiation() {
+        const container = document.querySelector('.black-hole');
+        if (!container) return;
+        
+        setInterval(() => {
+            const radiation = document.createElement('div');
+            radiation.className = 'hawking-radiation';
+            
+            const angle = Math.random() * 360;
+            radiation.style.left = '50%';
+            radiation.style.top = '50%';
+            radiation.style.transform = `translate(-50%, -50%) rotate(${angle}deg) translateX(80px)`;
+            
+            container.appendChild(radiation);
+            
+            setTimeout(() => radiation.remove(), 5000);
+        }, 200);
+    }
+
+    // Dimensional Rift Energy
+    function createRiftEnergy() {
+        const rift = document.querySelector('.dimensional-rift');
+        if (!rift) return;
+        
+        setInterval(() => {
+            const energy = document.createElement('div');
+            energy.className = 'rift-energy';
+            energy.style.left = Math.random() * 100 + '%';
+            energy.style.animationDelay = Math.random() * 2 + 's';
+            
+            rift.appendChild(energy);
+            
+            setTimeout(() => energy.remove(), 4000);
+        }, 300);
+    }
+
+    // Wormhole Rings
+    function createWormholeRings() {
+        const wormhole = document.getElementById('wormhole');
+        if (!wormhole) return;
+        
+        setInterval(() => {
+            const ring = document.createElement('div');
+            ring.className = 'wormhole-ring';
+            ring.style.animationDelay = Math.random() + 's';
+            
+            wormhole.appendChild(ring);
+            
+            setTimeout(() => ring.remove(), 2000);
+        }, 400);
+    }
+
+    // Plasma Ball Lightning
+    function createPlasmaBall() {
+        const plasmaBall = document.getElementById('plasmaBall');
+        if (!plasmaBall) return;
+        
+        for (let i = 0; i < 12; i++) {
+            const bolt = document.createElement('div');
+            bolt.className = 'plasma-bolt';
+            
+            const angle = (i / 12) * 360;
+            bolt.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+            bolt.style.animationDelay = (i * 0.1) + 's';
+            
+            plasmaBall.appendChild(bolt);
+        }
+    }
+
+    // Crystalline Structure
+    function createCrystalline() {
+        const crystalline = document.getElementById('crystalline');
+        if (!crystalline) return;
+        
+        // Create crystal faces in 3D arrangement
+        const positions = [
+            {x: 0, y: 0, z: 50, rx: 0, ry: 0},
+            {x: 0, y: 0, z: -50, rx: 0, ry: 180},
+            {x: 50, y: 0, z: 0, rx: 0, ry: 90},
+            {x: -50, y: 0, z: 0, rx: 0, ry: -90},
+            {x: 0, y: 50, z: 0, rx: 90, ry: 0},
+            {x: 0, y: -50, z: 0, rx: -90, ry: 0},
+            // Additional faces for complex crystal
+            {x: 35, y: 35, z: 35, rx: 45, ry: 45},
+            {x: -35, y: -35, z: -35, rx: -45, ry: -45},
+        ];
+        
+        positions.forEach((pos, index) => {
+            const face = document.createElement('div');
+            face.className = 'crystal-face';
+            face.style.transform = `
+                translate3d(${pos.x}px, ${pos.y}px, ${pos.z}px) 
+                rotateX(${pos.rx}deg) 
+                rotateY(${pos.ry}deg)
+            `;
+            face.style.animationDelay = index * 0.2 + 's';
+            
+            crystalline.appendChild(face);
+        });
+    }
+
+    // Performance Controls
+    window.pauseIntensiveAnimations = function() {
+        const intensive = document.querySelectorAll('.black-hole, .hypercube, .neural-network, .galaxy-spiral, .particle-accelerator, .crystalline');
+        intensive.forEach(el => {
+            el.style.animationPlayState = 'paused';
+            el.querySelectorAll('*').forEach(child => {
+                child.style.animationPlayState = 'paused';
+            });
+        });
+    };
+
+    window.resumeIntensiveAnimations = function() {
+        const intensive = document.querySelectorAll('.black-hole, .hypercube, .neural-network, .galaxy-spiral, .particle-accelerator, .crystalline');
+        intensive.forEach(el => {
+            el.style.animationPlayState = 'running';
+            el.querySelectorAll('*').forEach(child => {
+                child.style.animationPlayState = 'running';
+            });
+        });
+    };
+
+    // Initialize NEW insane animations with performance optimization
+    const animationsDelay = 2000; // Increased delay
+    setTimeout(() => {
+        // Only create animations if page is visible
+        if (document.visibilityState === 'visible') {
+            createTimeWarpRipples();
+        }
+    }, animationsDelay);
+    
+    setTimeout(() => {
+        if (document.visibilityState === 'visible') {
+            createHypercube();
+        }
+    }, animationsDelay + 1000);
+    
+    setTimeout(() => {
+        if (document.visibilityState === 'visible') {
+            createGalaxy();
+        }
+    }, animationsDelay + 2000);
+    
+    // Reduce frequency of heavy animations
+    setTimeout(() => {
+        if (document.visibilityState === 'visible') {
+            createPlasmaBall();
+        }
+    }, animationsDelay + 3000);
+    
+    // Skip the most performance-heavy animations by default
+    // createNeuralNetwork, createHawkingRadiation, createRiftEnergy, etc.
+    // Can be manually enabled by user
+
+    // Parallax scroll effect for quantum elements
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const parallax = document.querySelectorAll('.quantum-particle');
+        const speed = 0.5;
+
+        parallax.forEach(el => {
+            const yPos = -(scrolled * speed);
+            el.style.transform += ` translateY(${yPos}px)`;
+        });
+    });
+
+    // Initialize all amazing animations
+    setTimeout(createMatrixRain, 500);
+    setTimeout(createDNAHelix, 1000);
+    setTimeout(createQuantumParticles, 1500);
+    setTimeout(createFractalTree, 2000);
+    setTimeout(createMobiusStrip, 2500);
+    setTimeout(createQuantumTunnel, 3000);
+    setTimeout(addInteractiveEffects, 3500);
+
+    // Add random particle positions (original code)
+    const particles = document.querySelectorAll('.particle');
+    particles.forEach(particle => {
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 3 + 's';
+    });
+    
+    // Interactive button click effect (original code)
+    const morphButton = document.querySelector('.morph-button');
+    if (morphButton) {
+        morphButton.addEventListener('click', function() {
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    }
+    
+    // Add scroll-triggered animations (original code)
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all animated elements (original code)
+    document.querySelectorAll('[class*="slide-"], [class*="fade-"], [class*="zoom-"]').forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+    });
+    
+    // Restart typing animation every 10 seconds (original code)
+    const typingText = document.querySelector('.typing-text');
+    if (typingText) {
+        setInterval(() => {
+            typingText.style.animation = 'none';
+            setTimeout(() => {
+                typingText.style.animation = 'typing 4s steps(40, end), blink-cursor 0.5s infinite';
+            }, 100);
+        }, 10000);
+    }
+
+    console.log('🚀 ALL UNTHINKABLE ANIMATIONS INITIALIZED!');
+});
+</script>
+{% endblock %}

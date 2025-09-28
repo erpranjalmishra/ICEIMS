@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Workshops - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<!-- Workshops Hero Section -->
+<section class="workshops-hero py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">Workshops</h1>
+                <p class="lead">Hands-on learning experiences and technical sessions</p>
+                <p class="mb-0">Interactive workshops on cutting-edge technologies in Energy and Intelligent Manufacturing</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Workshops Grid -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Workshop 1 -->
+            <div class="col-lg-6 mb-4">
+                <div class="workshop-card">
+                    <div class="workshop-header">
+                        <div class="workshop-badge">Half Day</div>
+                        <h3 class="workshop-title">AI for Smart Manufacturing</h3>
+                    </div>
+                    <div class="workshop-body">
+                        <div class="workshop-meta">
+                            <span class="workshop-date"><i class="fas fa-calendar me-2"></i>November 20, 2026</span>
+                            <span class="workshop-time"><i class="fas fa-clock me-2"></i>2:00 PM - 6:00 PM</span>
+                            <span class="workshop-location"><i class="fas fa-map-marker-alt me-2"></i>Lab A - Computer Center</span>
+                        </div>
+                        <p class="workshop-description">
+                            Learn how to implement AI algorithms for predictive maintenance, quality control, and process optimization in manufacturing environments.
+                        </p>
+                        <div class="workshop-instructor">
+                            <strong>Instructor:</strong> Dr. Rajesh Kumar, IIT Delhi
+                        </div>
+                        <div class="workshop-topics">
+                            <h6>Topics Covered:</h6>
+                            <ul>
+                                <li>Machine Learning for Manufacturing</li>
+                                <li>Predictive Analytics</li>
+                                <li>Quality Control Systems</li>
+                                <li>Hands-on Implementation</li>
+                            </ul>
+                        </div>
+                        <div class="workshop-registration">
+                            <span class="price">₹2,500</span>
+                            <button class="btn btn-primary">Register Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workshop 2 -->
+            <div class="col-lg-6 mb-4">
+                <div class="workshop-card">
+                    <div class="workshop-header">
+                        <div class="workshop-badge">Full Day</div>
+                        <h3 class="workshop-title">Energy Systems Optimization</h3>
+                    </div>
+                    <div class="workshop-body">
+                        <div class="workshop-meta">
+                            <span class="workshop-date"><i class="fas fa-calendar me-2"></i>November 21, 2026</span>
+                            <span class="workshop-time"><i class="fas fa-clock me-2"></i>9:00 AM - 5:00 PM</span>
+                            <span class="workshop-location"><i class="fas fa-map-marker-alt me-2"></i>Lab B - Energy Systems</span>
+                        </div>
+                        <p class="workshop-description">
+                            Comprehensive workshop on renewable energy integration, smart grids, and optimization techniques for sustainable energy systems.
+                        </p>
+                        <div class="workshop-instructor">
+                            <strong>Instructor:</strong> Prof. Priya Sharma, BITS Pilani
+                        </div>
+                        <div class="workshop-topics">
+                            <h6>Topics Covered:</h6>
+                            <ul>
+                                <li>Smart Grid Technologies</li>
+                                <li>Renewable Energy Integration</li>
+                                <li>Energy Storage Systems</li>
+                                <li>Optimization Algorithms</li>
+                            </ul>
+                        </div>
+                        <div class="workshop-registration">
+                            <span class="price">₹4,000</span>
+                            <button class="btn btn-primary">Register Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workshop 3 -->
+            <div class="col-lg-6 mb-4">
+                <div class="workshop-card">
+                    <div class="workshop-header">
+                        <div class="workshop-badge">Half Day</div>
+                        <h3 class="workshop-title">IoT in Manufacturing</h3>
+                    </div>
+                    <div class="workshop-body">
+                        <div class="workshop-meta">
+                            <span class="workshop-date"><i class="fas fa-calendar me-2"></i>November 22, 2026</span>
+                            <span class="workshop-time"><i class="fas fa-clock me-2"></i>10:00 AM - 2:00 PM</span>
+                            <span class="workshop-location"><i class="fas fa-map-marker-alt me-2"></i>Electronics Lab</span>
+                        </div>
+                        <p class="workshop-description">
+                            Build IoT solutions for industrial applications including sensor networks, data collection, and real-time monitoring systems.
+                        </p>
+                        <div class="workshop-instructor">
+                            <strong>Instructor:</strong> Dr. Amit Singh, NIT Kurukshetra
+                        </div>
+                        <div class="workshop-topics">
+                            <h6>Topics Covered:</h6>
+                            <ul>
+                                <li>Industrial IoT Architecture</li>
+                                <li>Sensor Integration</li>
+                                <li>Data Analytics</li>
+                                <li>Real-time Monitoring</li>
+                            </ul>
+                        </div>
+                        <div class="workshop-registration">
+                            <span class="price">₹2,000</span>
+                            <button class="btn btn-primary">Register Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workshop 4 -->
+            <div class="col-lg-6 mb-4">
+                <div class="workshop-card">
+                    <div class="workshop-header">
+                        <div class="workshop-badge">Half Day</div>
+                        <h3 class="workshop-title">Digital Twin Technology</h3>
+                    </div>
+                    <div class="workshop-body">
+                        <div class="workshop-meta">
+                            <span class="workshop-date"><i class="fas fa-calendar me-2"></i>November 22, 2026</span>
+                            <span class="workshop-time"><i class="fas fa-clock me-2"></i>2:30 PM - 6:30 PM</span>
+                            <span class="workshop-location"><i class="fas fa-map-marker-alt me-2"></i>Simulation Lab</span>
+                        </div>
+                        <p class="workshop-description">
+                            Create digital twins for manufacturing processes and learn simulation techniques for process optimization and predictive maintenance.
+                        </p>
+                        <div class="workshop-instructor">
+                            <strong>Instructor:</strong> Dr. Neha Agarwal, IIT Bombay
+                        </div>
+                        <div class="workshop-topics">
+                            <h6>Topics Covered:</h6>
+                            <ul>
+                                <li>Digital Twin Fundamentals</li>
+                                <li>Simulation Modeling</li>
+                                <li>Process Optimization</li>
+                                <li>Predictive Analytics</li>
+                            </ul>
+                        </div>
+                        <div class="workshop-registration">
+                            <span class="price">₹2,800</span>
+                            <button class="btn btn-primary">Register Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Registration Information -->
+<section class="workshop-info py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-4">
+                <h2 class="section-title">Workshop Registration Information</h2>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="info-item text-center">
+                    <i class="fas fa-users text-primary fa-3x mb-3"></i>
+                    <h5>Limited Seats</h5>
+                    <p>Each workshop has limited capacity. Register early to secure your spot.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="info-item text-center">
+                    <i class="fas fa-laptop text-success fa-3x mb-3"></i>
+                    <h5>Hands-on Learning</h5>
+                    <p>All workshops include practical exercises and real-world implementations.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="info-item text-center">
+                    <i class="fas fa-certificate text-warning fa-3x mb-3"></i>
+                    <h5>Certificates</h5>
+                    <p>Participants will receive certificates of completion for attended workshops.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
