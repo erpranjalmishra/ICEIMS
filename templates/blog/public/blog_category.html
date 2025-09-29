@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - Blog Category - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .category-hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        padding: 80px 0 60px;
+        color: white;
+        position: relative;
+    }
+    
+    .blog-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+        border: none;
+    }
+    
+    .blog-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+    
+    .blog-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .blog-content {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: calc(100% - 200px);
+    }
+    
+    .blog-category {
+        background: var(--primary-color);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .blog-meta {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Category Hero Section -->
+<section class="category-hero">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb justify-content-center bg-transparent">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'conference:home' %}" class="text-white text-decoration-none">Home</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'conference:blog_public_list' %}" class="text-white text-decoration-none">Blog</a>
+                        </li>
+                        <li class="breadcrumb-item active text-white" aria-current="page">{{ category.name }}</li>
+                    </ol>
+                </nav>
+                <h1 class="display-4 fw-bold mb-3">{{ category.name }}</h1>
+                {% if category.description %}
+                    <p class="lead">{{ category.description }}</p>
+                {% endif %}
+                <div class="mt-4">
+                    <span class="badge bg-white text-dark fs-6 px-3 py-2">
+                        {{ posts|length }} post{{ posts|length|pluralize }} in this category
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Posts -->
+<section class="py-5">
+    <div class="container">
+        {% if posts %}
+        <div class="row">
+            {% for post in posts %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card blog-card">
+                    {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="blog-image">
+                    {% else %}
+                        <div class="blog-image bg-gradient d-flex align-items-center justify-content-center">
+                            <i class="fas fa-newspaper fa-3x text-white opacity-50"></i>
+                        </div>
+                    {% endif %}
+                    <div class="blog-content">
+                        <div>
+                            <span class="blog-category">{{ post.category.name }}</span>
+                            <h5 class="card-title mt-2">
+                                <a href="{% url 'conference:blog_public_detail' post.slug %}" class="text-decoration-none text-dark">
+                                    {{ post.title }}
+                                </a>
+                            </h5>
+                            <div class="blog-meta">
+                                <i class="fas fa-calendar"></i> {{ post.published_at|date:"M d, Y" }}
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-user"></i> {{ post.author.get_full_name|default:post.author.username }}
+                                {% if post.views > 0 %}
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-eye"></i> {{ post.views }} view{{ post.views|pluralize }}
+                                {% endif %}
+                            </div>
+                            <p class="card-text">{{ post.excerpt|truncatewords:20 }}</p>
+                        </div>
+                        <div>
+                            <a href="{% url 'conference:blog_public_detail' post.slug %}" class="btn btn-primary btn-sm">
+                                Read More <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if posts.has_other_pages %}
+        <nav aria-label="Blog pagination" class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if posts.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ posts.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">Page {{ posts.number }} of {{ posts.paginator.num_pages }}</span>
+                </li>
+
+                {% if posts.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ posts.next_page_number }}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ posts.paginator.num_pages }}">Last</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-newspaper fa-5x text-muted mb-4"></i>
+            <h3>No Posts in This Category</h3>
+            <p class="text-muted lead">This category doesn't have any published posts yet.</p>
+            <a href="{% url 'conference:blog_public_list' %}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Browse All Posts
+            </a>
+        </div>
+        {% endif %}
+        
+        <!-- Back to Blog -->
+        <div class="text-center mt-5">
+            <a href="{% url 'conference:blog_public_list' %}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Back to All Posts
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -62,10 +62,27 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:guidelines' %}">Guidelines</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:schedule' %}">Schedule</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:awards' %}">Awards</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:blog_public_list' %}">Blog</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:contact' %}">Contact</a></li>
                     <li class="nav-item header-time-container">
                         <span id="header-time" class="header-time">--:--:--</span>
                     </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> {{ user.get_full_name|default:user.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                {% if user.is_staff or user.is_superuser %}
+                                    <li><a class="dropdown-item" href="{% url 'conference:blog_list' %}"><i class="fas fa-cog"></i> Blog Admin</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+                                <li><a class="dropdown-item" href="{% url 'conference:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'conference:login' %}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                    {% endif %}
                     <li class="nav-item submit-paper-priority"><a class="nav-link submit-paper-btn" href="#submit-paper">Submit Paper</a></li>
                 </ul>
             </div>
@@ -76,7 +93,7 @@
     {% block content %}{% endblock %}
     
     <!-- Footer -->
-    <footer class="text-white py-5" style="background: #000000;">
+    <footer class="text-white pt-5 pb-2" style="background: #000000;">
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 mb-4">
@@ -159,6 +176,9 @@
             </div>
             <div class="row">
                 <div class="col-lg-12 text-center">
+                    <div class="mt-1 mb-1">
+                        <span class="credits-text">Crafted with <span class="heart">🤍</span> by <a href="https://teamvimarsh.me" target="_blank" class="team-name">Team-V</a></span>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Comment Management - Blog Admin - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .admin-nav {
+        background: #f8f9fa;
+        padding: 1rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .comment-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .comment-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .comment-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .comment-meta {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .comment-content {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 5px;
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .comment-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-approved { background: #d1edff; color: #055160; }
+    .status-spam { background: #f8d7da; color: #721c24; }
+    
+    .stats-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .bulk-actions {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1><i class="fas fa-comments"></i> Comment Management</h1>
+                <p class="mb-0">Moderate and manage blog comments</p>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="{% url 'conference:blog_list' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left"></i> Back to Blog Admin
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Admin Navigation -->
+<section class="admin-nav">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <nav class="nav nav-pills">
+                    <a class="nav-link active" href="{% url 'conference:comment_list' %}">
+                        <i class="fas fa-comments"></i> All Comments
+                    </a>
+                    <a class="nav-link" href="{% url 'conference:comment_list' %}?status=pending">
+                        <i class="fas fa-clock"></i> Pending ({{ pending_count }})
+                    </a>
+                    <a class="nav-link" href="{% url 'conference:comment_list' %}?status=approved">
+                        <i class="fas fa-check"></i> Approved ({{ approved_count }})
+                    </a>
+                    <a class="nav-link" href="{% url 'conference:comment_list' %}?status=spam">
+                        <i class="fas fa-ban"></i> Spam ({{ spam_count }})
+                    </a>
+                </nav>
+            </div>
+            <div class="col-md-4">
+                <form method="GET" class="d-flex">
+                    <input type="text" class="form-control me-2" name="search" 
+                           placeholder="Search comments..." value="{{ search }}">
+                    {% if status_filter %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="py-4">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Statistics Row -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 class="text-warning">{{ pending_count }}</h3>
+                    <p class="mb-0">Pending Comments</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 class="text-success">{{ approved_count }}</h3>
+                    <p class="mb-0">Approved Comments</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 class="text-danger">{{ spam_count }}</h3>
+                    <p class="mb-0">Spam Comments</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 class="text-primary">{{ pending_count|add:approved_count|add:spam_count }}</h3>
+                    <p class="mb-0">Total Comments</p>
+                </div>
+            </div>
+        </div>
+
+        {% if comments %}
+        <!-- Bulk Actions -->
+        <form method="POST" action="{% url 'conference:comment_bulk_action' %}" id="bulkForm">
+            {% csrf_token %}
+            <div class="bulk-actions">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="checkbox" id="selectAll" class="form-check-input">
+                            <label for="selectAll" class="form-check-label">Select All</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex gap-2">
+                            <select name="action" class="form-select" required>
+                                <option value="">Bulk Actions</option>
+                                <option value="approve">Approve Selected</option>
+                                <option value="spam">Mark as Spam</option>
+                                <option value="delete">Delete Selected</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary" onclick="return confirm('Are you sure?')">
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments List -->
+            {% for comment in comments %}
+            <div class="comment-card">
+                <div class="comment-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="checkbox" name="selected_comments" value="{{ comment.id }}" class="form-check-input comment-checkbox">
+                        <div>
+                            <h6 class="mb-0">
+                                {{ comment.name }}
+                                {% if comment.website %}
+                                <a href="{{ comment.website }}" target="_blank" class="text-muted ms-2">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                                {% endif %}
+                            </h6>
+                            <div class="comment-meta">
+                                <i class="fas fa-envelope"></i> {{ comment.email }}
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-calendar"></i> {{ comment.created_at|date:"M j, Y g:i A" }}
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-newspaper"></i> 
+                                <a href="{% url 'conference:blog_public_detail' comment.post.slug %}" target="_blank">
+                                    {{ comment.post.title|truncatechars:50 }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <span class="status-badge status-{{ comment.status }}">
+                        {% if comment.status == 'pending' %}
+                            <i class="fas fa-clock"></i> Pending
+                        {% elif comment.status == 'approved' %}
+                            <i class="fas fa-check"></i> Approved
+                        {% elif comment.status == 'spam' %}
+                            <i class="fas fa-ban"></i> Spam
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="comment-content">
+                    {{ comment.content|linebreaks }}
+                </div>
+                
+                <div class="comment-actions">
+                    {% if comment.status == 'pending' %}
+                        <form method="POST" action="{% url 'conference:comment_approve' comment.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                        </form>
+                        <form method="POST" action="{% url 'conference:comment_reject' comment.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="fas fa-ban"></i> Mark as Spam
+                            </button>
+                        </form>
+                    {% elif comment.status == 'approved' %}
+                        <form method="POST" action="{% url 'conference:comment_reject' comment.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="fas fa-ban"></i> Mark as Spam
+                            </button>
+                        </form>
+                    {% elif comment.status == 'spam' %}
+                        <form method="POST" action="{% url 'conference:comment_approve' comment.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                        </form>
+                    {% endif %}
+                    
+                    <form method="POST" action="{% url 'conference:comment_delete' comment.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm" 
+                                onclick="return confirm('Permanently delete this comment?')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </form>
+                    
+                    <a href="{% url 'conference:blog_public_detail' comment.post.slug %}#comment-{{ comment.id }}" 
+                       class="btn btn-outline-primary btn-sm" target="_blank">
+                        <i class="fas fa-eye"></i> View in Context
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </form>
+
+        <!-- Pagination -->
+        {% if comments.has_other_pages %}
+        <nav aria-label="Comment pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if comments.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ comments.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">Page {{ comments.number }} of {{ comments.paginator.num_pages }}</span>
+                </li>
+
+                {% if comments.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ comments.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ comments.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Last</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-comments fa-4x text-muted mb-3"></i>
+            <h4>No Comments Found</h4>
+            {% if search or status_filter %}
+            <p class="text-muted">No comments match your current filters.</p>
+            <a href="{% url 'conference:comment_list' %}" class="btn btn-primary">View All Comments</a>
+            {% else %}
+            <p class="text-muted">No comments have been submitted yet.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Select all functionality
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const commentCheckboxes = document.querySelectorAll('.comment-checkbox');
+    
+    selectAllCheckbox.addEventListener('change', function() {
+        commentCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+    
+    // Update select all when individual checkboxes change
+    commentCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const allChecked = Array.from(commentCheckboxes).every(cb => cb.checked);
+            const someChecked = Array.from(commentCheckboxes).some(cb => cb.checked);
+            
+            selectAllCheckbox.checked = allChecked;
+            selectAllCheckbox.indeterminate = someChecked && !allChecked;
+        });
+    });
+});
+</script>
+{% endblock %}

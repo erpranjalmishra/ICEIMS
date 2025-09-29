@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding: 2rem 0;
+    }
+    
+    .auth-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{% static "images/conference-bg.jpg" %}') center/cover;
+        opacity: 0.1;
+    }
+    
+    .auth-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .auth-form {
+        padding: 3rem;
+    }
+    
+    .auth-brand {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .auth-brand h3 {
+        color: var(--primary-color);
+        font-weight: bold;
+    }
+    
+    .form-floating .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+    }
+    
+    .form-floating .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(160, 53, 47, 0.1);
+    }
+    
+    .btn-auth {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: bold;
+        color: white;
+    }
+    
+    .btn-auth:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        color: white;
+    }
+    
+    .password-strength {
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+    
+    .strength-weak { color: #dc3545; }
+    .strength-medium { color: #ffc107; }
+    .strength-strong { color: #28a745; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-hero">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="auth-card">
+                    <div class="auth-form">
+                        <div class="auth-brand">
+                            <img src="{% static 'images/logo.png' %}" alt="ICEIMS 2026" style="height: 60px;" class="mb-3">
+                            <h3>Join ICEIMS 2026</h3>
+                            <p class="text-muted">Create your account to get started</p>
+                        </div>
+                        
+                        {% if messages %}
+                        <div class="mb-3">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <form method="POST" id="registerForm">
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="first_name" name="first_name" 
+                                               placeholder="First Name" required>
+                                        <label for="first_name">
+                                            <i class="fas fa-user me-2"></i>First Name
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="last_name" name="last_name" 
+                                               placeholder="Last Name" required>
+                                        <label for="last_name">
+                                            <i class="fas fa-user me-2"></i>Last Name
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       placeholder="Username" required>
+                                <label for="username">
+                                    <i class="fas fa-at me-2"></i>Username
+                                </label>
+                                <div class="form-text">Choose a unique username (letters, numbers, and underscores only)</div>
+                            </div>
+                            
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       placeholder="Email" required>
+                                <label for="email">
+                                    <i class="fas fa-envelope me-2"></i>Email Address
+                                </label>
+                            </div>
+                            
+                            <div class="form-floating mb-3">
+                                <input type="password" class="form-control" id="password1" name="password1" 
+                                       placeholder="Password" required>
+                                <label for="password1">
+                                    <i class="fas fa-lock me-2"></i>Password
+                                </label>
+                                <div id="passwordStrength" class="password-strength"></div>
+                                <div class="form-text">Password must be at least 8 characters long</div>
+                            </div>
+                            
+                            <div class="form-floating mb-4">
+                                <input type="password" class="form-control" id="password2" name="password2" 
+                                       placeholder="Confirm Password" required>
+                                <label for="password2">
+                                    <i class="fas fa-lock me-2"></i>Confirm Password
+                                </label>
+                                <div id="passwordMatch" class="form-text"></div>
+                            </div>
+                            
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> 
+                                    and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-auth w-100 mb-3">
+                                <i class="fas fa-user-plus me-2"></i>Create Account
+                            </button>
+                        </form>
+                        
+                        <div class="text-center">
+                            <p class="mb-0">Already have an account? 
+                                <a href="{% url 'conference:login' %}" class="text-decoration-none fw-bold">
+                                    Sign In
+                                </a>
+                            </p>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <a href="{% url 'conference:home' %}" class="text-muted text-decoration-none">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const password1 = document.getElementById('password1');
+    const password2 = document.getElementById('password2');
+    const strengthDiv = document.getElementById('passwordStrength');
+    const matchDiv = document.getElementById('passwordMatch');
+    
+    // Password strength checker
+    password1.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        let feedback = '';
+        
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+        
+        if (password.length === 0) {
+            strengthDiv.innerHTML = '';
+        } else if (strength < 3) {
+            strengthDiv.innerHTML = '<span class="strength-weak">Weak password</span>';
+        } else if (strength < 4) {
+            strengthDiv.innerHTML = '<span class="strength-medium">Medium password</span>';
+        } else {
+            strengthDiv.innerHTML = '<span class="strength-strong">Strong password</span>';
+        }
+    });
+    
+    // Password match checker
+    function checkPasswordMatch() {
+        if (password2.value === '') {
+            matchDiv.innerHTML = '';
+            return;
+        }
+        
+        if (password1.value === password2.value) {
+            matchDiv.innerHTML = '<span class="text-success">Passwords match</span>';
+        } else {
+            matchDiv.innerHTML = '<span class="text-danger">Passwords do not match</span>';
+        }
+    }
+    
+    password2.addEventListener('input', checkPasswordMatch);
+    password1.addEventListener('input', checkPasswordMatch);
+});
+</script>
+{% endblock %}

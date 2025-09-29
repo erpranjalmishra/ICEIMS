@@ -1,0 +1,333 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Conference Blog - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .blog-hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        padding: 80px 0 60px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .blog-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{% static "images/conference-bg.jpg" %}') center/cover;
+        opacity: 0.1;
+    }
+    
+    .blog-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+        border: none;
+    }
+    
+    .blog-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+    
+    .blog-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .blog-content {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: calc(100% - 200px);
+    }
+    
+    .blog-category {
+        background: var(--primary-color);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .blog-meta {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .search-filters {
+        background: #f8f9fa;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .featured-posts {
+        background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .featured-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .featured-card:hover {
+        transform: scale(1.02);
+    }
+    
+    .sidebar {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Blog Hero Section -->
+<section class="blog-hero">
+    <div class="container position-relative">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-3">Conference Blog</h1>
+                <p class="lead">Stay updated with the latest insights, announcements, and stories from ICEIMS 2026</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Posts -->
+{% if featured_posts %}
+<section class="featured-posts">
+    <div class="container">
+        <h2 class="text-center mb-4">Featured Posts</h2>
+        <div class="row">
+            {% for post in featured_posts %}
+            <div class="col-md-4 mb-4">
+                <div class="featured-card">
+                    {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="blog-image">
+                    {% else %}
+                        <div class="blog-image bg-gradient d-flex align-items-center justify-content-center">
+                            <i class="fas fa-newspaper fa-3x text-white opacity-50"></i>
+                        </div>
+                    {% endif %}
+                    <div class="p-3">
+                        <span class="blog-category">{{ post.category.name }}</span>
+                        <h5 class="mt-2"><a href="{% url 'conference:blog_public_detail' post.slug %}" class="text-decoration-none text-dark">{{ post.title }}</a></h5>
+                        <p class="text-muted small">{{ post.excerpt|truncatewords:15 }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Search and Filters -->
+<section class="search-filters">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <form method="GET" class="d-flex">
+                    <input type="text" class="form-control me-2" name="search" placeholder="Search blog posts..." value="{{ search }}">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="col-lg-6">
+                <form method="GET" class="d-flex">
+                    <select name="category" class="form-select me-2">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.slug }}" {% if category.slug == category_slug %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-outline-primary" type="submit">Filter</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Posts -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                {% if search or category_slug %}
+                <div class="mb-4">
+                    <h3>
+                        {% if search %}
+                            Search Results for "{{ search }}"
+                        {% elif category_slug %}
+                            Category: {{ categories|default:"Unknown" }}
+                        {% endif %}
+                        <small class="text-muted">({{ posts|length }} post{{ posts|length|pluralize }})</small>
+                    </h3>
+                    <a href="{% url 'conference:blog_public_list' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </a>
+                </div>
+                {% endif %}
+
+                {% if posts %}
+                <div class="row">
+                    {% for post in posts %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card blog-card">
+                            {% if post.featured_image %}
+                                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="blog-image">
+                            {% else %}
+                                <div class="blog-image bg-gradient d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-newspaper fa-3x text-white opacity-50"></i>
+                                </div>
+                            {% endif %}
+                            <div class="blog-content">
+                                <div>
+                                    <span class="blog-category">{{ post.category.name }}</span>
+                                    <h5 class="card-title mt-2">
+                                        <a href="{% url 'conference:blog_public_detail' post.slug %}" class="text-decoration-none text-dark">
+                                            {{ post.title }}
+                                        </a>
+                                    </h5>
+                                    <div class="blog-meta">
+                                        <i class="fas fa-calendar"></i> {{ post.published_at|date:"M d, Y" }}
+                                        <span class="mx-2">|</span>
+                                        <i class="fas fa-user"></i> {{ post.author.get_full_name|default:post.author.username }}
+                                        {% if post.views > 0 %}
+                                        <span class="mx-2">|</span>
+                                        <i class="fas fa-eye"></i> {{ post.views }} view{{ post.views|pluralize }}
+                                        {% endif %}
+                                    </div>
+                                    <p class="card-text">{{ post.excerpt|truncatewords:20 }}</p>
+                                </div>
+                                <div>
+                                    <a href="{% url 'conference:blog_public_detail' post.slug %}" class="btn btn-primary btn-sm">
+                                        Read More <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if posts.has_other_pages %}
+                <nav aria-label="Blog pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if posts.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ posts.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">Page {{ posts.number }} of {{ posts.paginator.num_pages }}</span>
+                        </li>
+
+                        {% if posts.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ posts.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ posts.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
+                    <h3>No Posts Found</h3>
+                    {% if search or category_slug %}
+                    <p class="text-muted">No posts match your current filters.</p>
+                    <a href="{% url 'conference:blog_public_list' %}" class="btn btn-primary">View All Posts</a>
+                    {% else %}
+                    <p class="text-muted">Check back later for new blog posts!</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Categories -->
+                <div class="sidebar">
+                    <h5 class="fw-bold mb-3">Categories</h5>
+                    <ul class="list-unstyled">
+                        {% for category in categories %}
+                        <li class="mb-2">
+                            <a href="{% url 'conference:blog_category_view' category.slug %}" class="text-decoration-none d-flex justify-content-between align-items-center">
+                                {{ category.name }}
+                                <span class="badge bg-secondary">{{ category.posts.count }}</span>
+                            </a>
+                        </li>
+                        {% empty %}
+                        <li class="text-muted">No categories available</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Newsletter Signup -->
+                <div class="sidebar">
+                    <h5 class="fw-bold mb-3">Stay Updated</h5>
+                    <p class="text-muted small">Subscribe to our newsletter for the latest conference updates.</p>
+                    <form method="POST" action="{% url 'conference:newsletter_signup' %}">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="email" class="form-control" name="email" placeholder="Your email" required>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Popular Tags -->
+                <div class="sidebar">
+                    <h5 class="fw-bold mb-3">Popular Tags</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-light text-dark border">AI</span>
+                        <span class="badge bg-light text-dark border">Machine Learning</span>
+                        <span class="badge bg-light text-dark border">Research</span>
+                        <span class="badge bg-light text-dark border">Innovation</span>
+                        <span class="badge bg-light text-dark border">Technology</span>
+                        <span class="badge bg-light text-dark border">Conference</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

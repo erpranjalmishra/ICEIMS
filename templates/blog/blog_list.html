@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Blog Management - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="page-title">Blog Management</h2>
+                <div class="btn-group">
+                    <a href="{% url 'conference:blog_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Create New Post
+                    </a>
+                    <a href="{% url 'conference:category_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-tags me-2"></i>Categories
+                    </a>
+                    <a href="{% url 'conference:comment_list' %}" class="btn btn-outline-warning">
+                        <i class="fas fa-comments me-2"></i>Comments
+                        {% if pending_comments > 0 %}
+                        <span class="badge bg-danger">{{ pending_comments }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{% url 'conference:blog_analytics' %}" class="btn btn-outline-info">
+                        <i class="fas fa-chart-bar me-2"></i>Analytics
+                    </a>
+                </div>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Search Posts</label>
+                            <input type="text" class="form-control" id="search" name="search" value="{{ search }}" placeholder="Search by title, content...">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Statuses</option>
+                                <option value="draft" {% if status == 'draft' %}selected{% endif %}>Draft</option>
+                                <option value="published" {% if status == 'published' %}selected{% endif %}>Published</option>
+                                <option value="archived" {% if status == 'archived' %}selected{% endif %}>Archived</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">All Categories</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-outline-primary">Filter</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Bulk Actions -->
+            <form method="POST" action="{% url 'conference:blog_bulk_action' %}" id="bulkActionForm">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bulk-actions" style="display: none;">
+                        <select name="action" class="form-select me-2" style="width: auto; display: inline-block;">
+                            <option value="">Select Action</option>
+                            <option value="publish">Publish</option>
+                            <option value="draft">Move to Draft</option>
+                            <option value="archive">Archive</option>
+                            <option value="delete">Delete</option>
+                        </select>
+                        <button type="submit" class="btn btn-warning btn-sm">Apply</button>
+                    </div>
+                    <small class="text-muted">{{ posts.paginator.count }} posts found</small>
+                </div>
+
+                <!-- Posts Table -->
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="50">
+                                        <input type="checkbox" id="selectAll" class="form-check-input">
+                                    </th>
+                                    <th>Title</th>
+                                    <th width="120">Author</th>
+                                    <th width="100">Category</th>
+                                    <th width="100">Status</th>
+                                    <th width="80">Views</th>
+                                    <th width="120">Created</th>
+                                    <th width="150">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for post in posts %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="selected_posts" value="{{ post.id }}" class="form-check-input post-checkbox">
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ post.title }}</strong>
+                                            {% if post.featured %}
+                                                <span class="badge bg-warning text-dark ms-1">Featured</span>
+                                            {% endif %}
+                                        </div>
+                                        <small class="text-muted">{{ post.excerpt|truncatechars:60 }}</small>
+                                    </td>
+                                    <td>{{ post.author.get_full_name|default:post.author.username }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ post.category.name }}</span>
+                                    </td>
+                                    <td>
+                                        {% if post.status == 'published' %}
+                                            <span class="badge bg-success">Published</span>
+                                        {% elif post.status == 'draft' %}
+                                            <span class="badge bg-warning">Draft</span>
+                                        {% elif post.status == 'archived' %}
+                                            <span class="badge bg-secondary">Archived</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ post.views }}</td>
+                                    <td>{{ post.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'conference:blog_edit' post.slug %}" class="btn btn-outline-primary btn-sm" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form method="POST" action="{% url 'conference:blog_delete' post.slug %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this post?')">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                                            <p>No blog posts found.</p>
+                                            <a href="{% url 'conference:blog_create' %}" class="btn btn-primary">Create Your First Post</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Pagination -->
+            {% if posts.has_other_pages %}
+            <nav aria-label="Blog pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if posts.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ posts.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}">&laquo; Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in posts.paginator.page_range %}
+                        {% if posts.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if posts.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ posts.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}">Next &raquo;</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.post-checkbox');
+    const bulkActions = document.querySelector('.bulk-actions');
+    const bulkForm = document.getElementById('bulkActionForm');
+    
+    // Select all functionality
+    selectAll.addEventListener('change', function() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        toggleBulkActions();
+    });
+    
+    // Individual checkbox change
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', toggleBulkActions);
+    });
+    
+    function toggleBulkActions() {
+        const checkedBoxes = document.querySelectorAll('.post-checkbox:checked');
+        if (checkedBoxes.length > 0) {
+            bulkActions.style.display = 'block';
+        } else {
+            bulkActions.style.display = 'none';
+        }
+        
+        // Update select all checkbox state
+        selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < checkboxes.length;
+        selectAll.checked = checkedBoxes.length === checkboxes.length;
+    }
+    
+    // Bulk action form submission
+    bulkForm.addEventListener('submit', function(e) {
+        const action = this.querySelector('select[name="action"]').value;
+        const checkedBoxes = document.querySelectorAll('.post-checkbox:checked');
+        
+        if (!action) {
+            e.preventDefault();
+            alert('Please select an action.');
+            return;
+        }
+        
+        if (checkedBoxes.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one post.');
+            return;
+        }
+        
+        if (action === 'delete') {
+            if (!confirm(`Are you sure you want to delete ${checkedBoxes.length} selected posts? This action cannot be undone.`)) {
+                e.preventDefault();
+                return;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
