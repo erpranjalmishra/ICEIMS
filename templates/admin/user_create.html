@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Admin User - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-section h6 {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .form-group label {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border: none;
+        border-radius: 50px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .required {
+        color: #dc3545;
+    }
+    
+    .permission-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .permission-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    
+    .avatar-preview {
+        max-width: 150px;
+        max-height: 150px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 3px solid #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<div class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-0">
+                    <i class="fas fa-user-plus me-3"></i>Create Admin User
+                </h1>
+                <p class="mb-0 mt-2 opacity-75">Add a new administrator to the system</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'conference:user_management' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Users
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="form-card">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Basic User Information -->
+                    <div class="form-section">
+                        <h6><i class="fas fa-user me-2"></i>Basic Information</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="username">Username <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="username" name="username" required>
+                                    <small class="form-text text-muted">Unique username for login</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="email">Email Address <span class="required">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="first_name">First Name</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="last_name">Last Name</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="password">Password <span class="required">*</span></label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <small class="form-text text-muted">Choose a strong password</small>
+                        </div>
+                    </div>
+
+                    <!-- Role and Permissions -->
+                    <div class="form-section">
+                        <h6><i class="fas fa-user-shield me-2"></i>Role and Permissions</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="admin_role">Admin Role</label>
+                                    <select class="form-select" id="admin_role" name="admin_role">
+                                        <option value="">Select Role</option>
+                                        {% for role in admin_roles %}
+                                        <option value="{{ role.id }}">{{ role.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="form-text text-muted">Role determines user permissions</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="is_admin_user" name="is_admin_user" checked>
+                                        <label class="form-check-label" for="is_admin_user">
+                                            <strong>Admin User</strong>
+                                            <small class="d-block text-muted">Can access admin dashboard</small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" id="is_staff" name="is_staff">
+                                        <label class="form-check-label" for="is_staff">
+                                            <strong>Staff Status</strong>
+                                            <small class="d-block text-muted">Can access Django admin panel</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Information -->
+                    <div class="form-section">
+                        <h6><i class="fas fa-id-card me-2"></i>Profile Information</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="position">Position/Title</label>
+                                    <input type="text" class="form-control" id="position" name="position" 
+                                           placeholder="e.g., Content Manager, Event Coordinator">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="department">Department</label>
+                                    <input type="text" class="form-control" id="department" name="department" 
+                                           placeholder="e.g., IT, Communications, Administration">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   placeholder="+1 (555) 123-4567">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="bio">Bio/Description</label>
+                            <textarea class="form-control" id="bio" name="bio" rows="3" 
+                                      placeholder="Brief description of the user's role and responsibilities"></textarea>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="avatar">Profile Avatar</label>
+                            <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
+                            <small class="form-text text-muted">Recommended size: 200x200 pixels</small>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between align-items-center pt-4">
+                        <a href="{% url 'conference:user_management' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <i class="fas fa-save me-2"></i>Create User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Avatar preview
+document.getElementById('avatar').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Remove existing preview
+            const existingPreview = document.querySelector('.avatar-preview');
+            if (existingPreview) {
+                existingPreview.remove();
+            }
+            
+            // Create new preview
+            const preview = document.createElement('img');
+            preview.src = e.target.result;
+            preview.className = 'avatar-preview mt-2';
+            preview.alt = 'Avatar preview';
+            
+            // Insert after file input
+            document.getElementById('avatar').parentNode.appendChild(preview);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Role selection handler
+document.getElementById('admin_role').addEventListener('change', function() {
+    const roleId = this.value;
+    if (roleId) {
+        // Auto-check admin user checkbox if role is selected
+        document.getElementById('is_admin_user').checked = true;
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,486 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Committee Management - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .committee-container {
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .committee-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .member-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: grab;
+    }
+    
+    .member-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: var(--primary-color);
+    }
+    
+    .member-item.dragging {
+        opacity: 0.5;
+        transform: rotate(5deg);
+    }
+    
+    .member-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .member-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1rem;
+        border: 3px solid var(--primary-color);
+    }
+    
+    .member-avatar.default {
+        background: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    
+    .member-info h5 {
+        margin: 0 0 0.25rem 0;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .member-info p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .member-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+    
+    .btn-action {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-edit {
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+    }
+    
+    .btn-edit:hover {
+        background: #3498db;
+        color: white;
+    }
+    
+    .btn-delete {
+        background: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+    }
+    
+    .btn-delete:hover {
+        background: #e74c3c;
+        color: white;
+    }
+    
+    .drag-handle {
+        color: #6c757d;
+        cursor: grab;
+        margin-right: 1rem;
+        font-size: 1.2rem;
+    }
+    
+    .drag-handle:hover {
+        color: var(--primary-color);
+    }
+    
+    .order-badge {
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        border: 1px solid rgba(160, 53, 47, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: block;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.8rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .sortable-placeholder {
+        background: rgba(160, 53, 47, 0.1);
+        border: 2px dashed var(--primary-color);
+        border-radius: 15px;
+        height: 100px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+        .member-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .member-actions {
+            margin-left: 0;
+            margin-top: 1rem;
+        }
+        
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-users-cog"></i> Committee Management</h1>
+                <p class="mb-0">Manage committee members and their display order</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="btn-group me-2" role="group">
+                    <button type="button" class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'conference:export_committee' %}?format=excel">
+                            <i class="fas fa-file-excel text-success"></i> Excel (.xlsx)
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'conference:export_committee' %}?format=pdf">
+                            <i class="fas fa-file-pdf text-danger"></i> PDF
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'conference:export_committee' %}?format=csv">
+                            <i class="fas fa-file-csv text-info"></i> CSV
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'conference:export_committee' %}?format=json">
+                            <i class="fas fa-code text-warning"></i> JSON
+                        </a></li>
+                    </ul>
+                </div>
+                <a href="{% url 'conference:committee_create' %}" class="btn btn-light">
+                    <i class="fas fa-plus"></i> Add Member
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Committee Content -->
+<section class="py-5">
+    <div class="container committee-container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Statistics -->
+        <div class="committee-card">
+            <h5 class="mb-4"><i class="fas fa-chart-bar"></i> Committee Statistics</h5>
+            <div class="stats-row">
+                <div class="stat-card">
+                    <span class="stat-number">{{ total_members }}</span>
+                    <div class="stat-label">Total Members</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ committee_members|length }}</span>
+                    <div class="stat-label">Listed Members</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Committee Members List -->
+        <div class="committee-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5><i class="fas fa-users"></i> Committee Members</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="saveOrder()">
+                        <i class="fas fa-save"></i> Save Order
+                    </button>
+                    <a href="{% url 'conference:admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            
+            {% if committee_members %}
+                <div id="committee-sortable" class="committee-list">
+                    {% for member in committee_members %}
+                    <div class="member-item" data-id="{{ member.id }}">
+                        <div class="member-header">
+                            <i class="fas fa-grip-vertical drag-handle"></i>
+                            <div class="order-badge">{{ member.order|default:forloop.counter }}</div>
+                            {% if member.image %}
+                                <img src="{{ member.image.url }}" alt="{{ member.name }}" class="member-avatar">
+                            {% else %}
+                                <div class="member-avatar default">
+                                    {{ member.name|first|upper }}
+                                </div>
+                            {% endif %}
+                            <div class="member-info flex-grow-1">
+                                <h5>{{ member.name }}</h5>
+                                <p><strong>{{ member.title }}</strong></p>
+                                <p>{{ member.organization }}</p>
+                            </div>
+                            <div class="member-actions">
+                                <a href="{% url 'conference:committee_edit' member.pk %}" class="btn-action btn-edit" title="Edit Member">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn-action btn-delete" onclick="confirmDelete('{{ member.name }}', '{% url 'conference:committee_delete' member.pk %}')" title="Delete Member">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h4>No Committee Members Found</h4>
+                    <p>Start by adding your first committee member.</p>
+                    <a href="{% url 'conference:committee_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add First Member
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="memberName"></strong>?</p>
+                <p class="text-danger"><small>This action cannot be undone.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize sortable
+    const sortable = document.getElementById('committee-sortable');
+    if (sortable) {
+        // Simple drag and drop functionality
+        let draggedElement = null;
+        
+        sortable.addEventListener('dragstart', function(e) {
+            if (e.target.classList.contains('member-item')) {
+                draggedElement = e.target;
+                e.target.classList.add('dragging');
+            }
+        });
+        
+        sortable.addEventListener('dragend', function(e) {
+            if (e.target.classList.contains('member-item')) {
+                e.target.classList.remove('dragging');
+                draggedElement = null;
+            }
+        });
+        
+        sortable.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(sortable, e.clientY);
+            if (afterElement == null) {
+                sortable.appendChild(draggedElement);
+            } else {
+                sortable.insertBefore(draggedElement, afterElement);
+            }
+        });
+        
+        // Make items draggable
+        document.querySelectorAll('.member-item').forEach(item => {
+            item.draggable = true;
+        });
+    }
+});
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.member-item:not(.dragging)')];
+    
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function saveOrder() {
+    const items = document.querySelectorAll('.member-item');
+    const orderData = [];
+    
+    items.forEach((item, index) => {
+        orderData.push({
+            id: item.dataset.id,
+            order: index + 1
+        });
+    });
+    
+    fetch('{% url "conference:committee_reorder" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Update order badges
+            items.forEach((item, index) => {
+                const badge = item.querySelector('.order-badge');
+                if (badge) badge.textContent = index + 1;
+            });
+            
+            // Show success message
+            showAlert('Order updated successfully!', 'success');
+        } else {
+            showAlert('Failed to update order: ' + data.message, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('An error occurred while updating order.', 'danger');
+    });
+}
+
+function confirmDelete(memberName, deleteUrl) {
+    document.getElementById('memberName').textContent = memberName;
+    document.getElementById('deleteForm').action = deleteUrl;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.committee-container');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Auto dismiss after 3 seconds
+    setTimeout(() => {
+        const alert = bootstrap.Alert.getOrCreateInstance(alertDiv);
+        alert.close();
+    }, 3000);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,321 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Speaker - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-section h6 {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .form-group label {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border: none;
+        border-radius: 50px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .photo-preview {
+        max-width: 150px;
+        max-height: 150px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 3px solid #e9ecef;
+    }
+    
+    .required {
+        color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<div class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-0">
+                    <i class="fas fa-user-plus me-3"></i>Create New Speaker
+                </h1>
+                <p class="mb-0 mt-2 opacity-75">Add a new speaker to the conference</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'conference:speaker_list' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Speakers
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="form-card">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <h6><i class="fas fa-user me-2"></i>Basic Information</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="name">Full Name <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="title">Professional Title <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="title" name="title" 
+                                           placeholder="e.g., Professor, Director, CEO" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label for="organization">Organization/Institution <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="organization" name="organization" 
+                                           placeholder="University, Company, or Institution" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="country">Country</label>
+                                    <input type="text" class="form-control" id="country" name="country" 
+                                           placeholder="e.g., USA, India, Germany">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Speaker Details -->
+                    <div class="form-section">
+                        <h6><i class="fas fa-microphone me-2"></i>Speaker Details</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="speaker_type">Speaker Type <span class="required">*</span></label>
+                                    <select class="form-select" id="speaker_type" name="speaker_type" required>
+                                        <option value="">Select Speaker Type</option>
+                                        {% for value, label in type_choices %}
+                                        <option value="{{ value }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="display_order">Display Order</label>
+                                    <input type="number" class="form-control" id="display_order" name="display_order" 
+                                           value="0" min="0" placeholder="0">
+                                    <small class="form-text text-muted">Lower numbers appear first</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="talk_title">Talk/Presentation Title</label>
+                            <input type="text" class="form-control" id="talk_title" name="talk_title" 
+                                   placeholder="Title of the presentation">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="session_time">Session Time</label>
+                            <input type="text" class="form-control" id="session_time" name="session_time" 
+                                   placeholder="e.g., Day 1, 10:00 AM - 11:00 AM">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="talk_abstract">Talk Abstract</label>
+                            <textarea class="form-control" id="talk_abstract" name="talk_abstract" rows="4" 
+                                      placeholder="Brief description of the presentation content"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Profile Information -->
+                    <div class="form-section">
+                        <h6><i class="fas fa-id-card me-2"></i>Profile Information</h6>
+                        <div class="form-group mb-3">
+                            <label for="bio">Biography <span class="required">*</span></label>
+                            <textarea class="form-control" id="bio" name="bio" rows="5" 
+                                      placeholder="Speaker's professional background and achievements" required></textarea>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="expertise">Areas of Expertise</label>
+                            <input type="text" class="form-control" id="expertise" name="expertise" 
+                                   placeholder="AI, Machine Learning, Data Science (comma-separated)">
+                            <small class="form-text text-muted">Separate multiple areas with commas</small>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="photo">Profile Photo</label>
+                            <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                            <small class="form-text text-muted">Recommended size: 400x400 pixels</small>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="form-section">
+                        <h6><i class="fas fa-address-book me-2"></i>Contact & Social Media</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           placeholder="speaker@example.com">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="website">Website/Portfolio</label>
+                                    <input type="url" class="form-control" id="website" name="website" 
+                                           placeholder="https://www.example.com">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="linkedin">LinkedIn Profile</label>
+                                    <input type="url" class="form-control" id="linkedin" name="linkedin" 
+                                           placeholder="https://linkedin.com/in/username">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="twitter">Twitter Handle</label>
+                                    <input type="text" class="form-control" id="twitter" name="twitter" 
+                                           placeholder="username (without @)">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="orcid">ORCID ID</label>
+                                    <input type="text" class="form-control" id="orcid" name="orcid" 
+                                           placeholder="0000-0000-0000-0000">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Display Settings -->
+                    <div class="form-section">
+                        <h6><i class="fas fa-cog me-2"></i>Display Settings</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="is_published" name="is_published" checked>
+                                    <label class="form-check-label" for="is_published">
+                                        <strong>Published</strong>
+                                        <small class="d-block text-muted">Visible to public on website</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="is_featured" name="is_featured">
+                                    <label class="form-check-label" for="is_featured">
+                                        <strong>Featured Speaker</strong>
+                                        <small class="d-block text-muted">Show prominently on homepage</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between align-items-center pt-4">
+                        <a href="{% url 'conference:speaker_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <i class="fas fa-save me-2"></i>Create Speaker
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Photo preview
+document.getElementById('photo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Remove existing preview
+            const existingPreview = document.querySelector('.photo-preview');
+            if (existingPreview) {
+                existingPreview.remove();
+            }
+            
+            // Create new preview
+            const preview = document.createElement('img');
+            preview.src = e.target.result;
+            preview.className = 'photo-preview mt-2';
+            preview.alt = 'Photo preview';
+            
+            // Insert after file input
+            document.getElementById('photo').parentNode.appendChild(preview);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

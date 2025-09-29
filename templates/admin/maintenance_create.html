@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Maintenance Mode - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-section h6 {
+        color: var(--primary-color);
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    
+    .maintenance-preview {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin: 1.5rem 0;
+    }
+    
+    .preview-card {
+        background: rgba(255,255,255,0.95);
+        color: #333;
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .type-indicator {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        display: inline-block;
+    }
+    
+    .type-site { background: #ffe6e6; color: #dc3545; }
+    .type-page { background: #fff3cd; color: #856404; }
+    .type-feature { background: #d1ecf1; color: #0c5460; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-plus-circle"></i> Create Maintenance Mode</h1>
+                <p class="mb-0">Set up site-wide or page-specific maintenance</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'conference:maintenance_list' %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="pb-5">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-card">
+                    <form method="POST" id="maintenanceForm">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-info-circle"></i> Basic Information</h6>
+                            
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Maintenance Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       placeholder="e.g., Scheduled Database Maintenance" required>
+                                <div class="form-text">This will be displayed to users during maintenance</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Message *</label>
+                                <textarea class="form-control" id="message" name="message" rows="3" 
+                                          placeholder="We're currently performing scheduled maintenance..." required></textarea>
+                                <div class="form-text">Explanation shown to users about the maintenance</div>
+                            </div>
+                        </div>
+
+                        <!-- Maintenance Type -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-cogs"></i> Maintenance Type</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="maintenance_type" 
+                                               id="type_site" value="site" checked>
+                                        <label class="form-check-label" for="type_site">
+                                            <strong><i class="fas fa-globe text-danger"></i> Entire Site</strong><br>
+                                            <small class="text-muted">Block access to the whole website</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="maintenance_type" 
+                                               id="type_page" value="page">
+                                        <label class="form-check-label" for="type_page">
+                                            <strong><i class="fas fa-file-alt text-warning"></i> Specific Page</strong><br>
+                                            <small class="text-muted">Block access to a specific URL</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="maintenance_type" 
+                                               id="type_feature" value="feature">
+                                        <label class="form-check-label" for="type_feature">
+                                            <strong><i class="fas fa-puzzle-piece text-info"></i> Feature</strong><br>
+                                            <small class="text-muted">For specific feature maintenance</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3" id="pageUrlSection" style="display: none;">
+                                <label for="page_url" class="form-label">Page URL</label>
+                                <input type="text" class="form-control" id="page_url" name="page_url" 
+                                       placeholder="/blog/ or /contact/">
+                                <div class="form-text">Specify the URL path to put under maintenance</div>
+                            </div>
+                        </div>
+
+                        <!-- Schedule -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-clock"></i> Schedule (Optional)</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="start_time" class="form-label">Start Time</label>
+                                    <input type="datetime-local" class="form-control" id="start_time" name="start_time">
+                                    <div class="form-text">Leave empty to start immediately</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="end_time" class="form-label">End Time</label>
+                                    <input type="datetime-local" class="form-control" id="end_time" name="end_time">
+                                    <div class="form-text">Leave empty for manual control</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activation -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-toggle-on"></i> Activation</h6>
+                            
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active">
+                                <label class="form-check-label" for="is_active">
+                                    <strong>Activate immediately</strong><br>
+                                    <small class="text-muted">Users will see the maintenance page right away</small>
+                                </label>
+                            </div>
+                            
+                            <div class="alert alert-warning mt-3">
+                                <i class="fas fa-shield-alt"></i> 
+                                <strong>Note:</strong> Admin and staff users can still access the site during maintenance.
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="text-end">
+                            <a href="{% url 'conference:maintenance_list' %}" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Maintenance Mode
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Preview -->
+            <div class="col-md-4">
+                <div class="maintenance-preview">
+                    <h6 class="text-center mb-3">
+                        <i class="fas fa-eye"></i> Preview
+                    </h6>
+                    <div class="preview-card">
+                        <div id="previewType" class="type-indicator type-site">
+                            <i class="fas fa-globe"></i> Entire Site
+                        </div>
+                        <i class="fas fa-tools fa-3x text-primary mb-3"></i>
+                        <h5 id="previewTitle">Site Under Maintenance</h5>
+                        <p id="previewMessage">We're currently performing scheduled maintenance. Please check back soon!</p>
+                        <div id="previewUrl" class="mt-2" style="display: none;">
+                            <small class="text-info"><i class="fas fa-link"></i> <span id="previewUrlText">/page/</span></small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <h6><i class="fas fa-lightbulb"></i> Tips</h6>
+                    <ul class="mb-0">
+                        <li>Use clear, informative messages</li>
+                        <li>Include expected completion time</li>
+                        <li>Test with a page-specific maintenance first</li>
+                        <li>Remember to deactivate when done!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('maintenanceForm');
+    const titleInput = document.getElementById('title');
+    const messageInput = document.getElementById('message');
+    const typeInputs = document.querySelectorAll('input[name="maintenance_type"]');
+    const pageUrlSection = document.getElementById('pageUrlSection');
+    const pageUrlInput = document.getElementById('page_url');
+    
+    // Preview elements
+    const previewType = document.getElementById('previewType');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewMessage = document.getElementById('previewMessage');
+    const previewUrl = document.getElementById('previewUrl');
+    const previewUrlText = document.getElementById('previewUrlText');
+    
+    // Update preview when inputs change
+    titleInput.addEventListener('input', function() {
+        previewTitle.textContent = this.value || 'Site Under Maintenance';
+    });
+    
+    messageInput.addEventListener('input', function() {
+        previewMessage.textContent = this.value || "We're currently performing scheduled maintenance. Please check back soon!";
+    });
+    
+    pageUrlInput.addEventListener('input', function() {
+        previewUrlText.textContent = this.value || '/page/';
+    });
+    
+    // Handle maintenance type changes
+    typeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const value = this.value;
+            
+            // Show/hide page URL section
+            if (value === 'page') {
+                pageUrlSection.style.display = 'block';
+                pageUrlInput.required = true;
+                previewUrl.style.display = 'block';
+            } else {
+                pageUrlSection.style.display = 'none';
+                pageUrlInput.required = false;
+                previewUrl.style.display = 'none';
+            }
+            
+            // Update preview type
+            previewType.className = 'type-indicator type-' + value;
+            
+            if (value === 'site') {
+                previewType.innerHTML = '<i class="fas fa-globe"></i> Entire Site';
+            } else if (value === 'page') {
+                previewType.innerHTML = '<i class="fas fa-file-alt"></i> Specific Page';
+            } else if (value === 'feature') {
+                previewType.innerHTML = '<i class="fas fa-puzzle-piece"></i> Feature';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

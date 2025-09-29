@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Login - ICEIMS 2026{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        min-height: 100vh;
+    }
+    
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+    
+    .login-card {
+        background: white;
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        max-width: 450px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .login-header h2 {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .login-header p {
+        color: #6c757d;
+        margin: 0;
+    }
+    
+    .admin-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: white;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 1rem 1rem 1rem 3rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(160, 53, 47, 0.25);
+        background: white;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 2.2rem;
+        color: #6c757d;
+        transition: color 0.3s ease;
+    }
+    
+    .form-group:focus-within .input-icon {
+        color: var(--primary-color);
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border: none;
+        border-radius: 15px;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        width: 100%;
+        color: white;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(160, 53, 47, 0.3);
+        color: white;
+    }
+    
+    .btn-login:disabled {
+        opacity: 0.7;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .form-check {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .login-links {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .login-links a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+    
+    .login-links a:hover {
+        color: var(--secondary-color);
+    }
+    
+    .alert {
+        border-radius: 15px;
+        border: none;
+        margin-bottom: 1.5rem;
+    }
+    
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+    }
+    
+    .security-info {
+        background: #e7f3ff;
+        border: 1px solid #b6d7ff;
+        border-radius: 15px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .security-info h6 {
+        color: #0056b3;
+        margin-bottom: 0.5rem;
+    }
+    
+    .security-info p {
+        color: #0056b3;
+        margin: 0;
+    }
+    
+    .loading-spinner {
+        display: none;
+        margin-right: 0.5rem;
+    }
+    
+    @media (max-width: 576px) {
+        .login-card {
+            margin: 1rem;
+            padding: 2rem;
+        }
+        
+        .admin-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="admin-icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h2>Admin Login</h2>
+            <p>Secure access to admin dashboard</p>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <h6><i class="fas fa-exclamation-triangle me-2"></i>Login Failed</h6>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <p class="mb-0">{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <div class="security-info">
+            <h6><i class="fas fa-shield-alt me-2"></i>Security Notice</h6>
+            <p>This is a secure admin area. Only authorized personnel with valid credentials can access this panel.</p>
+        </div>
+        
+        <form method="post" id="adminLoginForm">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="username" class="form-label">Username or Email</label>
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" class="form-control" id="username" name="username" 
+                       placeholder="Enter your username or email" required 
+                       value="{{ form.username.value|default:'' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" class="form-control" id="password" name="password" 
+                       placeholder="Enter your password" required>
+            </div>
+            
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
+                <label class="form-check-label" for="remember_me">
+                    Remember me on this device
+                </label>
+            </div>
+            
+            <button type="submit" class="btn btn-login">
+                <span class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </span>
+                <i class="fas fa-sign-in-alt me-2"></i>Login to Admin Panel
+            </button>
+            
+            {% if next %}
+            <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+        </form>
+        
+        <div class="login-links">
+            <div class="row g-2">
+                <div class="col-6">
+                    <a href="{% url 'conference:home' %}">
+                        <i class="fas fa-home me-1"></i>Back to Website
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a href="{% url 'conference:login' %}">
+                        <i class="fas fa-users me-1"></i>User Login
+                    </a>
+                </div>
+            </div>
+            <div class="mt-2">
+                <small class="text-muted">
+                    Need help? Contact the system administrator
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('adminLoginForm');
+    const submitBtn = form.querySelector('.btn-login');
+    const spinner = form.querySelector('.loading-spinner');
+    
+    // Form submission handler
+    form.addEventListener('submit', function(e) {
+        submitBtn.disabled = true;
+        spinner.style.display = 'inline-block';
+        submitBtn.querySelector('i.fa-sign-in-alt').style.display = 'none';
+        
+        // Re-enable button after 5 seconds in case of issues
+        setTimeout(() => {
+            submitBtn.disabled = false;
+            spinner.style.display = 'none';
+            submitBtn.querySelector('i.fa-sign-in-alt').style.display = 'inline';
+        }, 5000);
+    });
+    
+    // Auto-focus username field
+    document.getElementById('username').focus();
+    
+    // Enhanced security: Clear form on page unload
+    window.addEventListener('beforeunload', function() {
+        form.reset();
+    });
+    
+    // Prevent back button after login
+    if (window.location.search.includes('success=true')) {
+        window.history.replaceState(null, null, window.location.pathname);
+    }
+});
+
+// Session timeout warning
+let sessionWarningShown = false;
+setTimeout(function() {
+    if (!sessionWarningShown) {
+        sessionWarningShown = true;
+        if (confirm('Your session will expire soon. Click OK to stay logged in.')) {
+            // Refresh page to extend session
+            window.location.reload();
+        }
+    }
+}, 25 * 60 * 1000); // 25 minutes warning
+</script>
+{% endblock %}

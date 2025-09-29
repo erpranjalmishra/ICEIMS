@@ -26,13 +26,33 @@ SECRET_KEY = 'django-insecure-+-unm#gnt&=mlkdz6q7)-t121-rgosyb^_hb-h6#!cpvpof*v&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ["*"]
+# Detect if we're in production
+IS_PRODUCTION = 'iceims.teamvimarsh.me' in os.environ.get('ALLOWED_HOSTS', '')
+
+ALLOWED_HOSTS = ["iceims.teamvimarsh.me", "localhost", "127.0.0.1", "*"]
 
 # CSRF Settings
-CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_SECURE = IS_PRODUCTION  # Use secure cookies only in production with HTTPS
 CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access to CSRF cookie for AJAX
 CSRF_USE_SESSIONS = False  # Use cookies instead of sessions for CSRF tokens
 CSRF_COOKIE_SAMESITE = 'Lax'  # CSRF cookie SameSite attribute
+CSRF_TRUSTED_ORIGINS = [
+    'https://iceims.teamvimarsh.me',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+
+# Session Settings for Production
+SESSION_COOKIE_SECURE = IS_PRODUCTION  # Use secure cookies for sessions only in production
+SESSION_COOKIE_SAMESITE = 'Lax'  # Session cookie SameSite attribute
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookies
+
+# CSRF failure handling
+CSRF_FAILURE_VIEW = 'conference.csrf_views.csrf_failure'
+
+# Custom error pages
+handler404 = 'conference.views.custom_404_view'
+handler500 = 'conference.views.custom_500_view'
 
 # Application definition
 
@@ -55,6 +75,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'conference.middleware.MaintenanceMiddleware',
+    'conference.middleware.SecurityHeadersMiddleware',
 ]
 
 ROOT_URLCONF = 'iccca_website.urls'
@@ -129,8 +151,13 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# WhiteNoise configuration
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# WhiteNoise configuration - different for dev vs production
+if DEBUG:
+    # Use default storage in development
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+else:
+    # Use WhiteNoise for production
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
@@ -140,3 +167,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Authentication URLs
+LOGIN_URL = '/admin-login/'
+LOGIN_REDIRECT_URL = '/admin-panel/'
+LOGOUT_REDIRECT_URL = '/'

@@ -386,6 +386,152 @@ input, textarea, select {
     left: 0;
 }
 
+/* Profile Dropdown Styles */
+.navbar-nav .dropdown {
+    position: relative;
+}
+
+.navbar-nav .dropdown-toggle {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    border: none;
+    background: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.navbar-nav .dropdown-toggle:hover {
+    background: rgba(160, 53, 47, 0.08);
+    color: var(--primary-color) !important;
+}
+
+.navbar-nav .dropdown-toggle::after {
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+.navbar-nav .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 1050;
+    display: none;
+    min-width: 220px;
+    margin: 0;
+    padding: 0.5rem 0;
+    background: white;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    transform: translateY(10px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.navbar-nav .dropdown:hover .dropdown-menu,
+.navbar-nav .dropdown.show .dropdown-menu {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+.navbar-nav .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: var(--dark-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    margin: 0.125rem 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.navbar-nav .dropdown-item i {
+    width: 18px;
+    margin-right: 0.75rem;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+}
+
+.navbar-nav .dropdown-item:hover {
+    background: rgba(160, 53, 47, 0.08);
+    color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.navbar-nav .dropdown-item:active,
+.navbar-nav .dropdown-item:focus {
+    background: rgba(160, 53, 47, 0.12);
+    color: var(--primary-color);
+}
+
+.navbar-nav .dropdown-divider {
+    height: 1px;
+    margin: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+/* Enhanced dropdown animation for better UX */
+@keyframes dropdownSlide {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.navbar-nav .dropdown.show .dropdown-menu {
+    animation: dropdownSlide 0.3s ease-out;
+}
+
+/* Ensure dropdown works on mobile */
+@media (max-width: 991.98px) {
+    .navbar-nav .dropdown-menu {
+        position: static;
+        float: none;
+        width: auto;
+        margin-top: 0;
+        background-color: transparent;
+        border: 0;
+        box-shadow: none;
+        transform: none;
+        opacity: 1;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+    
+    .navbar-nav .dropdown-item {
+        color: var(--dark-color);
+        background: rgba(160, 53, 47, 0.05);
+        margin: 0.25rem 1rem;
+        border-radius: 8px;
+    }
+    
+    .navbar-nav .dropdown-item:hover {
+        background: rgba(160, 53, 47, 0.1);
+        transform: none;
+    }
+}
+
+/* Profile icon styling */
+.navbar-nav .dropdown-toggle .fas.fa-user {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
 /* Fixed Back to Top Button */
 .btn-back-to-top {
     position: fixed;

@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Maintenance Mode Management - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .admin-nav {
+        background: #f8f9fa;
+        padding: 1rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .maintenance-card {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .maintenance-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .status-active { background: #d1edff; color: #055160; }
+    .status-inactive { background: #f8d7da; color: #721c24; }
+    
+    .maintenance-type-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+    
+    .type-site { background: #ffe6e6; color: #dc3545; }
+    .type-page { background: #fff3cd; color: #856404; }
+    .type-feature { background: #d1ecf1; color: #0c5460; }
+    
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-left: 4px solid var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1><i class="fas fa-tools"></i> Maintenance Mode Management</h1>
+                <p class="mb-0">Control site-wide or page-specific maintenance</p>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="{% url 'conference:maintenance_create' %}" class="btn btn-light me-2">
+                    <i class="fas fa-plus"></i> Create Maintenance
+                </a>
+                <a href="{% url 'conference:blog_list' %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back to Admin
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Admin Navigation -->
+<section class="admin-nav">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <nav class="nav nav-pills">
+                    <a class="nav-link {% if not status_filter %}active{% endif %}" href="{% url 'conference:maintenance_list' %}">
+                        <i class="fas fa-list"></i> All Maintenance
+                    </a>
+                    <a class="nav-link {% if status_filter == 'active' %}active{% endif %}" href="{% url 'conference:maintenance_list' %}?status=active">
+                        <i class="fas fa-play-circle"></i> Active
+                    </a>
+                    <a class="nav-link {% if status_filter == 'inactive' %}active{% endif %}" href="{% url 'conference:maintenance_list' %}?status=inactive">
+                        <i class="fas fa-pause-circle"></i> Inactive
+                    </a>
+                </nav>
+            </div>
+            <div class="col-md-4 text-end">
+                <small class="text-muted">
+                    <i class="fas fa-shield-alt"></i> Admin users can access during maintenance
+                </small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="py-4">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Statistics Row -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h3 class="text-success">{{ maintenances|length }}</h3>
+                    <p class="mb-0">Total Configurations</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h3 class="text-warning">
+                        {% with active_count=maintenances|length %}
+                        {% for m in maintenances %}{% if m.is_active %}{{ forloop.counter0|add:1 }}{% endif %}{% endfor %}
+                        {% endwith %}
+                    </h3>
+                    <p class="mb-0">Active Maintenance</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <h3 class="text-info">3</h3>
+                    <p class="mb-0">Maintenance Types</p>
+                </div>
+            </div>
+        </div>
+
+        {% if maintenances %}
+        <!-- Maintenance List -->
+        {% for maintenance in maintenances %}
+        <div class="maintenance-card">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="maintenance-type-badge type-{{ maintenance.maintenance_type }}">
+                            {% if maintenance.maintenance_type == 'site' %}
+                                <i class="fas fa-globe"></i> Entire Site
+                            {% elif maintenance.maintenance_type == 'page' %}
+                                <i class="fas fa-file-alt"></i> Specific Page
+                            {% elif maintenance.maintenance_type == 'feature' %}
+                                <i class="fas fa-cog"></i> Feature
+                            {% endif %}
+                        </span>
+                        <span class="status-badge status-{% if maintenance.is_active %}active{% else %}inactive{% endif %}">
+                            {% if maintenance.is_active %}
+                                <i class="fas fa-play"></i> Active
+                            {% else %}
+                                <i class="fas fa-pause"></i> Inactive
+                            {% endif %}
+                        </span>
+                    </div>
+                    <h5 class="mb-1">{{ maintenance.title }}</h5>
+                    <p class="text-muted mb-2">{{ maintenance.message|truncatewords:15 }}</p>
+                    {% if maintenance.page_url %}
+                    <small class="text-info">
+                        <i class="fas fa-link"></i> {{ maintenance.page_url }}
+                    </small>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-3">
+                    <small class="text-muted">
+                        <strong>Created:</strong><br>
+                        {{ maintenance.created_at|date:"M j, Y g:i A" }}<br>
+                        <em>by {{ maintenance.created_by.get_full_name|default:maintenance.created_by.username }}</em>
+                    </small>
+                    {% if maintenance.start_time or maintenance.end_time %}
+                    <br><br>
+                    <small class="text-primary">
+                        <strong>Schedule:</strong><br>
+                        {% if maintenance.start_time %}Start: {{ maintenance.start_time|date:"M j, g:i A" }}<br>{% endif %}
+                        {% if maintenance.end_time %}End: {{ maintenance.end_time|date:"M j, g:i A" }}{% endif %}
+                    </small>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-3 text-end">
+                    <div class="btn-group-vertical">
+                        <form method="POST" action="{% url 'conference:maintenance_toggle' maintenance.pk %}" class="mb-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm {% if maintenance.is_active %}btn-warning{% else %}btn-success{% endif %}">
+                                {% if maintenance.is_active %}
+                                    <i class="fas fa-pause"></i> Deactivate
+                                {% else %}
+                                    <i class="fas fa-play"></i> Activate
+                                {% endif %}
+                            </button>
+                        </form>
+                        
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewModal{{ maintenance.id }}">
+                            <i class="fas fa-eye"></i> View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for viewing details -->
+        <div class="modal fade" id="viewModal{{ maintenance.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ maintenance.title }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Maintenance Details</h6>
+                                <p><strong>Type:</strong> {{ maintenance.get_maintenance_type_display }}</p>
+                                <p><strong>Status:</strong> 
+                                    <span class="status-badge status-{% if maintenance.is_active %}active{% else %}inactive{% endif %}">
+                                        {{ maintenance.is_active|yesno:"Active,Inactive" }}
+                                    </span>
+                                </p>
+                                {% if maintenance.page_url %}
+                                <p><strong>Page URL:</strong> {{ maintenance.page_url }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Schedule</h6>
+                                <p><strong>Created:</strong> {{ maintenance.created_at|date:"F j, Y g:i A" }}</p>
+                                <p><strong>Created By:</strong> {{ maintenance.created_by.get_full_name|default:maintenance.created_by.username }}</p>
+                                {% if maintenance.start_time %}
+                                <p><strong>Start Time:</strong> {{ maintenance.start_time|date:"F j, Y g:i A" }}</p>
+                                {% endif %}
+                                {% if maintenance.end_time %}
+                                <p><strong>End Time:</strong> {{ maintenance.end_time|date:"F j, Y g:i A" }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <h6>Message</h6>
+                            <div class="bg-light p-3 rounded">
+                                {{ maintenance.message|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-tools fa-5x text-muted mb-4"></i>
+            <h4>No Maintenance Configurations</h4>
+            <p class="text-muted lead">Create maintenance configurations to control site availability.</p>
+            <a href="{% url 'conference:maintenance_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create First Maintenance
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+// Auto-refresh page every 30 seconds if there are active maintenance modes
+{% if maintenances %}
+{% for m in maintenances %}
+    {% if m.is_active %}
+        setInterval(function() {
+            window.location.reload();
+        }, 30000);
+        break;
+    {% endif %}
+{% endfor %}
+{% endif %}
+</script>
+{% endblock %}

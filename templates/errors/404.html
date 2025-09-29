@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Page Not Found (404) - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .error-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        text-align: center;
+        max-width: 600px;
+        position: relative;
+    }
+    
+    .error-icon {
+        color: var(--primary-color);
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        animation: bounce 2s infinite;
+    }
+    
+    .error-code {
+        font-size: 8rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        opacity: 0.1;
+        position: absolute;
+        top: -20px;
+        right: 20px;
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-10px);
+        }
+        60% {
+            transform: translateY(-5px);
+        }
+    }
+    
+    .suggestion-card {
+        background: #f8f9fa;
+        border-left: 4px solid var(--secondary-color);
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="error-card">
+                    <div class="error-code">404</div>
+                    <i class="fas fa-search error-icon"></i>
+                    <h1 class="mb-3">Oops! Page Not Found</h1>
+                    <p class="lead mb-4">
+                        The page you're looking for seems to have wandered off. Don't worry, it happens to the best of us!
+                    </p>
+                    
+                    <div class="suggestion-card text-start">
+                        <h6><i class="fas fa-lightbulb text-warning"></i> Here's what you can try:</h6>
+                        <ul class="mb-0">
+                            <li>Check the URL for any typos</li>
+                            <li>Use our navigation menu to find what you need</li>
+                            <li>Visit our homepage and start fresh</li>
+                            <li>Try searching for the content you were looking for</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'conference:home' %}" class="btn btn-primary me-3">
+                            <i class="fas fa-home"></i> Go Home
+                        </a>
+                        <a href="{% url 'conference:blog_public_list' %}" class="btn btn-outline-primary me-3">
+                            <i class="fas fa-newspaper"></i> Browse Blog
+                        </a>
+                        <a href="{% url 'conference:contact' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-envelope"></i> Contact Us
+                        </a>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <form method="GET" action="{% url 'conference:blog_public_list' %}" class="d-flex justify-content-center">
+                            <div class="input-group" style="max-width: 400px;">
+                                <input type="text" class="form-control" name="search" 
+                                       placeholder="Search the site..." aria-label="Search">
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="mt-4 text-muted small">
+                        <p>
+                            If you believe this is an error, please 
+                            <a href="{% url 'conference:contact' %}" class="text-decoration-none">contact our support team</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

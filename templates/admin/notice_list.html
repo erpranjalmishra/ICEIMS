@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notice Management - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .admin-nav {
+        background: #f8f9fa;
+        padding: 1rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .notice-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-left: 4px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+    
+    .notice-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .notice-card.urgent {
+        border-left-color: #dc3545;
+        background: linear-gradient(90deg, #fff5f5 0%, #fff 10%);
+    }
+    
+    .notice-card.info { border-left-color: #17a2b8; }
+    .notice-card.warning { border-left-color: #ffc107; }
+    .notice-card.success { border-left-color: #28a745; }
+    .notice-card.danger { border-left-color: #dc3545; }
+    .notice-card.primary { border-left-color: var(--primary-color); }
+    
+    .notice-type-badge {
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-right: 0.5rem;
+    }
+    
+    .badge-info { background: #d1ecf1; color: #0c5460; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    .badge-success { background: #d1edff; color: #055160; }
+    .badge-danger { background: #f8d7da; color: #721c24; }
+    .badge-primary { background: rgba(160, 53, 47, 0.1); color: var(--primary-color); }
+    
+    .status-badge {
+        padding: 0.25rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    
+    .status-active { background: #d4edda; color: #155724; }
+    .status-inactive { background: #f8d7da; color: #721c24; }
+    
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-left: 4px solid var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .urgent-indicator {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #dc3545;
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1><i class="fas fa-bullhorn"></i> Notice Management</h1>
+                <p class="mb-0">Manage announcements and alerts for the website</p>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="{% url 'conference:notice_create' %}" class="btn btn-light me-2">
+                    <i class="fas fa-plus"></i> Create Notice
+                </a>
+                <a href="{% url 'conference:blog_list' %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back to Admin
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Admin Navigation -->
+<section class="admin-nav">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <nav class="nav nav-pills">
+                    <a class="nav-link {% if not status_filter %}active{% endif %}" href="{% url 'conference:notice_list' %}">
+                        <i class="fas fa-list"></i> All Notices
+                    </a>
+                    <a class="nav-link {% if status_filter == 'active' %}active{% endif %}" href="{% url 'conference:notice_list' %}?status=active">
+                        <i class="fas fa-eye"></i> Active
+                    </a>
+                    <a class="nav-link {% if status_filter == 'inactive' %}active{% endif %}" href="{% url 'conference:notice_list' %}?status=inactive">
+                        <i class="fas fa-eye-slash"></i> Inactive
+                    </a>
+                </nav>
+            </div>
+            <div class="col-md-4 text-end">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle"></i> Active notices appear on the website
+                </small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="py-4">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Statistics Row -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 class="text-primary">{{ notices|length }}</h3>
+                    <p class="mb-0">Total Notices</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 class="text-success">
+                        {% with active_count=0 %}
+                        {% for notice in notices %}{% if notice.is_active %}{{ active_count|add:1 }}{% endif %}{% endfor %}
+                        {% endwith %}
+                    </h3>
+                    <p class="mb-0">Active Notices</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 class="text-warning">
+                        {% with urgent_count=0 %}
+                        {% for notice in notices %}{% if notice.is_urgent %}{{ urgent_count|add:1 }}{% endif %}{% endfor %}
+                        {% endwith %}
+                    </h3>
+                    <p class="mb-0">Urgent Notices</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card">
+                    <h3 class="text-info">5</h3>
+                    <p class="mb-0">Notice Types</p>
+                </div>
+            </div>
+        </div>
+
+        {% if notices %}
+        <!-- Notices List -->
+        {% for notice in notices %}
+        <div class="notice-card {{ notice.notice_type }} {% if notice.is_urgent %}urgent{% endif %}" style="position: relative;">
+            {% if notice.is_urgent %}
+                <div class="urgent-indicator">
+                    <i class="fas fa-exclamation"></i> URGENT
+                </div>
+            {% endif %}
+            
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="notice-type-badge badge-{{ notice.notice_type }}">
+                            {% if notice.notice_type == 'info' %}
+                                <i class="fas fa-info-circle"></i> Info
+                            {% elif notice.notice_type == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i> Warning
+                            {% elif notice.notice_type == 'success' %}
+                                <i class="fas fa-check-circle"></i> Success
+                            {% elif notice.notice_type == 'danger' %}
+                                <i class="fas fa-exclamation-circle"></i> Alert
+                            {% elif notice.notice_type == 'primary' %}
+                                <i class="fas fa-bullhorn"></i> Announcement
+                            {% endif %}
+                        </span>
+                        <span class="status-badge status-{% if notice.is_active %}active{% else %}inactive{% endif %}">
+                            {{ notice.is_active|yesno:"Active,Inactive" }}
+                        </span>
+                    </div>
+                    <h5 class="mb-1">{{ notice.title }}</h5>
+                    <p class="text-muted mb-2">{{ notice.content|truncatewords:20 }}</p>
+                    {% if notice.show_on_pages %}
+                    <small class="text-info">
+                        <i class="fas fa-map-marker-alt"></i> 
+                        Pages: {{ notice.show_on_pages|default:"All pages" }}
+                    </small>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-3">
+                    <small class="text-muted">
+                        <strong>Created:</strong><br>
+                        {{ notice.created_at|date:"M j, Y g:i A" }}<br>
+                        <em>by {{ notice.created_by.get_full_name|default:notice.created_by.username }}</em>
+                    </small>
+                    <br><br>
+                    <small class="text-primary">
+                        <strong>Schedule:</strong><br>
+                        <i class="fas fa-play"></i> {{ notice.start_date|date:"M j, g:i A" }}<br>
+                        {% if notice.end_date %}
+                            <i class="fas fa-stop"></i> {{ notice.end_date|date:"M j, g:i A" }}
+                        {% else %}
+                            <i class="fas fa-infinity"></i> No end date
+                        {% endif %}
+                    </small>
+                </div>
+                
+                <div class="col-md-3 text-end">
+                    <div class="btn-group-vertical">
+                        <form method="POST" action="{% url 'conference:notice_toggle' notice.pk %}" class="mb-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm {% if notice.is_active %}btn-warning{% else %}btn-success{% endif %}">
+                                {% if notice.is_active %}
+                                    <i class="fas fa-eye-slash"></i> Hide
+                                {% else %}
+                                    <i class="fas fa-eye"></i> Show
+                                {% endif %}
+                            </button>
+                        </form>
+                        
+                        <button class="btn btn-outline-primary btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#viewModal{{ notice.id }}">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        
+                        <form method="POST" action="{% url 'conference:notice_delete' notice.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                    onclick="return confirm('Delete this notice?')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for viewing details -->
+        <div class="modal fade" id="viewModal{{ notice.id }}" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-{{ notice.notice_type }} text-white">
+                        <h5 class="modal-title">
+                            {% if notice.notice_type == 'info' %}
+                                <i class="fas fa-info-circle"></i>
+                            {% elif notice.notice_type == 'warning' %}
+                                <i class="fas fa-exclamation-triangle"></i>
+                            {% elif notice.notice_type == 'success' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% elif notice.notice_type == 'danger' %}
+                                <i class="fas fa-exclamation-circle"></i>
+                            {% elif notice.notice_type == 'primary' %}
+                                <i class="fas fa-bullhorn"></i>
+                            {% endif %}
+                            {{ notice.title }}
+                            {% if notice.is_urgent %}
+                                <span class="badge bg-danger ms-2">URGENT</span>
+                            {% endif %}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Notice Details</h6>
+                                <p><strong>Type:</strong> {{ notice.get_notice_type_display }}</p>
+                                <p><strong>Status:</strong> 
+                                    <span class="status-badge status-{% if notice.is_active %}active{% else %}inactive{% endif %}">
+                                        {{ notice.is_active|yesno:"Active,Inactive" }}
+                                    </span>
+                                </p>
+                                <p><strong>Urgent:</strong> {{ notice.is_urgent|yesno:"Yes,No" }}</p>
+                                <p><strong>Show on pages:</strong> {{ notice.show_on_pages|default:"All pages" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Schedule & Author</h6>
+                                <p><strong>Created:</strong> {{ notice.created_at|date:"F j, Y g:i A" }}</p>
+                                <p><strong>Created By:</strong> {{ notice.created_by.get_full_name|default:notice.created_by.username }}</p>
+                                <p><strong>Start Date:</strong> {{ notice.start_date|date:"F j, Y g:i A" }}</p>
+                                {% if notice.end_date %}
+                                <p><strong>End Date:</strong> {{ notice.end_date|date:"F j, Y g:i A" }}</p>
+                                {% else %}
+                                <p><strong>End Date:</strong> <em>No end date (permanent)</em></p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <h6>Content</h6>
+                            <div class="bg-light p-3 rounded">
+                                {{ notice.content|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-bullhorn fa-5x text-muted mb-4"></i>
+            <h4>No Notices Created</h4>
+            <p class="text-muted lead">Create notices to share announcements with your website visitors.</p>
+            <a href="{% url 'conference:notice_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create First Notice
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

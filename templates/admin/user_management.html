@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Management - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .user-container {
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .user-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .user-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .user-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: var(--primary-color);
+    }
+    
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #e9ecef;
+    }
+    
+    .user-info {
+        flex: 1;
+        margin-left: 1rem;
+    }
+    
+    .user-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+    
+    .user-role {
+        color: var(--primary-color);
+        font-size: 0.9rem;
+        margin: 0.25rem 0;
+    }
+    
+    .user-meta {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin: 0.25rem 0;
+    }
+    
+    .user-status {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .badge-superuser {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .badge-admin {
+        background: #28a745;
+        color: white;
+    }
+    
+    .badge-staff {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    .badge-active {
+        background: #28a745;
+        color: white;
+    }
+    
+    .badge-inactive {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .user-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    
+    .btn-action {
+        padding: 0.5rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+    }
+    
+    .btn-edit {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+    
+    .btn-edit:hover {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-delete {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+    
+    .btn-delete:hover {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin: 0;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin: 0.5rem 0 0 0;
+    }
+    
+    .search-filters {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid #e9ecef;
+    }
+    
+    .filter-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-users-cog"></i> User Management</h1>
+                <p class="mb-0">Manage admin users, roles, and permissions</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'conference:user_create' %}" class="btn btn-light">
+                    <i class="fas fa-user-plus"></i> Create User
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- User Content -->
+<section class="py-5">
+    <div class="container user-container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 class="stat-number">{{ stats.total_users }}</h3>
+                <p class="stat-label">Total Users</p>
+            </div>
+            <div class="stat-card">
+                <h3 class="stat-number">{{ stats.admin_users }}</h3>
+                <p class="stat-label">Admin Users</p>
+            </div>
+            <div class="stat-card">
+                <h3 class="stat-number">{{ stats.superusers }}</h3>
+                <p class="stat-label">Superusers</p>
+            </div>
+            <div class="stat-card">
+                <h3 class="stat-number">{{ stats.active_users }}</h3>
+                <p class="stat-label">Active Users</p>
+            </div>
+            <div class="stat-card">
+                <h3 class="stat-number">{{ stats.inactive_users }}</h3>
+                <p class="stat-label">Inactive Users</p>
+            </div>
+        </div>
+        
+        <!-- Users List -->
+        <div class="user-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0">System Users</h5>
+                <div>
+                    <a href="{% url 'conference:role_management' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-user-shield"></i> Manage Roles
+                    </a>
+                </div>
+            </div>
+            
+            {% if users %}
+                {% for user_obj in users %}
+                <div class="user-item">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ user_obj.profile.get_avatar_url|default:'/static/images/default-avatar.svg' }}" 
+                             alt="{{ user_obj.get_full_name }}" class="user-avatar">
+                        
+                        <div class="user-info">
+                            <h6 class="user-name">
+                                {{ user_obj.get_full_name|default:user_obj.username }}
+                                {% if user_obj == user %}
+                                <small class="text-muted">(You)</small>
+                                {% endif %}
+                            </h6>
+                            <p class="user-role">
+                                {% if user_obj.profile.admin_role %}
+                                    {{ user_obj.profile.admin_role.name }}
+                                {% else %}
+                                    No Role Assigned
+                                {% endif %}
+                            </p>
+                            <div class="user-meta">
+                                <span><i class="fas fa-envelope me-1"></i>{{ user_obj.email }}</span>
+                                {% if user_obj.profile.department %}
+                                <span class="ms-3"><i class="fas fa-building me-1"></i>{{ user_obj.profile.department }}</span>
+                                {% endif %}
+                                {% if user_obj.profile.position %}
+                                <span class="ms-3"><i class="fas fa-briefcase me-1"></i>{{ user_obj.profile.position }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="user-status">
+                                {% if user_obj.is_superuser %}
+                                <span class="status-badge badge-superuser">Superuser</span>
+                                {% endif %}
+                                {% if user_obj.profile.is_admin_user %}
+                                <span class="status-badge badge-admin">Admin</span>
+                                {% endif %}
+                                {% if user_obj.is_staff %}
+                                <span class="status-badge badge-staff">Staff</span>
+                                {% endif %}
+                                {% if user_obj.is_active %}
+                                <span class="status-badge badge-active">Active</span>
+                                {% else %}
+                                <span class="status-badge badge-inactive">Inactive</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="user-actions">
+                            <a href="{% url 'conference:user_edit' user_obj.id %}" class="btn-action btn-edit" title="Edit User">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% if user.is_superuser and user_obj != user and not user_obj.is_superuser %}
+                            <form method="post" action="{% url 'conference:user_delete' user_obj.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="button" class="btn-action btn-delete" 
+                                        onclick="confirmDelete('{{ user_obj.get_full_name|default:user_obj.username }}', this.closest('form'))" 
+                                        title="Delete User">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No users found</h5>
+                    <p class="text-muted">Start by creating the first admin user.</p>
+                    <a href="{% url 'conference:user_create' %}" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Create First User
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<script>
+function confirmDelete(userName, form) {
+    if (confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

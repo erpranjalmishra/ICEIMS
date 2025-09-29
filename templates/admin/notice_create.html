@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Notice - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-section h6 {
+        color: var(--primary-color);
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    
+    .notice-preview {
+        margin: 1.5rem 0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .preview-notice {
+        padding: 1rem;
+        border-left: 4px solid #17a2b8;
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .preview-notice.info { background: #d1ecf1; color: #0c5460; border-left-color: #17a2b8; }
+    .preview-notice.warning { background: #fff3cd; color: #856404; border-left-color: #ffc107; }
+    .preview-notice.success { background: #d4edda; color: #155724; border-left-color: #28a745; }
+    .preview-notice.danger { background: #f8d7da; color: #721c24; border-left-color: #dc3545; }
+    .preview-notice.primary { background: rgba(160, 53, 47, 0.1); color: var(--primary-color); border-left-color: var(--primary-color); }
+    
+    .notice-type-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .type-option {
+        text-align: center;
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .type-option:hover {
+        border-color: var(--primary-color);
+        background: rgba(160, 53, 47, 0.05);
+    }
+    
+    .type-option.selected {
+        border-color: var(--primary-color);
+        background: rgba(160, 53, 47, 0.1);
+        color: var(--primary-color);
+    }
+    
+    .type-option input[type="radio"] {
+        display: none;
+    }
+    
+    .char-counter {
+        font-size: 0.8rem;
+        color: #666;
+        text-align: right;
+    }
+    
+    .urgent-indicator {
+        background: #dc3545;
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+        display: inline-block;
+        margin-left: 0.5rem;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-plus-circle"></i> Create Notice</h1>
+                <p class="mb-0">Create announcements and alerts for website visitors</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'conference:notice_list' %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="pb-5">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-card">
+                    <form method="POST" id="noticeForm">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-info-circle"></i> Basic Information</h6>
+                            
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Notice Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       placeholder="e.g., Registration Deadline Extended" maxlength="200" required>
+                                <div class="char-counter">
+                                    <span id="titleCount">0</span>/200 characters
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="content" class="form-label">Message *</label>
+                                <textarea class="form-control" id="content" name="content" rows="4" 
+                                          placeholder="Enter your notice message here..." required></textarea>
+                                <div class="form-text">This message will be displayed to users on the website</div>
+                            </div>
+                        </div>
+
+                        <!-- Notice Type -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-palette"></i> Notice Type</h6>
+                            
+                            <div class="notice-type-selector">
+                                <label class="type-option selected" for="type_info">
+                                    <input type="radio" name="notice_type" id="type_info" value="info" checked>
+                                    <i class="fas fa-info-circle fa-2x text-info"></i>
+                                    <div class="mt-2">
+                                        <strong>Information</strong><br>
+                                        <small>General announcements</small>
+                                    </div>
+                                </label>
+                                
+                                <label class="type-option" for="type_warning">
+                                    <input type="radio" name="notice_type" id="type_warning" value="warning">
+                                    <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                                    <div class="mt-2">
+                                        <strong>Warning</strong><br>
+                                        <small>Important notices</small>
+                                    </div>
+                                </label>
+                                
+                                <label class="type-option" for="type_success">
+                                    <input type="radio" name="notice_type" id="type_success" value="success">
+                                    <i class="fas fa-check-circle fa-2x text-success"></i>
+                                    <div class="mt-2">
+                                        <strong>Success</strong><br>
+                                        <small>Positive updates</small>
+                                    </div>
+                                </label>
+                                
+                                <label class="type-option" for="type_danger">
+                                    <input type="radio" name="notice_type" id="type_danger" value="danger">
+                                    <i class="fas fa-exclamation-circle fa-2x text-danger"></i>
+                                    <div class="mt-2">
+                                        <strong>Alert</strong><br>
+                                        <small>Urgent alerts</small>
+                                    </div>
+                                </label>
+                                
+                                <label class="type-option" for="type_primary">
+                                    <input type="radio" name="notice_type" id="type_primary" value="primary">
+                                    <i class="fas fa-bullhorn fa-2x" style="color: var(--primary-color);"></i>
+                                    <div class="mt-2">
+                                        <strong>Announcement</strong><br>
+                                        <small>Major announcements</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Schedule and Targeting -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-calendar-alt"></i> Schedule & Targeting</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="start_date" class="form-label">Start Date *</label>
+                                    <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
+                                    <div class="form-text">When to start showing this notice</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="end_date" class="form-label">End Date</label>
+                                    <input type="datetime-local" class="form-control" id="end_date" name="end_date">
+                                    <div class="form-text">Leave empty for permanent notice</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <label for="show_on_pages" class="form-label">Show on Pages</label>
+                                <input type="text" class="form-control" id="show_on_pages" name="show_on_pages" 
+                                       placeholder="home,blog,contact (leave empty for all pages)">
+                                <div class="form-text">Comma-separated list of pages. Leave empty to show on all pages.</div>
+                            </div>
+                        </div>
+
+                        <!-- Options -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-cog"></i> Options</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                        <label class="form-check-label" for="is_active">
+                                            <strong>Activate immediately</strong><br>
+                                            <small class="text-muted">Notice will be visible right away</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_urgent" name="is_urgent">
+                                        <label class="form-check-label" for="is_urgent">
+                                            <strong>Mark as urgent</strong><br>
+                                            <small class="text-muted">Urgent notices appear at the top</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="text-end">
+                            <a href="{% url 'conference:notice_list' %}" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Notice
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Preview -->
+            <div class="col-md-4">
+                <div class="notice-preview">
+                    <h6 class="mb-3">
+                        <i class="fas fa-eye"></i> Live Preview
+                    </h6>
+                    
+                    <div class="alert alert-info preview-notice" id="previewNotice">
+                        <div class="d-flex align-items-start">
+                            <div class="notice-icon me-3">
+                                <i class="fas fa-info-circle" id="previewIcon"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="notice-title mb-2">
+                                    <span id="previewTitle">Enter notice title above</span>
+                                    <span id="urgentBadge" class="urgent-indicator" style="display: none;">URGENT</span>
+                                </h6>
+                                <div id="previewContent">Enter your notice message above to see preview</div>
+                                <small class="notice-date text-muted mt-2 d-block">
+                                    <i class="fas fa-calendar"></i> <span id="previewDate">Just now</span>
+                                </small>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" aria-label="Close" style="position: absolute; top: 10px; right: 10px;"></button>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <h6><i class="fas fa-lightbulb"></i> Tips</h6>
+                    <ul class="mb-0">
+                        <li>Keep titles concise and clear</li>
+                        <li>Use appropriate notice types for context</li>
+                        <li>Test with specific page targeting first</li>
+                        <li>Set end dates for time-sensitive notices</li>
+                        <li>Use urgent sparingly for maximum impact</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const titleInput = document.getElementById('title');
+    const contentInput = document.getElementById('content');
+    const typeInputs = document.querySelectorAll('input[name="notice_type"]');
+    const isUrgentCheckbox = document.getElementById('is_urgent');
+    const startDateInput = document.getElementById('start_date');
+    
+    // Preview elements
+    const previewNotice = document.getElementById('previewNotice');
+    const previewIcon = document.getElementById('previewIcon');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewContent = document.getElementById('previewContent');
+    const previewDate = document.getElementById('previewDate');
+    const urgentBadge = document.getElementById('urgentBadge');
+    
+    // Character counter
+    const titleCount = document.getElementById('titleCount');
+    
+    // Set default start date to now
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    startDateInput.value = now.toISOString().slice(0, 16);
+    
+    // Update character counter
+    titleInput.addEventListener('input', function() {
+        titleCount.textContent = this.value.length;
+        previewTitle.textContent = this.value || 'Enter notice title above';
+    });
+    
+    // Update content preview
+    contentInput.addEventListener('input', function() {
+        previewContent.innerHTML = this.value.replace(/\n/g, '<br>') || 'Enter your notice message above to see preview';
+    });
+    
+    // Handle notice type changes
+    typeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const value = this.value;
+            
+            // Update visual selection
+            document.querySelectorAll('.type-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            this.closest('.type-option').classList.add('selected');
+            
+            // Update preview
+            previewNotice.className = 'alert alert-' + value + ' preview-notice';
+            
+            const icons = {
+                info: 'fas fa-info-circle',
+                warning: 'fas fa-exclamation-triangle', 
+                success: 'fas fa-check-circle',
+                danger: 'fas fa-exclamation-circle',
+                primary: 'fas fa-bullhorn'
+            };
+            
+            previewIcon.className = icons[value] || 'fas fa-info-circle';
+        });
+    });
+    
+    // Handle urgent checkbox
+    isUrgentCheckbox.addEventListener('change', function() {
+        urgentBadge.style.display = this.checked ? 'inline-block' : 'none';
+    });
+    
+    // Update preview date
+    startDateInput.addEventListener('change', function() {
+        if (this.value) {
+            const date = new Date(this.value);
+            previewDate.textContent = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+    });
+});
+</script>
+{% endblock %}

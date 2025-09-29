@@ -1,0 +1,515 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Speaker Management - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .speaker-container {
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .speaker-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .speaker-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .speaker-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: var(--primary-color);
+    }
+    
+    .speaker-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .speaker-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1.5rem;
+        border: 3px solid var(--primary-color);
+    }
+    
+    .speaker-avatar.default {
+        background: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+    
+    .speaker-info h5 {
+        margin: 0 0 0.25rem 0;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .speaker-info .speaker-title {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .speaker-info .speaker-org {
+        color: #888;
+        font-size: 0.85rem;
+    }
+    
+    .speaker-type-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-left: 1rem;
+    }
+    
+    .type-keynote {
+        background: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+        border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+    
+    .type-invited {
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+        border: 1px solid rgba(52, 152, 219, 0.3);
+    }
+    
+    .type-plenary {
+        background: rgba(142, 68, 173, 0.1);
+        color: #8e44ad;
+        border: 1px solid rgba(142, 68, 173, 0.3);
+    }
+    
+    .speaker-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+    
+    .btn-action {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-edit {
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+    }
+    
+    .btn-edit:hover {
+        background: #3498db;
+        color: white;
+    }
+    
+    .btn-delete {
+        background: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+    }
+    
+    .btn-delete:hover {
+        background: #e74c3c;
+        color: white;
+    }
+    
+    .btn-toggle {
+        background: rgba(39, 174, 96, 0.1);
+        color: #27ae60;
+    }
+    
+    .btn-toggle:hover {
+        background: #27ae60;
+        color: white;
+    }
+    
+    .btn-toggle.inactive {
+        background: rgba(149, 165, 166, 0.1);
+        color: #95a5a6;
+    }
+    
+    .btn-toggle.inactive:hover {
+        background: #95a5a6;
+        color: white;
+    }
+    
+    .status-indicator {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #27ae60;
+    }
+    
+    .status-indicator.inactive {
+        background: #95a5a6;
+    }
+    
+    .speaker-bio {
+        margin-top: 1rem;
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    .speaker-links {
+        margin-top: 1rem;
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .speaker-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .speaker-link:hover {
+        color: var(--secondary-color);
+    }
+    
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        border: 1px solid rgba(160, 53, 47, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: block;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.8rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    @media (max-width: 768px) {
+        .speaker-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .speaker-actions {
+            margin-left: 0;
+            margin-top: 1rem;
+        }
+        
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-microphone-alt"></i> Speaker Management</h1>
+                <p class="mb-0">Manage conference speakers and keynote presenters</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="btn-group me-2" role="group">
+                    <button type="button" class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'conference:export_speakers' %}?format=excel">
+                            <i class="fas fa-file-excel text-success"></i> Excel (.xlsx)
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'conference:export_speakers' %}?format=pdf">
+                            <i class="fas fa-file-pdf text-danger"></i> PDF
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'conference:export_speakers' %}?format=csv">
+                            <i class="fas fa-file-csv text-info"></i> CSV
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'conference:export_speakers' %}?format=json">
+                            <i class="fas fa-code text-warning"></i> JSON
+                        </a></li>
+                    </ul>
+                </div>
+                <a href="{% url 'conference:speaker_create' %}" class="btn btn-light">
+                    <i class="fas fa-plus"></i> Add Speaker
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Speaker Content -->
+<section class="py-5">
+    <div class="container speaker-container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Statistics -->
+        <div class="speaker-card">
+            <h5 class="mb-4"><i class="fas fa-chart-bar"></i> Speaker Statistics</h5>
+            <div class="stats-row">
+                <div class="stat-card">
+                    <span class="stat-number">{{ total_speakers }}</span>
+                    <div class="stat-label">Total Speakers</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ published_speakers }}</span>
+                    <div class="stat-label">Published</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ keynote_speakers }}</span>
+                    <div class="stat-label">Keynote Speakers</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ invited_speakers }}</span>
+                    <div class="stat-label">Invited Speakers</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Speaker List -->
+        <div class="speaker-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5><i class="fas fa-users"></i> Conference Speakers</h5>
+                <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm" id="typeFilter" style="width: auto;">
+                        <option value="">All Types</option>
+                        <option value="keynote">Keynote</option>
+                        <option value="invited">Invited</option>
+                        <option value="plenary">Plenary</option>
+                    </select>
+                    <select class="form-select form-select-sm" id="statusFilter" style="width: auto;">
+                        <option value="">All Status</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                    <a href="{% url 'conference:admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            
+            {% if speakers %}
+                {% for speaker in speakers %}
+                <div class="speaker-item" data-type="{{ speaker.speaker_type }}" data-status="{% if speaker.is_published %}published{% else %}draft{% endif %}">
+                    <div class="status-indicator {% if not speaker.is_published %}inactive{% endif %}"></div>
+                    
+                    <div class="speaker-header">
+                        {% if speaker.photo %}
+                            <img src="{{ speaker.photo.url }}" alt="{{ speaker.name }}" class="speaker-avatar">
+                        {% else %}
+                            <div class="speaker-avatar default">
+                                {{ speaker.name|first|upper }}
+                            </div>
+                        {% endif %}
+                        <div class="speaker-info flex-grow-1">
+                            <h5>{{ speaker.name }}</h5>
+                            <div class="speaker-title">{{ speaker.title }}</div>
+                            <div class="speaker-org">{{ speaker.organization }}</div>
+                        </div>
+                        <div class="speaker-type-badge type-{{ speaker.speaker_type }}">
+                            {{ speaker.get_speaker_type_display }}
+                        </div>
+                        <div class="speaker-actions">
+                            <button class="btn-action btn-toggle {% if not speaker.is_published %}inactive{% endif %}" 
+                                    onclick="toggleSpeaker({{ speaker.pk }})" 
+                                    title="{% if speaker.is_published %}Unpublish{% else %}Publish{% endif %}">
+                                <i class="fas {% if speaker.is_published %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
+                            </button>
+                            <a href="{% url 'conference:speaker_edit' speaker.pk %}" class="btn-action btn-edit" title="Edit Speaker">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button class="btn-action btn-delete" onclick="confirmDelete('{{ speaker.name }}', '{% url 'conference:speaker_delete' speaker.pk %}')" title="Delete Speaker">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    {% if speaker.bio %}
+                    <div class="speaker-bio">{{ speaker.bio|truncatewords:30 }}</div>
+                    {% endif %}
+                    
+                    {% if speaker.website or speaker.email %}
+                    <div class="speaker-links">
+                        {% if speaker.website %}
+                        <a href="{{ speaker.website }}" class="speaker-link" target="_blank">
+                            <i class="fas fa-globe"></i> Website
+                        </a>
+                        {% endif %}
+                        {% if speaker.email %}
+                        <a href="mailto:{{ speaker.email }}" class="speaker-link">
+                            <i class="fas fa-envelope"></i> Email
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-microphone-alt"></i>
+                    <h4>No Speakers Found</h4>
+                    <p>Start by adding your first conference speaker.</p>
+                    <a href="{% url 'conference:speaker_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add First Speaker
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="speakerName"></strong>?</p>
+                <p class="text-danger"><small>This action cannot be undone.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    const typeFilter = document.getElementById('typeFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const speakerItems = document.querySelectorAll('.speaker-item');
+    
+    function filterSpeakers() {
+        const selectedType = typeFilter.value;
+        const selectedStatus = statusFilter.value;
+        
+        speakerItems.forEach(item => {
+            const itemType = item.dataset.type;
+            const itemStatus = item.dataset.status;
+            
+            const typeMatch = !selectedType || itemType === selectedType;
+            const statusMatch = !selectedStatus || itemStatus === selectedStatus;
+            
+            if (typeMatch && statusMatch) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    
+    typeFilter.addEventListener('change', filterSpeakers);
+    statusFilter.addEventListener('change', filterSpeakers);
+});
+
+function toggleSpeaker(speakerId) {
+    fetch(`/admin-panel/speakers/${speakerId}/toggle/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert('Failed to toggle speaker status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while toggling speaker status');
+    });
+}
+
+function confirmDelete(speakerName, deleteUrl) {
+    document.getElementById('speakerName').textContent = speakerName;
+    document.getElementById('deleteForm').action = deleteUrl;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

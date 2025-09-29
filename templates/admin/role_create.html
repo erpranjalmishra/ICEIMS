@@ -1,0 +1,623 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load conference_extras %}
+
+{% block title %}Create Role - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 3rem 0;
+    }
+    
+    .form-container {
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-left: 5px solid var(--primary-color);
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid #e9ecef;
+    }
+    
+    .form-section h5 {
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-section h5 i {
+        margin-right: 0.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(160, 53, 47, 0.25);
+    }
+    
+    .permissions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+    
+    .permission-item {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .permission-item:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    .permission-item.checked {
+        border-color: var(--primary-color);
+        background: linear-gradient(135deg, #fff8f8, #ffffff);
+    }
+    
+    .form-check {
+        margin-bottom: 0;
+    }
+    
+    .form-check-input {
+        margin-top: 0.25rem;
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .permission-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+    
+    .permission-description {
+        font-size: 0.9rem;
+        color: #6c757d;
+        line-height: 1.4;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), #e74c3c);
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(160, 53, 47, 0.3);
+    }
+    
+    .btn-secondary {
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+    }
+    
+    .role-preview {
+        background: linear-gradient(135deg, #e8f5e8, #f0f8ff);
+        border-radius: 15px;
+        padding: 2rem;
+        border: 1px solid #d4edda;
+    }
+    
+    .role-preview h6 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .selected-permissions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .permission-badge {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        display: none;
+    }
+    
+    .permission-badge.show {
+        display: inline-block;
+    }
+    
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+    
+    .breadcrumb-item a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    
+    .breadcrumb-item.active {
+        color: #6c757d;
+    }
+    
+    .help-text {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .help-text h6 {
+        color: #856404;
+        margin-bottom: 0.5rem;
+    }
+    
+    .help-text p {
+        color: #856404;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .permissions-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-section {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-user-shield"></i> Create New Role</h1>
+                <p class="mb-0">Define a new admin role with specific permissions</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'conference:role_management' %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Roles
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Form Content -->
+<section class="py-5">
+    <div class="container form-container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'conference:admin_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'conference:role_management' %}">Role Management</a></li>
+                <li class="breadcrumb-item active">Create Role</li>
+            </ol>
+        </nav>
+        
+        <!-- Help Text -->
+        <div class="help-text">
+            <h6><i class="fas fa-info-circle me-2"></i>Role Creation Guide</h6>
+            <p>Create custom admin roles to control access to different parts of the admin panel. Assign specific permissions based on user responsibilities to maintain security and organization.</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="form-card">
+                    <form method="post" id="roleForm">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-info-circle"></i>Basic Information</h5>
+                            
+                            <div class="form-group">
+                                <label for="name" class="form-label">Role Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" required 
+                                       placeholder="e.g., Content Manager, Event Coordinator">
+                                <small class="form-text text-muted">Choose a descriptive name for this role</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="role_type" class="form-label">Role Type *</label>
+                                <select class="form-control" id="role_type" name="role_type" required>
+                                    <option value="">-- Select Role Type --</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="editor">Editor</option>
+                                    <option value="moderator">Moderator</option>
+                                    <option value="viewer">Viewer</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                                <small class="form-text text-muted">Select the type that best describes this role</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="3" 
+                                          placeholder="Describe the purpose and responsibilities of this role..."></textarea>
+                                <small class="form-text text-muted">Provide a clear description of what this role can do</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Permissions -->
+                        <div class="form-section">
+                            <h5><i class="fas fa-key"></i>Permissions</h5>
+                            <p class="text-muted mb-4">Select the permissions this role should have. Be careful to only grant necessary permissions for security.</p>
+                            
+                            <div class="permissions-grid">
+                                <!-- Dashboard Access -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_access_dashboard" name="can_access_dashboard" checked>
+                                        <label class="form-check-label" for="can_access_dashboard">
+                                            <div class="permission-title">Access Dashboard</div>
+                                            <div class="permission-description">Can access the admin dashboard and view basic statistics</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- User Management -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_manage_users" name="can_manage_users">
+                                        <label class="form-check-label" for="can_manage_users">
+                                            <div class="permission-title">Manage Users</div>
+                                            <div class="permission-description">Create, edit, and delete user accounts and assign roles</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Content Management -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_manage_content" name="can_manage_content">
+                                        <label class="form-check-label" for="can_manage_content">
+                                            <div class="permission-title">Manage Content</div>
+                                            <div class="permission-description">Manage general website content and pages</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Blog Management -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_manage_blog" name="can_manage_blog">
+                                        <label class="form-check-label" for="can_manage_blog">
+                                            <div class="permission-title">Manage Blog</div>
+                                            <div class="permission-description">Create, edit, delete blog posts and manage comments</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Event Management -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_manage_events" name="can_manage_events">
+                                        <label class="form-check-label" for="can_manage_events">
+                                            <div class="permission-title">Manage Events</div>
+                                            <div class="permission-description">Create and manage conference events and activities</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Schedule Management -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_manage_schedule" name="can_manage_schedule">
+                                        <label class="form-check-label" for="can_manage_schedule">
+                                            <div class="permission-title">Manage Schedule</div>
+                                            <div class="permission-description">Create, edit, and organize conference schedule and sessions</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Speaker Management -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_manage_speakers" name="can_manage_speakers">
+                                        <label class="form-check-label" for="can_manage_speakers">
+                                            <div class="permission-title">Manage Speakers</div>
+                                            <div class="permission-description">Add, edit, and manage keynote speakers and their information</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Committee Management -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_manage_committee" name="can_manage_committee">
+                                        <label class="form-check-label" for="can_manage_committee">
+                                            <div class="permission-title">Manage Committee</div>
+                                            <div class="permission-description">Manage committee members and their roles</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Notice Management -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_manage_notices" name="can_manage_notices">
+                                        <label class="form-check-label" for="can_manage_notices">
+                                            <div class="permission-title">Manage Notices</div>
+                                            <div class="permission-description">Create and manage website notices and announcements</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Timeline Management -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_manage_timeline" name="can_manage_timeline">
+                                        <label class="form-check-label" for="can_manage_timeline">
+                                            <div class="permission-title">Manage Timeline</div>
+                                            <div class="permission-description">Manage conference timeline and milestones</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Data Export -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_export_data" name="can_export_data">
+                                        <label class="form-check-label" for="can_export_data">
+                                            <div class="permission-title">Export Data</div>
+                                            <div class="permission-description">Export data in various formats (Excel, PDF, CSV, JSON)</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- View Logs -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_view_logs" name="can_view_logs">
+                                        <label class="form-check-label" for="can_view_logs">
+                                            <div class="permission-title">View Logs</div>
+                                            <div class="permission-description">Access system logs and activity history</div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Create Role
+                                </button>
+                                <a href="{% url 'conference:role_management' %}" class="btn btn-secondary ms-2">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                            </div>
+                            
+                            <div>
+                                <button type="button" class="btn btn-outline-info" onclick="previewRole()">
+                                    <i class="fas fa-eye me-2"></i>Preview Role
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Role Preview -->
+                <div class="role-preview">
+                    <h6><i class="fas fa-eye me-2"></i>Role Preview</h6>
+                    <div id="roleName" class="fw-bold mb-2">New Role</div>
+                    <div id="roleDescription" class="text-muted mb-3">Role description will appear here</div>
+                    
+                    <h6>Selected Permissions:</h6>
+                    <div class="selected-permissions">
+                        <span class="permission-badge" data-permission="can_access_dashboard">Dashboard Access</span>
+                        <span class="permission-badge" data-permission="can_manage_users">User Management</span>
+                        <span class="permission-badge" data-permission="can_manage_content">Content Management</span>
+                        <span class="permission-badge" data-permission="can_manage_blog">Blog Management</span>
+                        <span class="permission-badge" data-permission="can_manage_events">Event Management</span>
+                        <span class="permission-badge" data-permission="can_manage_schedule">Schedule Management</span>
+                        <span class="permission-badge" data-permission="can_manage_speakers">Speaker Management</span>
+                        <span class="permission-badge" data-permission="can_manage_committee">Committee Management</span>
+                        <span class="permission-badge" data-permission="can_manage_notices">Notice Management</span>
+                        <span class="permission-badge" data-permission="can_manage_timeline">Timeline Management</span>
+                        <span class="permission-badge" data-permission="can_export_data">Data Export</span>
+                        <span class="permission-badge" data-permission="can_view_logs">View Logs</span>
+                    </div>
+                </div>
+                
+                <!-- Quick Templates -->
+                <div class="form-card mt-4">
+                    <h6><i class="fas fa-magic me-2"></i>Quick Templates</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="applyTemplate('admin')">
+                            <i class="fas fa-user-shield me-1"></i>Full Admin
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="applyTemplate('editor')">
+                            <i class="fas fa-edit me-1"></i>Content Editor
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="applyTemplate('moderator')">
+                            <i class="fas fa-user-check me-1"></i>Moderator
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="applyTemplate('viewer')">
+                            <i class="fas fa-eye me-1"></i>View Only
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update preview when form changes
+    const nameInput = document.getElementById('name');
+    const descriptionInput = document.getElementById('description');
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    
+    nameInput.addEventListener('input', updatePreview);
+    descriptionInput.addEventListener('input', updatePreview);
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const permissionBadge = document.querySelector(`[data-permission="${this.name}"]`);
+            if (permissionBadge) {
+                permissionBadge.classList.toggle('show', this.checked);
+            }
+            
+            // Update permission item styling
+            const permissionItem = this.closest('.permission-item');
+            permissionItem.classList.toggle('checked', this.checked);
+            
+            updatePreview();
+        });
+    });
+    
+    // Initialize preview
+    updatePreview();
+    
+    // Show dashboard access badge by default
+    document.querySelector('[data-permission="can_access_dashboard"]').classList.add('show');
+});
+
+function updatePreview() {
+    const name = document.getElementById('name').value || 'New Role';
+    const description = document.getElementById('description').value || 'Role description will appear here';
+    
+    document.getElementById('roleName').textContent = name;
+    document.getElementById('roleDescription').textContent = description;
+}
+
+function previewRole() {
+    const formData = new FormData(document.getElementById('roleForm'));
+    const permissions = [];
+    
+    formData.forEach((value, key) => {
+        if (key.startsWith('can_') && value === 'on') {
+            permissions.push(key.replace('can_', '').replace('_', ' '));
+        }
+    });
+    
+    alert(`Role: ${formData.get('name') || 'New Role'}\nPermissions: ${permissions.join(', ') || 'None selected'}`);
+}
+
+function applyTemplate(template) {
+    // Clear all checkboxes first
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+        const permissionBadge = document.querySelector(`[data-permission="${cb.name}"]`);
+        if (permissionBadge) {
+            permissionBadge.classList.remove('show');
+        }
+        cb.closest('.permission-item').classList.remove('checked');
+    });
+    
+    // Apply template-specific permissions
+    const templates = {
+        admin: ['can_access_dashboard', 'can_manage_users', 'can_manage_content', 'can_manage_blog', 'can_manage_events', 'can_manage_schedule', 'can_manage_speakers', 'can_manage_committee', 'can_manage_notices', 'can_manage_timeline', 'can_export_data', 'can_view_logs'],
+        editor: ['can_access_dashboard', 'can_manage_content', 'can_manage_blog', 'can_manage_notices'],
+        moderator: ['can_access_dashboard', 'can_manage_blog', 'can_manage_notices', 'can_view_logs'],
+        viewer: ['can_access_dashboard', 'can_view_logs']
+    };
+    
+    if (templates[template]) {
+        templates[template].forEach(permission => {
+            const checkbox = document.getElementById(permission);
+            if (checkbox) {
+                checkbox.checked = true;
+                const permissionBadge = document.querySelector(`[data-permission="${permission}"]`);
+                if (permissionBadge) {
+                    permissionBadge.classList.add('show');
+                }
+                checkbox.closest('.permission-item').classList.add('checked');
+            }
+        });
+    }
+    
+    // Update form fields based on template
+    const roleTypeSelect = document.getElementById('role_type');
+    const nameInput = document.getElementById('name');
+    const descriptionInput = document.getElementById('description');
+    
+    roleTypeSelect.value = template;
+    
+    switch(template) {
+        case 'admin':
+            nameInput.value = 'Full Administrator';
+            descriptionInput.value = 'Complete administrative access to all system features';
+            break;
+        case 'editor':
+            nameInput.value = 'Content Editor';
+            descriptionInput.value = 'Manages website content, blog posts, and announcements';
+            break;
+        case 'moderator':
+            nameInput.value = 'Content Moderator';
+            descriptionInput.value = 'Reviews and moderates user-generated content';
+            break;
+        case 'viewer':
+            nameInput.value = 'Read-Only Admin';
+            descriptionInput.value = 'View-only access to admin dashboard and logs';
+            break;
+    }
+    
+    updatePreview();
+}
+</script>
+{% endblock %}

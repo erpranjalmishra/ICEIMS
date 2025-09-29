@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Server Error (500) - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);
+    }
+    
+    .error-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: 0 15px 35px rgba(220, 53, 69, 0.15);
+        text-align: center;
+        max-width: 600px;
+        position: relative;
+    }
+    
+    .error-icon {
+        color: #dc3545;
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        animation: pulse 2s infinite;
+    }
+    
+    .error-code {
+        font-size: 8rem;
+        font-weight: bold;
+        color: #dc3545;
+        opacity: 0.1;
+        position: absolute;
+        top: -20px;
+        right: 20px;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .info-card {
+        background: #f8f9fa;
+        border-left: 4px solid #dc3545;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="error-card">
+                    <div class="error-code">500</div>
+                    <i class="fas fa-exclamation-triangle error-icon"></i>
+                    <h1 class="mb-3">Internal Server Error</h1>
+                    <p class="lead mb-4">
+                        We're experiencing some technical difficulties. Our team has been notified and is working on it.
+                    </p>
+                    
+                    <div class="info-card text-start">
+                        <h6><i class="fas fa-info-circle text-info"></i> What happened?</h6>
+                        <p class="mb-0">
+                            The server encountered an unexpected condition that prevented it from completing your request. 
+                            This is usually a temporary issue.
+                        </p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'conference:home' %}" class="btn btn-primary me-3">
+                            <i class="fas fa-home"></i> Go Home
+                        </a>
+                        <button onclick="window.location.reload()" class="btn btn-outline-primary me-3">
+                            <i class="fas fa-sync-alt"></i> Try Again
+                        </button>
+                        <a href="{% url 'conference:contact' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-envelope"></i> Contact Support
+                        </a>
+                    </div>
+                    
+                    <div class="mt-4 text-muted small">
+                        <p>
+                            <strong>Error Reference:</strong> ERR-500-{{ request.session.session_key|default:"UNKNOWN" }}<br>
+                            If the problem persists, please include this reference in your support request.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

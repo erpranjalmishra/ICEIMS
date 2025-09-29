@@ -1,0 +1,449 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Timeline Item - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-section h6 {
+        color: var(--primary-color);
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    
+    .icon-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .icon-option {
+        text-align: center;
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .icon-option:hover {
+        border-color: var(--primary-color);
+        background: rgba(160, 53, 47, 0.05);
+    }
+    
+    .icon-option.selected {
+        border-color: var(--primary-color);
+        background: rgba(160, 53, 47, 0.1);
+        color: var(--primary-color);
+    }
+    
+    .icon-option input[type="radio"] {
+        display: none;
+    }
+    
+    .icon-option i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .color-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .color-option {
+        width: 60px;
+        height: 60px;
+        border: 3px solid #e9ecef;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .color-option:hover {
+        transform: scale(1.1);
+        border-color: #333;
+    }
+    
+    .color-option.selected {
+        border-color: #333;
+        transform: scale(1.1);
+    }
+    
+    .color-option.selected::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .color-option input[type="radio"] {
+        display: none;
+    }
+    
+    .preview-section {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .timeline-preview {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .preview-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: white;
+        font-size: 1.2rem;
+    }
+    
+    .preview-content h6 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+    }
+    
+    .preview-meta {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-edit"></i> Edit Timeline Item</h1>
+                <p class="mb-0">Update milestone information and settings</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'conference:timeline_list' %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back to Timeline
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Form Content -->
+<section class="pb-5">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="margin-top: -30px; position: relative; z-index: 10;">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-card">
+                    <form method="POST" id="timelineForm">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-info-circle"></i> Basic Information</h6>
+                            
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       value="{{ timeline.title }}" placeholder="e.g., Paper Submission Deadline" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="3" 
+                                          placeholder="Detailed description of this milestone...">{{ timeline.description }}</textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="timeline_type" class="form-label">Type *</label>
+                                    <select class="form-select" id="timeline_type" name="timeline_type" required>
+                                        {% for value, label in type_choices %}
+                                        <option value="{{ value }}" {% if timeline.timeline_type == value %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="status" class="form-label">Status *</label>
+                                    <select class="form-select" id="status" name="status" required>
+                                        {% for value, label in status_choices %}
+                                        <option value="{{ value }}" {% if timeline.status == value %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date & Time -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-calendar"></i> Date & Time</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="date" class="form-label">Start Date & Time *</label>
+                                    <input type="datetime-local" class="form-control" id="date" name="date" 
+                                           value="{{ timeline.date|date:'Y-m-d\TH:i' }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="end_date" class="form-label">End Date & Time</label>
+                                    <input type="datetime-local" class="form-control" id="end_date" name="end_date"
+                                           value="{% if timeline.end_date %}{{ timeline.end_date|date:'Y-m-d\TH:i' }}{% endif %}">
+                                    <div class="form-text">Optional: For events with duration</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Visual Settings -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-palette"></i> Visual Settings</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Icon</label>
+                                <div class="icon-selector">
+                                    <label class="icon-option {% if timeline.icon == 'fas fa-calendar' %}selected{% endif %}" for="icon_calendar">
+                                        <input type="radio" name="icon" id="icon_calendar" value="fas fa-calendar" 
+                                               {% if timeline.icon == 'fas fa-calendar' %}checked{% endif %}>
+                                        <i class="fas fa-calendar"></i>
+                                        <div><small>Calendar</small></div>
+                                    </label>
+                                    <label class="icon-option {% if timeline.icon == 'fas fa-clock' %}selected{% endif %}" for="icon_clock">
+                                        <input type="radio" name="icon" id="icon_clock" value="fas fa-clock"
+                                               {% if timeline.icon == 'fas fa-clock' %}checked{% endif %}>
+                                        <i class="fas fa-clock"></i>
+                                        <div><small>Clock</small></div>
+                                    </label>
+                                    <label class="icon-option {% if timeline.icon == 'fas fa-flag' %}selected{% endif %}" for="icon_flag">
+                                        <input type="radio" name="icon" id="icon_flag" value="fas fa-flag"
+                                               {% if timeline.icon == 'fas fa-flag' %}checked{% endif %}>
+                                        <i class="fas fa-flag"></i>
+                                        <div><small>Flag</small></div>
+                                    </label>
+                                    <label class="icon-option {% if timeline.icon == 'fas fa-star' %}selected{% endif %}" for="icon_star">
+                                        <input type="radio" name="icon" id="icon_star" value="fas fa-star"
+                                               {% if timeline.icon == 'fas fa-star' %}checked{% endif %}>
+                                        <i class="fas fa-star"></i>
+                                        <div><small>Star</small></div>
+                                    </label>
+                                    <label class="icon-option {% if timeline.icon == 'fas fa-trophy' %}selected{% endif %}" for="icon_trophy">
+                                        <input type="radio" name="icon" id="icon_trophy" value="fas fa-trophy"
+                                               {% if timeline.icon == 'fas fa-trophy' %}checked{% endif %}>
+                                        <i class="fas fa-trophy"></i>
+                                        <div><small>Trophy</small></div>
+                                    </label>
+                                    <label class="icon-option {% if timeline.icon == 'fas fa-graduation-cap' %}selected{% endif %}" for="icon_graduation">
+                                        <input type="radio" name="icon" id="icon_graduation" value="fas fa-graduation-cap"
+                                               {% if timeline.icon == 'fas fa-graduation-cap' %}checked{% endif %}>
+                                        <i class="fas fa-graduation-cap"></i>
+                                        <div><small>Graduate</small></div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Color</label>
+                                <div class="color-selector">
+                                    <label class="color-option {% if timeline.color == '#a0352f' %}selected{% endif %}" for="color_primary" style="background-color: #a0352f;">
+                                        <input type="radio" name="color" id="color_primary" value="#a0352f" 
+                                               {% if timeline.color == '#a0352f' %}checked{% endif %}>
+                                    </label>
+                                    <label class="color-option {% if timeline.color == '#3498db' %}selected{% endif %}" for="color_blue" style="background-color: #3498db;">
+                                        <input type="radio" name="color" id="color_blue" value="#3498db"
+                                               {% if timeline.color == '#3498db' %}checked{% endif %}>
+                                    </label>
+                                    <label class="color-option {% if timeline.color == '#27ae60' %}selected{% endif %}" for="color_green" style="background-color: #27ae60;">
+                                        <input type="radio" name="color" id="color_green" value="#27ae60"
+                                               {% if timeline.color == '#27ae60' %}checked{% endif %}>
+                                    </label>
+                                    <label class="color-option {% if timeline.color == '#f39c12' %}selected{% endif %}" for="color_orange" style="background-color: #f39c12;">
+                                        <input type="radio" name="color" id="color_orange" value="#f39c12"
+                                               {% if timeline.color == '#f39c12' %}checked{% endif %}>
+                                    </label>
+                                    <label class="color-option {% if timeline.color == '#8e44ad' %}selected{% endif %}" for="color_purple" style="background-color: #8e44ad;">
+                                        <input type="radio" name="color" id="color_purple" value="#8e44ad"
+                                               {% if timeline.color == '#8e44ad' %}checked{% endif %}>
+                                    </label>
+                                    <label class="color-option {% if timeline.color == '#2c3e50' %}selected{% endif %}" for="color_dark" style="background-color: #2c3e50;">
+                                        <input type="radio" name="color" id="color_dark" value="#2c3e50"
+                                               {% if timeline.color == '#2c3e50' %}checked{% endif %}>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Options -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-cog"></i> Options</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_featured" name="is_featured" 
+                                               {% if timeline.is_featured %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_featured">
+                                            <strong>Featured Item</strong><br>
+                                            <small class="text-muted">Display prominently on homepage</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_public" name="is_public" 
+                                               {% if timeline.is_public %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_public">
+                                            <strong>Public Visibility</strong><br>
+                                            <small class="text-muted">Visible to public users</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="text-end">
+                            <a href="{% url 'conference:timeline_list' %}" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Timeline Item
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Preview -->
+            <div class="col-md-4">
+                <div class="preview-section">
+                    <h6><i class="fas fa-eye"></i> Preview</h6>
+                    
+                    <div class="timeline-preview">
+                        <div class="preview-icon" id="previewIcon" style="background-color: {{ timeline.color }};">
+                            <i class="{{ timeline.icon }}" id="previewIconClass"></i>
+                        </div>
+                        <div class="preview-content flex-grow-1">
+                            <h6 id="previewTitle">{{ timeline.title }}</h6>
+                            <div class="preview-meta">
+                                <span id="previewDate">{{ timeline.date|date:"M j, Y g:i A" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <h6><i class="fas fa-lightbulb"></i> Tips</h6>
+                    <ul class="mb-0">
+                        <li>Choose descriptive titles</li>
+                        <li>Use appropriate icons and colors</li>
+                        <li>Set realistic dates</li>
+                        <li>Mark important items as featured</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const titleInput = document.getElementById('title');
+    const dateInput = document.getElementById('date');
+    const iconInputs = document.querySelectorAll('input[name="icon"]');
+    const colorInputs = document.querySelectorAll('input[name="color"]');
+    
+    // Preview elements
+    const previewTitle = document.getElementById('previewTitle');
+    const previewDate = document.getElementById('previewDate');
+    const previewIcon = document.getElementById('previewIcon');
+    const previewIconClass = document.getElementById('previewIconClass');
+    
+    // Update title preview
+    titleInput.addEventListener('input', function() {
+        previewTitle.textContent = this.value || 'Enter title above';
+    });
+    
+    // Update date preview
+    dateInput.addEventListener('input', function() {
+        if (this.value) {
+            const date = new Date(this.value);
+            previewDate.textContent = date.toLocaleString();
+        }
+    });
+    
+    // Handle icon selection
+    iconInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Update visual selection
+            document.querySelectorAll('.icon-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            this.closest('.icon-option').classList.add('selected');
+            
+            // Update preview
+            previewIconClass.className = this.value;
+        });
+    });
+    
+    // Handle color selection
+    colorInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Update visual selection
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            this.closest('.color-option').classList.add('selected');
+            
+            // Update preview
+            previewIcon.style.backgroundColor = this.value;
+        });
+    });
+});
+</script>
+{% endblock %}

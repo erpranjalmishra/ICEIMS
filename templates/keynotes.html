@@ -3,6 +3,36 @@
 
 {% block title %}Keynote Speakers - ICEIMS 2026{% endblock %}
 
+{% block extra_css %}
+<style>
+    .expertise-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .expertise-tag {
+        background: rgba(160, 53, 47, 0.1);
+        color: var(--primary-color);
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid rgba(160, 53, 47, 0.2);
+    }
+    
+    .speaker-social a {
+        transition: all 0.3s ease;
+    }
+    
+    .speaker-social a:hover {
+        transform: translateY(-2px);
+        color: var(--primary-color) !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Speakers Hero Section -->
 <section class="speakers-hero py-5 bg-primary text-white">
@@ -20,7 +50,79 @@
 <!-- Featured Keynote Speakers -->
 <section class="py-5">
     <div class="container">
+        {% if keynote_speakers or speakers %}
         <div class="row g-4">
+            {% for speaker in keynote_speakers %}
+            <!-- {{ speaker.name }} -->
+            <div class="col-lg-6 mb-5">
+                <div class="keynote-speaker-card {% if speaker.is_featured %}featured{% endif %}">
+                    <div class="speaker-image-wrapper">
+                        <img src="{{ speaker.get_photo_url }}" alt="{{ speaker.name }}" class="speaker-image">
+                        <div class="speaker-overlay">
+                            <div class="speaker-social">
+                                {% for social_name, social_url in speaker.get_social_links.items %}
+                                <a href="{{ social_url }}" class="social-link" target="_blank" title="{{ social_name|title }}">
+                                    {% if social_name == 'linkedin' %}<i class="fab fa-linkedin"></i>
+                                    {% elif social_name == 'twitter' %}<i class="fab fa-twitter"></i>
+                                    {% elif social_name == 'website' %}<i class="fas fa-globe"></i>
+                                    {% elif social_name == 'email' %}<i class="fas fa-envelope"></i>
+                                    {% elif social_name == 'orcid' %}<i class="fab fa-orcid"></i>
+                                    {% endif %}
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="speaker-info">
+                        <h3 class="speaker-name">{{ speaker.name }}</h3>
+                        <p class="speaker-title">{{ speaker.title }}</p>
+                        <p class="speaker-university">{{ speaker.organization }}{% if speaker.country %}, {{ speaker.country }}{% endif %}</p>
+                        
+                        {% if speaker.talk_title or speaker.session_time %}
+                        <div class="keynote-details">
+                            {% if speaker.talk_title %}
+                            <h5 class="keynote-title">"{{ speaker.talk_title }}"</h5>
+                            {% endif %}
+                            {% if speaker.talk_abstract %}
+                            <p class="keynote-abstract">
+                                {{ speaker.talk_abstract|truncatewords:50 }}
+                            </p>
+                            {% endif %}
+                            {% if speaker.session_time %}
+                            <div class="keynote-meta">
+                                <span class="keynote-date"><i class="fas fa-calendar me-2"></i>{{ speaker.session_time }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if speaker.bio %}
+                        <div class="speaker-bio mt-3">
+                            <h6>Biography</h6>
+                            <p class="bio-text">
+                                {{ speaker.bio|truncatewords:50 }}
+                            </p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if speaker.expertise %}
+                        <div class="speaker-expertise mt-3">
+                            <h6>Areas of Expertise</h6>
+                            <div class="expertise-tags">
+                                {% for expertise in speaker.get_expertise_list %}
+                                <span class="expertise-tag">{{ expertise }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+            
+            {% if not keynote_speakers %}
+            <!-- Fallback content if no keynote speakers -->
             <!-- Keynote Speaker 1 -->
             <div class="col-lg-6 mb-5">
                 <div class="keynote-speaker-card featured">
@@ -184,6 +286,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 </section>

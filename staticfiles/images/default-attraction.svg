@@ -1,0 +1,6 @@
+<svg width="400" height="250" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="250" fill="#f0f8ff"/>
+  <rect x="100" y="200" width="200" height="50" fill="#654321"/>
+  <rect x="50" y="100" width="300" height="100" fill="#8B4513"/>
+  <text x="200" y="240" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#333">Default Attraction</text>
+</svg>

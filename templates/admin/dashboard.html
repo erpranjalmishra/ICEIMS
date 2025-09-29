@@ -1,0 +1,778 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load conference_extras %}
+
+{% block title %}Admin Dashboard - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 3rem 0;
+    }
+    
+    .dashboard-container {
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .dashboard-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        border: 1px solid rgba(160, 53, 47, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(160, 53, 47, 0.2);
+        border-color: var(--primary-color);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+    }
+    
+    .management-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .management-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+    }
+    
+    .section-header h5 {
+        margin: 0 0 0 1rem;
+        font-weight: 600;
+    }
+    
+    .section-icon {
+        font-size: 1.8rem;
+        color: var(--primary-color);
+    }
+    
+    .management-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .management-links li {
+        margin-bottom: 0.75rem;
+    }
+    
+    .management-link {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #495057;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+    
+    .management-link:hover {
+        background: rgba(160, 53, 47, 0.1);
+        color: var(--primary-color);
+        transform: translateX(5px);
+        border-color: rgba(160, 53, 47, 0.2);
+    }
+    
+    .management-link i {
+        width: 20px;
+        margin-right: 0.75rem;
+        color: var(--primary-color);
+    }
+    
+    .quick-actions {
+        background: linear-gradient(135deg, var(--primary-color), #e74c3c);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .quick-actions h5 {
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .action-btn {
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .action-btn:hover {
+        background: rgba(255,255,255,0.3);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .export-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-top: 2rem;
+    }
+    
+    .export-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .export-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: var(--primary-color);
+    }
+    
+    .export-card h6 {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .export-card .btn-group {
+        margin-top: 1rem;
+    }
+    
+    .export-card .btn {
+        border-radius: 6px;
+    }
+    
+    .recent-activity {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-top: 2rem;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+        border-left: 3px solid var(--primary-color);
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+    
+    .activity-content h6 {
+        margin: 0 0 0.25rem 0;
+        font-size: 0.9rem;
+        color: #495057;
+    }
+    
+    .activity-content small {
+        color: #6c757d;
+    }
+    
+    .welcome-message {
+        background: linear-gradient(135deg, #e8f5e8, #f0f8ff);
+        border: 1px solid rgba(160, 53, 47, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .welcome-message h4 {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .management-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+                <p class="mb-0">Manage your conference website efficiently</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <span class="badge bg-light text-dark fs-6">
+                    <i class="fas fa-calendar"></i> {{ current_date|date:"F j, Y" }}
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Dashboard Content -->
+<section class="py-5">
+    <div class="container dashboard-container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Welcome Message -->
+        <div class="welcome-message">
+            <h4><i class="fas fa-user-shield"></i> Welcome, {{ user.get_full_name|default:user.username }}!</h4>
+            <p class="mb-0">You have administrative access to the ICEIMS 2026 conference website.</p>
+        </div>
+        
+        <!-- Statistics Overview -->
+        <div class="dashboard-card">
+            <h5 class="mb-4"><i class="fas fa-chart-line"></i> Website Statistics</h5>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-blog"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.blog_posts }}</span>
+                    <div class="stat-label">Blog Posts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.pending_comments }}</span>
+                    <div class="stat-label">Pending Comments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.active_notices }}</span>
+                    <div class="stat-label">Active Notices</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.maintenance_modes }}</span>
+                    <div class="stat-label">Maintenance Modes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-microphone-alt"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.speakers }}</span>
+                    <div class="stat-label">Speakers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.committee_members }}</span>
+                    <div class="stat-label">Committee Members</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-timeline"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.timeline_items }}</span>
+                    <div class="stat-label">Timeline Items</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-broadcast-tower"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.status_updates }}</span>
+                    <div class="stat-label">Status Updates</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Management Sections -->
+        <div class="management-grid">
+            <!-- Blog Management -->
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-blog"></i>
+                    <h5>Blog Management</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="{% url 'conference:blog_list' %}" class="management-link">
+                            <i class="fas fa-list"></i>
+                            All Blog Posts
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:blog_create' %}" class="management-link">
+                            <i class="fas fa-plus"></i>
+                            Create New Post
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:comment_list' %}" class="management-link">
+                            <i class="fas fa-comments"></i>
+                            Manage Comments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:category_list' %}" class="management-link">
+                            <i class="fas fa-tags"></i>
+                            Manage Categories
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Website Control -->
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-cog"></i>
+                    <h5>Website Control</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="{% url 'conference:notice_list' %}" class="management-link">
+                            <i class="fas fa-bullhorn"></i>
+                            Manage Notices
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:notice_create' %}" class="management-link">
+                            <i class="fas fa-plus-circle"></i>
+                            Create Notice
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:maintenance_list' %}" class="management-link">
+                            <i class="fas fa-tools"></i>
+                            Maintenance Mode
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:maintenance_create' %}" class="management-link">
+                            <i class="fas fa-wrench"></i>
+                            Schedule Maintenance
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Timeline Management -->
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-timeline"></i>
+                    <h5>Timeline Management</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="{% url 'conference:timeline_list' %}" class="management-link">
+                            <i class="fas fa-list-alt"></i>
+                            View Timeline
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:timeline_create' %}" class="management-link">
+                            <i class="fas fa-plus"></i>
+                            Add Milestone
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:status_update_list' %}" class="management-link">
+                            <i class="fas fa-broadcast-tower"></i>
+                            Status Updates
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:status_update_create' %}" class="management-link">
+                            <i class="fas fa-edit"></i>
+                            Post Update
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Schedule Management -->
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-calendar-week"></i>
+                    <h5>Schedule Management</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="{% url 'conference:schedule_list' %}" class="management-link">
+                            <i class="fas fa-calendar-alt"></i>
+                            View Schedule
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:schedule_create' %}" class="management-link">
+                            <i class="fas fa-plus"></i>
+                            Add Session
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Speaker Management -->
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-microphone-alt"></i>
+                    <h5>Speaker Management</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="{% url 'conference:speaker_list' %}" class="management-link">
+                            <i class="fas fa-users"></i>
+                            View Speakers
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:speaker_create' %}" class="management-link">
+                            <i class="fas fa-user-plus"></i>
+                            Add Speaker
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Committee Management -->
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-users-cog"></i>
+                    <h5>Committee Management</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="{% url 'conference:committee_list' %}" class="management-link">
+                            <i class="fas fa-users"></i>
+                            View Committee
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:committee_create' %}" class="management-link">
+                            <i class="fas fa-user-plus"></i>
+                            Add Member
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- System Administration -->
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-shield-alt"></i>
+                    <h5>System Administration</h5>
+                </div>
+                <ul class="management-links">
+                    {% can_manage_users user as can_manage %}
+                    {% if user.is_superuser or can_manage %}
+                    <li>
+                        <a href="{% url 'conference:user_management' %}" class="management-link">
+                            <i class="fas fa-users-cog"></i>
+                            User Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:user_create' %}" class="management-link">
+                            <i class="fas fa-user-plus"></i>
+                            Create Admin User
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if user.is_superuser %}
+                    <li>
+                        <a href="{% url 'conference:role_management' %}" class="management-link">
+                            <i class="fas fa-user-shield"></i>
+                            Role Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:role_create' %}" class="management-link">
+                            <i class="fas fa-plus-circle"></i>
+                            Create Role
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <a href="/admin/" class="management-link" target="_blank">
+                            <i class="fas fa-database"></i>
+                            Django Admin Panel
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:logout' %}" class="management-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+            <div class="action-buttons">
+                <a href="{% url 'conference:blog_create' %}" class="action-btn">
+                    <i class="fas fa-plus me-1"></i> New Blog Post
+                </a>
+                <a href="{% url 'conference:notice_create' %}" class="action-btn">
+                    <i class="fas fa-bullhorn me-1"></i> Create Notice
+                </a>
+                <a href="{% url 'conference:timeline_create' %}" class="action-btn">
+                    <i class="fas fa-calendar-plus me-1"></i> Add Milestone
+                </a>
+                <a href="{% url 'conference:status_update_create' %}" class="action-btn">
+                    <i class="fas fa-broadcast-tower me-1"></i> Post Update
+                </a>
+            </div>
+        </div>
+        
+        <!-- Export Data -->
+        <div class="export-section">
+            <h5><i class="fas fa-download"></i> Export Data</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="export-card">
+                        <h6><i class="fas fa-microphone-alt text-primary"></i> Speakers</h6>
+                        <p class="text-muted small">Export speaker information and details</p>
+                        <div class="btn-group w-100" role="group">
+                            <a href="{% url 'conference:export_speakers' %}?format=excel" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </a>
+                            <a href="{% url 'conference:export_speakers' %}?format=pdf" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                            <a href="{% url 'conference:export_speakers' %}?format=csv" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </a>
+                            <a href="{% url 'conference:export_speakers' %}?format=json" class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-code"></i> JSON
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="export-card">
+                        <h6><i class="fas fa-users-cog text-secondary"></i> Committee</h6>
+                        <p class="text-muted small">Export committee member information</p>
+                        <div class="btn-group w-100" role="group">
+                            <a href="{% url 'conference:export_committee' %}?format=excel" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </a>
+                            <a href="{% url 'conference:export_committee' %}?format=pdf" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                            <a href="{% url 'conference:export_committee' %}?format=csv" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </a>
+                            <a href="{% url 'conference:export_committee' %}?format=json" class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-code"></i> JSON
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="export-card">
+                        <h6><i class="fas fa-calendar-week text-info"></i> Schedule</h6>
+                        <p class="text-muted small">Export conference schedule and sessions</p>
+                        <div class="btn-group w-100" role="group">
+                            <a href="{% url 'conference:export_schedule' %}?format=excel" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </a>
+                            <a href="{% url 'conference:export_schedule' %}?format=pdf" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                            <a href="{% url 'conference:export_schedule' %}?format=csv" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </a>
+                            <a href="{% url 'conference:export_schedule' %}?format=json" class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-code"></i> JSON
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="export-card">
+                        <h6><i class="fas fa-history text-warning"></i> Activity Logs</h6>
+                        <p class="text-muted small">Export system activity and change logs</p>
+                        <div class="btn-group w-100" role="group">
+                            <a href="{% url 'conference:export_logs' %}?format=excel&days=30" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </a>
+                            <a href="{% url 'conference:export_logs' %}?format=pdf&days=30" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                            <a href="{% url 'conference:export_logs' %}?format=csv&days=30" class="btn btn-sm btn-outline-info">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </a>
+                            <a href="{% url 'conference:export_logs' %}?format=json&days=30" class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-code"></i> JSON
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <h5 class="mb-4"><i class="fas fa-history"></i> Recent Activity</h5>
+            {% if recent_activities %}
+                {% for activity in recent_activities %}
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas {{ activity.icon }}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <h6>{{ activity.title|truncatechars:60 }}</h6>
+                        <div class="activity-meta">
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>{{ activity.user }} 
+                                <i class="fas fa-clock ms-2 me-1"></i>{{ activity.timestamp|timesince }} ago
+                                {% if activity.object_type %}
+                                <i class="fas fa-tag ms-2 me-1"></i>{{ activity.object_type }}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="text-center mt-3">
+                    <a href="{% url 'conference:export_logs' %}?format=excel&days=7" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-download me-1"></i>Export Recent Logs
+                    </a>
+                </div>
+            {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <p>No recent activity to display.</p>
+                    <small>Activity will appear here as users make changes to the system.</small>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth hover effects
+    const managementLinks = document.querySelectorAll('.management-link');
+    managementLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+        });
+        link.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+        });
+    });
+    
+    // Auto-refresh statistics every 5 minutes
+    setInterval(function() {
+        // You can implement AJAX refresh here if needed
+        console.log('Statistics could be refreshed here');
+    }, 300000);
+});
+</script>
+{% endblock %}

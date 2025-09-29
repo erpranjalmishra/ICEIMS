@@ -1,0 +1,557 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Schedule Session - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-section h6 {
+        color: var(--primary-color);
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    
+    .time-picker-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .time-picker-group .form-label {
+        margin: 0;
+        font-weight: 600;
+        min-width: 80px;
+    }
+    
+    .duration-display {
+        background: rgba(52, 152, 219, 0.1);
+        border: 1px solid rgba(52, 152, 219, 0.3);
+        border-radius: 8px;
+        padding: 0.75rem;
+        color: #3498db;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .preview-section {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .schedule-preview {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        position: relative;
+    }
+    
+    .preview-time {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        display: inline-block;
+        font-size: 0.9rem;
+    }
+    
+    .preview-type {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .preview-content h6 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    .preview-description {
+        color: #6c757d;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .preview-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .preview-detail {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .preview-detail i {
+        color: var(--primary-color);
+    }
+    
+    /* Type-specific styling for preview */
+    .type-session {
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+        border: 1px solid rgba(52, 152, 219, 0.3);
+    }
+    
+    .type-keynote {
+        background: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+        border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+    
+    .type-workshop {
+        background: rgba(39, 174, 96, 0.1);
+        color: #27ae60;
+        border: 1px solid rgba(39, 174, 96, 0.3);
+    }
+    
+    .type-break {
+        background: rgba(243, 156, 18, 0.1);
+        color: #f39c12;
+        border: 1px solid rgba(243, 156, 18, 0.3);
+    }
+    
+    .type-networking {
+        background: rgba(142, 68, 173, 0.1);
+        color: #8e44ad;
+        border: 1px solid rgba(142, 68, 173, 0.3);
+    }
+    
+    .schedule-type-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .type-option {
+        text-align: center;
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .type-option:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .type-option.selected {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .type-option input[type="radio"] {
+        display: none;
+    }
+    
+    .type-option i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .type-option .type-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .type-option .type-description {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-calendar-plus"></i> Add Schedule Session</h1>
+                <p class="mb-0">Create a new session or event for the conference schedule</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'conference:schedule_list' %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Back to Schedule
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Form Content -->
+<section class="pb-5">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="margin-top: -30px; position: relative; z-index: 10;">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-card">
+                    <form method="POST" id="scheduleForm">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-info-circle"></i> Session Information</h6>
+                            
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Session Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       placeholder="e.g., Opening Keynote: Future of AI" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="3" 
+                                          placeholder="Detailed description of the session or event..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Session Type -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-tags"></i> Session Type</h6>
+                            
+                            <div class="schedule-type-selector">
+                                {% for value, label in type_choices %}
+                                <label class="type-option type-{{ value }}" for="type_{{ value }}">
+                                    <input type="radio" name="schedule_type" id="type_{{ value }}" value="{{ value }}" 
+                                           {% if forloop.first %}checked{% endif %}>
+                                    <i class="fas 
+                                        {% if value == 'session' %}fa-chalkboard-teacher
+                                        {% elif value == 'keynote' %}fa-microphone
+                                        {% elif value == 'workshop' %}fa-tools
+                                        {% elif value == 'break' %}fa-coffee
+                                        {% elif value == 'networking' %}fa-users
+                                        {% else %}fa-calendar{% endif %}"></i>
+                                    <div class="type-label">{{ label }}</div>
+                                    <div class="type-description">
+                                        {% if value == 'session' %}Technical presentations
+                                        {% elif value == 'keynote' %}Invited speaker
+                                        {% elif value == 'workshop' %}Interactive workshop
+                                        {% elif value == 'break' %}Coffee/Lunch break
+                                        {% elif value == 'networking' %}Networking event
+                                        {% endif %}
+                                    </div>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Date & Time -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-clock"></i> Date & Time</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="date" class="form-label">Date *</label>
+                                    <input type="date" class="form-control" id="date" name="date" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="day" class="form-label">Conference Day</label>
+                                    <select class="form-select" id="day" name="day">
+                                        {% for value, label in day_choices %}
+                                        <option value="{{ value }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-5">
+                                    <div class="time-picker-group">
+                                        <label for="start_time" class="form-label">Start *</label>
+                                        <input type="time" class="form-control" id="start_time" name="start_time" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="time-picker-group">
+                                        <label for="end_time" class="form-label">End</label>
+                                        <input type="time" class="form-control" id="end_time" name="end_time">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="duration-display" id="durationDisplay">
+                                        --
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Speaker & Venue -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-map-marker-alt"></i> Additional Details</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="speaker" class="form-label">Speaker/Presenter</label>
+                                    <input type="text" class="form-control" id="speaker" name="speaker" 
+                                           placeholder="Dr. John Smith">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="venue" class="form-label">Venue/Location</label>
+                                    <input type="text" class="form-control" id="venue" name="venue" 
+                                           placeholder="Main Auditorium, Hall A">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Options -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-cog"></i> Options</h6>
+                            
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                <label class="form-check-label" for="is_active">
+                                    <strong>Active</strong><br>
+                                    <small class="text-muted">Display this session in the public schedule</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="text-end">
+                            <a href="{% url 'conference:schedule_list' %}" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create Session
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Preview -->
+            <div class="col-md-4">
+                <div class="preview-section">
+                    <h6><i class="fas fa-eye"></i> Preview</h6>
+                    
+                    <div class="schedule-preview">
+                        <div class="preview-type type-session" id="previewType">Session</div>
+                        <div class="preview-time" id="previewTime">Select time</div>
+                        <div class="preview-content">
+                            <h6 id="previewTitle">Enter title above</h6>
+                            <div class="preview-description" id="previewDescription">Enter description above</div>
+                            <div class="preview-details">
+                                <div class="preview-detail" id="previewSpeaker" style="display: none;">
+                                    <i class="fas fa-user"></i>
+                                    <span></span>
+                                </div>
+                                <div class="preview-detail" id="previewVenue" style="display: none;">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span></span>
+                                </div>
+                                <div class="preview-detail" id="previewDate" style="display: none;">
+                                    <i class="fas fa-calendar"></i>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <h6><i class="fas fa-lightbulb"></i> Tips</h6>
+                    <ul class="mb-0">
+                        <li>Use clear, descriptive titles</li>
+                        <li>Include speaker names when available</li>
+                        <li>Specify exact venue locations</li>
+                        <li>Set realistic time durations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const titleInput = document.getElementById('title');
+    const descriptionInput = document.getElementById('description');
+    const speakerInput = document.getElementById('speaker');
+    const venueInput = document.getElementById('venue');
+    const dateInput = document.getElementById('date');
+    const startTimeInput = document.getElementById('start_time');
+    const endTimeInput = document.getElementById('end_time');
+    const typeInputs = document.querySelectorAll('input[name="schedule_type"]');
+    
+    // Preview elements
+    const previewTitle = document.getElementById('previewTitle');
+    const previewDescription = document.getElementById('previewDescription');
+    const previewSpeaker = document.getElementById('previewSpeaker');
+    const previewVenue = document.getElementById('previewVenue');
+    const previewDate = document.getElementById('previewDate');
+    const previewTime = document.getElementById('previewTime');
+    const previewType = document.getElementById('previewType');
+    const durationDisplay = document.getElementById('durationDisplay');
+    
+    // Type labels mapping
+    const typeLabels = {
+        'session': 'Technical Session',
+        'keynote': 'Keynote Speech',
+        'workshop': 'Workshop',
+        'break': 'Break',
+        'networking': 'Networking Event'
+    };
+    
+    // Update title preview
+    titleInput.addEventListener('input', function() {
+        previewTitle.textContent = this.value || 'Enter title above';
+    });
+    
+    // Update description preview
+    descriptionInput.addEventListener('input', function() {
+        previewDescription.textContent = this.value || 'Enter description above';
+        previewDescription.style.display = this.value ? 'block' : 'none';
+    });
+    
+    // Update speaker preview
+    speakerInput.addEventListener('input', function() {
+        if (this.value) {
+            previewSpeaker.querySelector('span').textContent = this.value;
+            previewSpeaker.style.display = 'flex';
+        } else {
+            previewSpeaker.style.display = 'none';
+        }
+    });
+    
+    // Update venue preview
+    venueInput.addEventListener('input', function() {
+        if (this.value) {
+            previewVenue.querySelector('span').textContent = this.value;
+            previewVenue.style.display = 'flex';
+        } else {
+            previewVenue.style.display = 'none';
+        }
+    });
+    
+    // Update date preview
+    dateInput.addEventListener('input', function() {
+        if (this.value) {
+            const date = new Date(this.value);
+            previewDate.querySelector('span').textContent = date.toLocaleDateString();
+            previewDate.style.display = 'flex';
+        } else {
+            previewDate.style.display = 'none';
+        }
+        updateTimePreview();
+    });
+    
+    // Update time preview and duration
+    function updateTimePreview() {
+        const startTime = startTimeInput.value;
+        const endTime = endTimeInput.value;
+        
+        if (startTime) {
+            let timeText = startTime;
+            if (endTime) {
+                timeText += ' - ' + endTime;
+                updateDuration(startTime, endTime);
+            } else {
+                durationDisplay.textContent = '--';
+            }
+            previewTime.textContent = timeText;
+        } else {
+            previewTime.textContent = 'Select time';
+            durationDisplay.textContent = '--';
+        }
+    }
+    
+    // Calculate and display duration
+    function updateDuration(start, end) {
+        const startTime = new Date('2000-01-01 ' + start);
+        const endTime = new Date('2000-01-01 ' + end);
+        
+        if (endTime > startTime) {
+            const diff = endTime - startTime;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            let duration = '';
+            if (hours > 0) duration += hours + 'h ';
+            if (minutes > 0) duration += minutes + 'm';
+            
+            durationDisplay.textContent = duration || '0m';
+        } else {
+            durationDisplay.textContent = 'Invalid';
+        }
+    }
+    
+    startTimeInput.addEventListener('input', updateTimePreview);
+    endTimeInput.addEventListener('input', updateTimePreview);
+    
+    // Handle type selection
+    typeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Update visual selection
+            document.querySelectorAll('.type-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            this.closest('.type-option').classList.add('selected');
+            
+            // Update preview type
+            const typeLabel = typeLabels[this.value] || this.value;
+            previewType.textContent = typeLabel;
+            previewType.className = 'preview-type type-' + this.value;
+        });
+    });
+    
+    // Initialize first type as selected
+    if (typeInputs.length > 0) {
+        typeInputs[0].closest('.type-option').classList.add('selected');
+        const firstType = typeInputs[0].value;
+        previewType.textContent = typeLabels[firstType] || firstType;
+        previewType.className = 'preview-type type-' + firstType;
+    }
+});
+</script>
+{% endblock %}

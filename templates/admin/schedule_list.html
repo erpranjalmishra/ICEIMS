@@ -1,0 +1,563 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Schedule Management - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+    }
+    
+    .schedule-container {
+        margin-top: -50px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .schedule-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .schedule-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .schedule-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: var(--primary-color);
+    }
+    
+    .schedule-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .time-badge {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: bold;
+        margin-right: 1rem;
+        font-size: 0.9rem;
+        min-width: 120px;
+        text-align: center;
+    }
+    
+    .schedule-type-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-right: 1rem;
+    }
+    
+    .type-session {
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+        border: 1px solid rgba(52, 152, 219, 0.3);
+    }
+    
+    .type-keynote {
+        background: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+        border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+    
+    .type-workshop {
+        background: rgba(39, 174, 96, 0.1);
+        color: #27ae60;
+        border: 1px solid rgba(39, 174, 96, 0.3);
+    }
+    
+    .type-break {
+        background: rgba(243, 156, 18, 0.1);
+        color: #f39c12;
+        border: 1px solid rgba(243, 156, 18, 0.3);
+    }
+    
+    .type-networking {
+        background: rgba(142, 68, 173, 0.1);
+        color: #8e44ad;
+        border: 1px solid rgba(142, 68, 173, 0.3);
+    }
+    
+    .schedule-info h5 {
+        margin: 0 0 0.25rem 0;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .schedule-info p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .speaker-info {
+        margin-top: 0.5rem;
+    }
+    
+    .speaker-badge {
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+    }
+    
+    .venue-info {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .venue-info i {
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+    }
+    
+    .schedule-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+    
+    .btn-action {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-edit {
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+    }
+    
+    .btn-edit:hover {
+        background: #3498db;
+        color: white;
+    }
+    
+    .btn-delete {
+        background: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+    }
+    
+    .btn-delete:hover {
+        background: #e74c3c;
+        color: white;
+    }
+    
+    .btn-toggle {
+        background: rgba(39, 174, 96, 0.1);
+        color: #27ae60;
+    }
+    
+    .btn-toggle:hover {
+        background: #27ae60;
+        color: white;
+    }
+    
+    .btn-toggle.inactive {
+        background: rgba(149, 165, 166, 0.1);
+        color: #95a5a6;
+    }
+    
+    .btn-toggle.inactive:hover {
+        background: #95a5a6;
+        color: white;
+    }
+    
+    .status-indicator {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #27ae60;
+    }
+    
+    .status-indicator.inactive {
+        background: #95a5a6;
+    }
+    
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        border: 1px solid rgba(160, 53, 47, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: block;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.8rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .filter-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .day-section {
+        margin-bottom: 2rem;
+    }
+    
+    .day-header {
+        background: var(--primary-color);
+        color: white;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .schedule-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .schedule-actions {
+            margin-left: 0;
+            margin-top: 1rem;
+        }
+        
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .time-badge {
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="fas fa-calendar-week"></i> Schedule Management</h1>
+                <p class="mb-0">Manage conference schedule, sessions, and timing</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="btn-group me-2" role="group">
+                    <button type="button" class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'conference:export_schedule' %}?format=excel">
+                            <i class="fas fa-file-excel text-success"></i> Excel (.xlsx)
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'conference:export_schedule' %}?format=pdf">
+                            <i class="fas fa-file-pdf text-danger"></i> PDF
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'conference:export_schedule' %}?format=csv">
+                            <i class="fas fa-file-csv text-info"></i> CSV
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'conference:export_schedule' %}?format=json">
+                            <i class="fas fa-code text-warning"></i> JSON
+                        </a></li>
+                    </ul>
+                </div>
+                <a href="{% url 'conference:schedule_create' %}" class="btn btn-light">
+                    <i class="fas fa-plus"></i> Add Session
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Schedule Content -->
+<section class="py-5">
+    <div class="container schedule-container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Statistics -->
+        <div class="schedule-card">
+            <h5 class="mb-4"><i class="fas fa-chart-bar"></i> Schedule Statistics</h5>
+            <div class="stats-row">
+                <div class="stat-card">
+                    <span class="stat-number">{{ total_sessions }}</span>
+                    <div class="stat-label">Total Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ active_sessions }}</span>
+                    <div class="stat-label">Active Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ schedule_days }}</span>
+                    <div class="stat-label">Conference Days</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">{{ upcoming_sessions }}</span>
+                    <div class="stat-label">Upcoming Sessions</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="schedule-card">
+            <div class="filter-section">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-filter"></i> Filter Schedule</h6>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" id="typeFilter">
+                                <option value="">All Types</option>
+                                <option value="session">Technical Sessions</option>
+                                <option value="keynote">Keynote Speeches</option>
+                                <option value="workshop">Workshops</option>
+                                <option value="break">Breaks</option>
+                                <option value="networking">Networking</option>
+                            </select>
+                            <select class="form-select form-select-sm" id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Schedule List -->
+        <div class="schedule-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5><i class="fas fa-calendar-alt"></i> Conference Schedule</h5>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'conference:admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            
+            {% if schedule_items %}
+                {% regroup schedule_items by date|date:"Y-m-d" as schedule_by_day %}
+                
+                {% for day_group in schedule_by_day %}
+                <div class="day-section">
+                    <div class="day-header">
+                        <i class="fas fa-calendar-day"></i> 
+                        {{ day_group.grouper|date:"l, F j, Y" }}
+                    </div>
+                    
+                    {% for schedule in day_group.list %}
+                    <div class="schedule-item" data-type="{{ schedule.schedule_type }}" data-status="{% if schedule.is_active %}active{% else %}inactive{% endif %}">
+                        <div class="status-indicator {% if not schedule.is_active %}inactive{% endif %}"></div>
+                        
+                        <div class="schedule-header">
+                            <div class="time-badge">
+                                {{ schedule.start_time|date:"g:i A" }}
+                                {% if schedule.end_time %}
+                                - {{ schedule.end_time|date:"g:i A" }}
+                                {% endif %}
+                            </div>
+                            <div class="schedule-type-badge type-{{ schedule.schedule_type }}">
+                                {{ schedule.get_schedule_type_display }}
+                            </div>
+                            <div class="schedule-info flex-grow-1">
+                                <h5>{{ schedule.title }}</h5>
+                                {% if schedule.description %}
+                                <p>{{ schedule.description|truncatewords:20 }}</p>
+                                {% endif %}
+                                
+                                {% if schedule.speaker %}
+                                <div class="speaker-info">
+                                    <span class="speaker-badge">
+                                        <i class="fas fa-user"></i> {{ schedule.speaker }}
+                                    </span>
+                                </div>
+                                {% endif %}
+                                
+                                {% if schedule.venue %}
+                                <div class="venue-info">
+                                    <i class="fas fa-map-marker-alt"></i> {{ schedule.venue }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="schedule-actions">
+                                <button class="btn-action btn-toggle {% if not schedule.is_active %}inactive{% endif %}" 
+                                        onclick="toggleSchedule({{ schedule.pk }})" 
+                                        title="{% if schedule.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                    <i class="fas {% if schedule.is_active %}fa-eye{% else %}fa-eye-slash{% endif %}"></i>
+                                </button>
+                                <a href="{% url 'conference:schedule_edit' schedule.pk %}" class="btn-action btn-edit" title="Edit Session">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn-action btn-delete" onclick="confirmDelete('{{ schedule.title }}', '{% url 'conference:schedule_delete' schedule.pk %}')" title="Delete Session">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h4>No Schedule Items Found</h4>
+                    <p>Start by adding your first conference session or event.</p>
+                    <a href="{% url 'conference:schedule_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add First Session
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="sessionName"></strong>?</p>
+                <p class="text-danger"><small>This action cannot be undone.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    const typeFilter = document.getElementById('typeFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const scheduleItems = document.querySelectorAll('.schedule-item');
+    
+    function filterSchedule() {
+        const selectedType = typeFilter.value;
+        const selectedStatus = statusFilter.value;
+        
+        scheduleItems.forEach(item => {
+            const itemType = item.dataset.type;
+            const itemStatus = item.dataset.status;
+            
+            const typeMatch = !selectedType || itemType === selectedType;
+            const statusMatch = !selectedStatus || itemStatus === selectedStatus;
+            
+            if (typeMatch && statusMatch) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    
+    typeFilter.addEventListener('change', filterSchedule);
+    statusFilter.addEventListener('change', filterSchedule);
+});
+
+function toggleSchedule(scheduleId) {
+    fetch(`/admin-panel/schedule/${scheduleId}/toggle/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert('Failed to toggle schedule status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while toggling schedule status');
+    });
+}
+
+function confirmDelete(sessionName, deleteUrl) {
+    document.getElementById('sessionName').textContent = sessionName;
+    document.getElementById('deleteForm').action = deleteUrl;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

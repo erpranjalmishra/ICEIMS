@@ -1,6 +1,62 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<style>
+/* Notice Styles */
+.notices-section {
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.notice-alert {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.urgent-notice {
+    border-left: 5px solid #dc3545;
+    animation: pulse-border 2s infinite;
+}
+
+.notice-icon {
+    font-size: 1.2rem;
+    margin-top: 0.2rem;
+}
+
+.notice-title {
+    font-weight: bold;
+    color: inherit;
+    margin: 0;
+}
+
+.notice-content {
+    line-height: 1.5;
+}
+
+.notice-date {
+    margin-top: 0.5rem;
+    display: block;
+}
+
+@keyframes pulse-border {
+    0% { border-left-width: 5px; }
+    50% { border-left-width: 8px; }
+    100% { border-left-width: 5px; }
+}
+
+.alert-primary {
+    background-color: rgba(160, 53, 47, 0.1);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section with Slider -->
 <section id="home" class="hero-section">
@@ -51,6 +107,51 @@
     </div>
 </section>
 
+<!-- Notices Section -->
+{% if notices %}
+<section class="notices-section py-4">
+    <div class="container">
+        {% for notice in notices %}
+        <div class="alert alert-{{ notice.notice_type }} alert-dismissible fade show notice-alert {% if notice.is_urgent %}urgent-notice{% endif %}" role="alert">
+            <div class="d-flex align-items-start">
+                <div class="notice-icon me-3">
+                    {% if notice.notice_type == 'info' %}
+                        <i class="fas fa-info-circle"></i>
+                    {% elif notice.notice_type == 'warning' %}
+                        <i class="fas fa-exclamation-triangle"></i>
+                    {% elif notice.notice_type == 'success' %}
+                        <i class="fas fa-check-circle"></i>
+                    {% elif notice.notice_type == 'danger' %}
+                        <i class="fas fa-exclamation-circle"></i>
+                    {% elif notice.notice_type == 'primary' %}
+                        <i class="fas fa-bullhorn"></i>
+                    {% endif %}
+                </div>
+                <div class="notice-content flex-grow-1">
+                    <h6 class="notice-title mb-2">
+                        {{ notice.title }}
+                        {% if notice.is_urgent %}
+                        <span class="badge bg-danger ms-2">URGENT</span>
+                        {% endif %}
+                    </h6>
+                    <div class="notice-text">
+                        {{ notice.content|linebreaks }}
+                    </div>
+                    <small class="notice-date text-muted">
+                        <i class="fas fa-calendar"></i> {{ notice.start_date|date:"M j, Y" }}
+                        {% if notice.end_date %}
+                        - {{ notice.end_date|date:"M j, Y" }}
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
 <!-- Conference Timeline Section -->
 <section class="conference-timeline py-5 bg-white">
     <div class="container">
@@ -64,75 +165,76 @@
             <div class="col-lg-12">
                 <div class="timeline-container">
                     <div class="timeline-track">
-                        <!-- Timeline Item 1 - Call for Papers -->
-                        <div class="timeline-item active">
-                            <div class="timeline-marker">
-                                <div class="timeline-circle active">
-                                    <i class="fas fa-bullhorn"></i>
+                        {% if timeline_items %}
+                            {% for item in timeline_items %}
+                            <!-- Timeline Item {{ forloop.counter }} - {{ item.title }} -->
+                            <div class="timeline-item {% if item.is_current %}active{% elif item.status == 'completed' %}passed{% elif item.status == 'in_progress' %}active{% else %}upcoming{% endif %}">
+                                <div class="timeline-marker">
+                                    <div class="timeline-circle {% if item.is_current %}active{% elif item.status == 'completed' %}passed{% elif item.status == 'in_progress' %}active{% else %}upcoming{% endif %}" 
+                                         style="background-color: {% if item.status == 'completed' %}#28a745{% elif item.status == 'in_progress' %}{{ item.color }}{% elif item.is_current %}{{ item.color }}{% else %}#6c757d{% endif %};">
+                                        <i class="{{ item.icon }}"></i>
+                                    </div>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-date">{{ item.date|date:"jS F, Y" }}</div>
+                                    <h5 class="timeline-title">{{ item.title }}</h5>
+                                    <p class="timeline-description">{{ item.description|truncatewords:15 }}</p>
+                                    {% if item.days_remaining > 0 and item.status == 'upcoming' %}
+                                        <span class="badge bg-primary">{{ item.days_remaining }} day{{ item.days_remaining|pluralize }} left</span>
+                                    {% elif item.is_overdue %}
+                                        <span class="badge bg-danger">Overdue</span>
+                                    {% elif item.status == 'in_progress' %}
+                                        <span class="badge bg-warning">In Progress</span>
+                                    {% elif item.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% endif %}
                                 </div>
                             </div>
-                            <div class="timeline-content">
-                                <div class="timeline-date">25th April, 2025</div>
-                                <h5 class="timeline-title">Call for Papers</h5>
-                                <p class="timeline-description">Submission portal opens for research papers</p>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Fallback static timeline items if no database items -->
+                            <!-- Timeline Item 1 - Call for Papers -->
+                            <div class="timeline-item active">
+                                <div class="timeline-marker">
+                                    <div class="timeline-circle active">
+                                        <i class="fas fa-bullhorn"></i>
+                                    </div>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-date">25th April, 2025</div>
+                                    <h5 class="timeline-title">Call for Papers</h5>
+                                    <p class="timeline-description">Submission portal opens for research papers</p>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Timeline Item 2 - Submission Deadline -->
-                        <div class="timeline-item passed">
-                            <div class="timeline-marker">
-                                <div class="timeline-circle passed">
-                                    <i class="fas fa-upload"></i>
+                            <!-- Timeline Item 2 - Submission Deadline -->
+                            <div class="timeline-item passed">
+                                <div class="timeline-marker">
+                                    <div class="timeline-circle passed">
+                                        <i class="fas fa-upload"></i>
+                                    </div>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-date">17th September, 2025</div>
+                                    <h5 class="timeline-title">Last date of Submission</h5>
+                                    <p class="timeline-description">Final deadline for paper submissions</p>
                                 </div>
                             </div>
-                            <div class="timeline-content">
-                                <div class="timeline-date">17th September, 2025</div>
-                                <h5 class="timeline-title">Last date of Submission</h5>
-                                <p class="timeline-description">Final deadline for paper submissions</p>
-                            </div>
-                        </div>
 
-                        <!-- Timeline Item 3 - Acceptance Notification -->
-                        <div class="timeline-item upcoming">
-                            <div class="timeline-marker">
-                                <div class="timeline-circle upcoming">
-                                    <i class="fas fa-check-circle"></i>
+                            <!-- Timeline Item 3 - Acceptance Notification -->
+                            <div class="timeline-item upcoming">
+                                <div class="timeline-marker">
+                                    <div class="timeline-circle upcoming">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-date">7th October, 2025</div>
+                                    <h5 class="timeline-title">Acceptance Notification</h5>
+                                    <p class="timeline-description">Authors will be notified about paper acceptance</p>
                                 </div>
                             </div>
-                            <div class="timeline-content">
-                                <div class="timeline-date">7th October, 2025</div>
-                                <h5 class="timeline-title">Acceptance Notification</h5>
-                                <p class="timeline-description">Authors will be notified about paper acceptance</p>
-                            </div>
-                        </div>
-
-                        <!-- Timeline Item 4 - Camera Ready -->
-                        <div class="timeline-item upcoming">
-                            <div class="timeline-marker">
-                                <div class="timeline-circle upcoming">
-                                    <i class="fas fa-camera"></i>
-                                </div>
-                            </div>
-                            <div class="timeline-content">
-                                <div class="timeline-date">16th October, 2025</div>
-                                <h5 class="timeline-title">Final Camera-Ready Paper</h5>
-                                <p class="timeline-description">Submit final version of accepted papers</p>
-                            </div>
-                        </div>
-
-                        <!-- Timeline Item 5 - Registration Deadline -->
-                        <div class="timeline-item upcoming">
-                            <div class="timeline-marker">
-                                <div class="timeline-circle upcoming">
-                                    <i class="fas fa-user-check"></i>
-                                </div>
-                            </div>
-                            <div class="timeline-content">
-                                <div class="timeline-date">20th October, 2025</div>
-                                <h5 class="timeline-title">Registration Deadline</h5>
-                                <p class="timeline-description">Complete conference registration process</p>
-                            </div>
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
