@@ -24,6 +24,129 @@
     cursor: url('../images/mouse-pointer.svg') 8 8, auto;
 }
 
+/* Loading Screen */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    transition: all 0.5s ease;
+}
+
+.loading-screen.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loading-content {
+    text-align: center;
+    color: white;
+    max-width: 400px;
+    width: 90%;
+}
+
+.loading-logo {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-logo-img {
+    width: 120px;
+    height: 120px;
+    filter: brightness(0) invert(1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-text {
+    margin-bottom: 40px;
+}
+
+.loading-text h3 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 1px;
+}
+
+.loading-text p {
+    font-size: 16px;
+    color: white;
+    opacity: 0.9;
+    font-weight: 400;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.loading-progress {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 1));
+    border-radius: 10px;
+    width: 0%;
+    animation: loading-progress 3s ease-in-out forwards;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+@keyframes loading-progress {
+    0% {
+        width: 0%;
+    }
+    50% {
+        width: 70%;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+/* Responsive loading screen */
+@media (max-width: 576px) {
+    .loading-logo-img {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .loading-text h3 {
+        font-size: 24px;
+    }
+    
+    .loading-text p {
+        font-size: 14px;
+    }
+}
+
 body {
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.7;
@@ -203,7 +326,7 @@ input, textarea, select {
     font-size: 1.7rem;
     font-weight: 800;
     color: #000000 !important;
-    margin-right: 1rem;
+    margin-right: 3rem;
 }
 
 .navbar-brand img {
@@ -376,7 +499,7 @@ input, textarea, select {
     }
     
     .navbar-brand {
-        margin-right: 0.5rem;
+        margin-right: 1rem;
     }
     
     .navbar-brand img {

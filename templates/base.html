@@ -24,6 +24,24 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <img src="{% static 'images/conference logo.svg' %}" alt="ICEIMS Loading" class="loading-logo-img">
+            </div>
+            <div class="loading-text">
+                <h3>Loading ICEIMS 2026</h3>
+                <p>Please wait while we prepare your experience...</p>
+            </div>
+            <div class="loading-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
         <div class="container">
@@ -36,7 +54,7 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-3">
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:home' %}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:registration' %}">Registration</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:committee' %}">Committee</a></li>
@@ -333,6 +351,35 @@
                 });
             });
         }
+        
+        // Loading Screen functionality
+        function initLoadingScreen() {
+            const loadingScreen = document.getElementById('loading-screen');
+            
+            if (!loadingScreen) return;
+            
+            // Hide loading screen after page is fully loaded
+            function hideLoadingScreen() {
+                loadingScreen.classList.add('fade-out');
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 500);
+            }
+            
+            // Wait for all resources to load
+            if (document.readyState === 'complete') {
+                // If already loaded, hide after minimum display time
+                setTimeout(hideLoadingScreen, 1500);
+            } else {
+                // Wait for window load event
+                window.addEventListener('load', function() {
+                    setTimeout(hideLoadingScreen, 1500);
+                });
+            }
+        }
+        
+        // Initialize loading screen immediately
+        initLoadingScreen();
         
         // Initialize everything when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
