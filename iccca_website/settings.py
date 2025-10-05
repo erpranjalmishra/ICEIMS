@@ -28,7 +28,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = 'django-insecure-+-unm#gnt&=mlkdz6q7)-t121-rgosyb^_hb-h6#!cpvpof*v&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'false'
 
 # Detect if we're in production
 IS_PRODUCTION = 'iceims.teamvimarsh.me' in os.environ.get('ALLOWED_HOSTS', '')
