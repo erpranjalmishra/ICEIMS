@@ -1,0 +1,218 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Manage Sponsors - Admin Panel{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-2 text-gray-800">
+                        <i class="fas fa-handshake me-2"></i>Manage Sponsors
+                    </h1>
+                    <p class="text-muted">Add, edit, and manage conference sponsors</p>
+                </div>
+                <a href="{% url 'conference:sponsor_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add New Sponsor
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-12 col-md-12 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Sponsors
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_sponsors }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-handshake fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sponsors Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Sponsors List</h6>
+            <div>
+                <button type="button" class="btn btn-sm btn-danger" onclick="bulkDelete()" id="bulk-delete-btn" style="display: none;">
+                    <i class="fas fa-trash me-1"></i>Delete Selected
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if sponsors %}
+            <form id="bulk-action-form" method="POST" action="{% url 'conference:sponsor_bulk_action' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" id="bulk-action" value="">
+                
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th width="30px">
+                                    <input type="checkbox" id="select-all">
+                                </th>
+                                <th width="60px">Order</th>
+                                <th width="120px">Logo</th>
+                                <th>Name</th>
+                                <th width="120px">Type</th>
+                                <th width="150px">Category</th>
+                                <th>Website</th>
+                                <th width="80px">Status</th>
+                                <th width="180px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sponsor in sponsors %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="selected_sponsors" value="{{ sponsor.id }}" class="sponsor-checkbox">
+                                </td>
+                                <td>{{ sponsor.order }}</td>
+                                <td>
+                                    {% if sponsor.logo %}
+                                    <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" style="max-width: 100px; max-height: 50px; object-fit: contain;">
+                                    {% else %}
+                                    <span class="text-muted small"><i class="fas fa-image"></i> No logo</span>
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ sponsor.name }}</strong></td>
+                                <td>
+                                    {% if sponsor.partnership_type == 'sponsorship' %}
+                                    <span class="badge bg-success">Sponsorship</span>
+                                    {% else %}
+                                    <span class="badge bg-primary">Partnership</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if sponsor.sponsorship_tier %}
+                                        {% if sponsor.sponsorship_tier == 'platinum' %}
+                                        <span class="badge" style="background: linear-gradient(135deg, #E5E4E2 0%, #BCC6CC 100%); color: #333;">
+                                            <i class="fas fa-star"></i> Platinum
+                                        </span>
+                                        {% elif sponsor.sponsorship_tier == 'gold' %}
+                                        <span class="badge" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #333;">
+                                            <i class="fas fa-star"></i> Gold
+                                        </span>
+                                        {% elif sponsor.sponsorship_tier == 'silver' %}
+                                        <span class="badge" style="background: linear-gradient(135deg, #C0C0C0 0%, #808080 100%); color: #333;">
+                                            <i class="fas fa-star"></i> Silver
+                                        </span>
+                                        {% elif sponsor.sponsorship_tier == 'bronze' %}
+                                        <span class="badge" style="background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%); color: white;">
+                                            <i class="fas fa-star"></i> Bronze
+                                        </span>
+                                        {% endif %}
+                                    {% elif sponsor.partner_type %}
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-handshake"></i> {{ sponsor.get_partner_type_display }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted small">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if sponsor.website %}
+                                    <a href="{{ sponsor.website }}" target="_blank" class="text-primary small">
+                                        <i class="fas fa-external-link-alt me-1"></i>{{ sponsor.website|truncatechars:25 }}
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted small">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if sponsor.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Hidden</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'conference:sponsor_edit' sponsor.id %}" class="btn btn-sm btn-primary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="deleteSponsor({{ sponsor.id }}, '{{ sponsor.name|escapejs }}')" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-handshake fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No sponsors added yet</h5>
+                <p class="text-muted">Start by adding your first sponsor</p>
+                <a href="{% url 'conference:sponsor_create' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus me-2"></i>Add First Sponsor
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Form -->
+<form id="delete-form" method="POST" style="display: none;">
+    {% csrf_token %}
+</form>
+
+<script>
+// Select all checkboxes
+document.getElementById('select-all').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.sponsor-checkbox');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+    updateBulkActions();
+});
+
+// Update bulk action buttons visibility
+document.querySelectorAll('.sponsor-checkbox').forEach(cb => {
+    cb.addEventListener('change', updateBulkActions);
+});
+
+function updateBulkActions() {
+    const checkedCount = document.querySelectorAll('.sponsor-checkbox:checked').length;
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+    
+    if (checkedCount > 0) {
+        bulkDeleteBtn.style.display = 'inline-block';
+    } else {
+        bulkDeleteBtn.style.display = 'none';
+    }
+}
+
+// Delete single sponsor
+function deleteSponsor(id, name) {
+    if (confirm(`Are you sure you want to delete "${name}"?\n\nThis action cannot be undone.`)) {
+        const form = document.getElementById('delete-form');
+        form.action = `/admin-panel/sponsors/${id}/delete/`;
+        form.submit();
+    }
+}
+
+// Bulk delete
+function bulkDelete() {
+    const checkedCount = document.querySelectorAll('.sponsor-checkbox:checked').length;
+    if (confirm(`Are you sure you want to delete ${checkedCount} sponsor(s)?\n\nThis action cannot be undone.`)) {
+        document.getElementById('bulk-action').value = 'delete';
+        document.getElementById('bulk-action-form').submit();
+    }
+}
+</script>
+{% endblock %}

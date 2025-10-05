@@ -245,14 +245,13 @@
                 {% for level_group in committee_by_level %}
                 <div class="committee-level">
                     <div class="level-header">
-                        <h3>Level {{ level_group.grouper }}</h3>
+                        <h3>{{ level_group.list.0.get_hierarchy_level_name }}</h3>
                     </div>
                     
                     <div class="row justify-content-center">
                         {% for member in level_group.list %}
                         <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
                             <div class="committee-member-card {{ member.get_role_css_class }}">
-                                <div class="hierarchy-indicator">{{ member.hierarchy_level }}</div>
                                 
                                 <div class="member-photo">
                                     {% if member.image %}

@@ -1,4 +1,5 @@
 {% load static %}
+{% load conference_extras %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,14 +13,40 @@
     
     <title>{% block title %}ICEIMS 2026 - International Conference on Energy and Intelligent Manufacturing Systems{% endblock %}</title>
     
+    <!-- Preload critical resources -->
+    <link rel="preload" href="{% static 'css/bootstrap.min.css' %}" as="style">
+    <link rel="preload" href="{% static 'css/style.css' %}" as="style">
+    <link rel="preload" href="{% static 'images/ICEIMS.svg' %}" as="image">
+    
+    <!-- DNS Prefetch for external resources -->
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    
     <link rel="icon" type="image/svg+xml" href="{% static 'images/conference logo.svg' %}">
     <link rel="shortcut icon" type="image/svg+xml" href="{% static 'images/conference logo.svg' %}">
     <link rel="apple-touch-icon" href="{% static 'images/conference logo.svg' %}">
     
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"></noscript>
+    
+    <style>
+        /* Navbar Logo Styling */
+        .navbar-logo {
+            height: 50px;
+            width: auto;
+            max-width: 200px;
+            object-fit: contain;
+            object-position: left center;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-logo {
+                height: 40px;
+                max-width: 150px;
+            }
+        }
+    </style>
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -39,6 +66,9 @@
                     <div class="progress-fill"></div>
                 </div>
             </div>
+            <div class="loading-footer">
+                <p class="text-muted small mb-0">Site maintained by <strong>Novatrail LLP</strong></p>
+            </div>
         </div>
     </div>
 
@@ -46,7 +76,11 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'conference:home' %}">
-                <img src="{% static 'images/ICEIMS.svg' %}" alt="ICEIMS Logo" class="navbar-logo">
+                {% if site_settings and site_settings.main_logo %}
+                    <img src="{{ site_settings.main_logo.url }}" alt="{{ site_settings.site_name|default:'ICEIMS' }}" class="navbar-logo">
+                {% else %}
+                    <img src="{% static 'images/ICEIMS.svg' %}" alt="ICEIMS Logo" class="navbar-logo">
+                {% endif %}
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -55,15 +89,17 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:home' %}">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:registration' %}">Registration</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:committee' %}">Committee</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:speakers' %}">Speakers</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:guidelines' %}">Guidelines</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:schedule' %}">Schedule</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:awards' %}">Awards</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:blog_public_list' %}">Blog</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:contact' %}">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:home' %}"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:registration' %}"><i class="fas fa-user-plus"></i> Registration</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:committee' %}"><i class="fas fa-users-cog"></i> Committee</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:speakers' %}"><i class="fas fa-microphone-alt"></i> Speakers</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:tracks' %}"><i class="fas fa-layer-group"></i> Tracks</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:guidelines' %}"><i class="fas fa-clipboard-list"></i> Guidelines</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:schedule' %}"><i class="fas fa-calendar-alt"></i> Schedule</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:awards' %}"><i class="fas fa-trophy"></i> Awards</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:faq' %}"><i class="fas fa-question-circle"></i> FAQ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:blog_public_list' %}"><i class="fas fa-blog"></i> Blog</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:contact' %}"><i class="fas fa-envelope"></i> Contact</a></li>
                     <li class="nav-item header-time-container">
                         <span id="header-time" class="header-time">--:--:--</span>
                     </li>
@@ -76,19 +112,44 @@
                                 {% if user.is_staff or user.is_superuser %}
                                     <li><a class="dropdown-item" href="{% url 'conference:admin_dashboard' %}"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</a></li>
                                     <li><hr class="dropdown-divider"></li>
+                                    
+                                    {% if user.is_superuser or user|has_user_permission:"can_manage_blog" or user|has_user_permission:"can_manage_notices" or user|has_user_permission:"can_manage_timeline" %}
                                     <li><h6 class="dropdown-header">Content Management</h6></li>
+                                    {% if user.is_superuser or user|has_user_permission:"can_manage_blog" %}
                                     <li><a class="dropdown-item" href="{% url 'conference:blog_list' %}"><i class="fas fa-newspaper"></i> Blog Management</a></li>
+                                    {% endif %}
+                                    {% if user.is_superuser or user|has_user_permission:"can_manage_notices" %}
                                     <li><a class="dropdown-item" href="{% url 'conference:notice_list' %}"><i class="fas fa-bullhorn"></i> Notice Management</a></li>
+                                    {% endif %}
+                                    {% if user.is_superuser or user|has_user_permission:"can_manage_timeline" %}
                                     <li><a class="dropdown-item" href="{% url 'conference:timeline_list' %}"><i class="fas fa-timeline"></i> Timeline Management</a></li>
+                                    {% endif %}
                                     <li><hr class="dropdown-divider"></li>
+                                    {% endif %}
+                                    
+                                    {% if user.is_superuser or user|has_user_permission:"can_manage_speakers" or user|has_user_permission:"can_manage_schedule" or user|has_user_permission:"can_manage_committee" or user|has_user_permission:"can_manage_content" %}
                                     <li><h6 class="dropdown-header">Conference Management</h6></li>
+                                    {% if user.is_superuser or user|has_user_permission:"can_manage_speakers" %}
                                     <li><a class="dropdown-item" href="{% url 'conference:speaker_list' %}"><i class="fas fa-microphone-alt"></i> Speaker Management</a></li>
+                                    {% endif %}
+                                    {% if user.is_superuser or user|has_user_permission:"can_manage_schedule" %}
                                     <li><a class="dropdown-item" href="{% url 'conference:schedule_list' %}"><i class="fas fa-calendar-week"></i> Schedule Management</a></li>
+                                    {% endif %}
+                                    {% if user.is_superuser or user|has_user_permission:"can_manage_committee" %}
                                     <li><a class="dropdown-item" href="{% url 'conference:committee_list' %}"><i class="fas fa-users-cog"></i> Committee Management</a></li>
+                                    {% endif %}
+                                    {% if user.is_superuser or user|has_user_permission:"can_manage_content" %}
+                                    <li><a class="dropdown-item" href="{% url 'conference:track_list' %}"><i class="fas fa-layer-group"></i> Track Management</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'conference:attraction_list' %}"><i class="fas fa-map-marked-alt"></i> Tourist Attractions</a></li>
+                                    {% endif %}
                                     <li><hr class="dropdown-divider"></li>
+                                    {% endif %}
+                                    
+                                    {% if user.is_superuser or user|has_user_permission:"can_manage_content" %}
                                     <li><h6 class="dropdown-header">System Administration</h6></li>
                                     <li><a class="dropdown-item" href="{% url 'conference:maintenance_list' %}"><i class="fas fa-tools"></i> Maintenance Mode</a></li>
                                     <li><hr class="dropdown-divider"></li>
+                                    {% endif %}
                                 {% endif %}
                                 <li><a class="dropdown-item" href="{% url 'conference:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                             </ul>
@@ -96,7 +157,11 @@
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'conference:login' %}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
                     {% endif %}
-                    <li class="nav-item submit-paper-priority"><a class="nav-link submit-paper-btn" href="#submit-paper">Submit Paper</a></li>
+                    <li class="nav-item submit-paper-priority">
+                        <a class="nav-link submit-paper-btn" href="{% if site_settings and site_settings.submit_paper_url %}{{ site_settings.submit_paper_url }}{% else %}#submit-paper{% endif %}">
+                            {% if site_settings and site_settings.submit_paper_text %}{{ site_settings.submit_paper_text }}{% else %}Submit Paper{% endif %}
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -111,18 +176,26 @@
             <div class="row">
                 <div class="col-lg-4 mb-4">
                     <div class="footer-logo mb-3">
-                        <img src="{% static 'images/ICEIMS.svg' %}" alt="ICEIMS Logo" height="80">
+                        {% if site_settings and site_settings.footer_logo %}
+                            <img src="{{ site_settings.footer_logo.url }}" alt="{{ site_settings.site_name|default:'ICEIMS' }}" height="80">
+                        {% else %}
+                            <img src="{% static 'images/ICEIMS.svg' %}" alt="ICEIMS Logo" height="80">
+                        {% endif %}
                     </div>
                     <p class="footer-website mb-2">
-                        <a href="https://www.galgotiasuniversity.edu.in/" target="_blank" class="footer-website-link">
-                            <i class="fas fa-globe me-2"></i>www.galgotiasuniversity.edu.in
+                        <a href="mailto:Iceims@galgotiasuniversity.edu.in" class="footer-website-link">
+                            <i class="fas fa-envelope me-2"></i>Iceims@galgotiasuniversity.edu.in
                         </a>
                     </p>
                     <p class="footer-description">
-                        Galgotias University, Plot No. 2, Yamuna Expy,<br>
-                        opposite Buddha International Circuit,<br>
-                        Sector 17A, Greater Noida,<br>
-                        Uttar Pradesh 203201
+                        {% if site_settings and site_settings.contact_address %}
+                            {{ site_settings.contact_address|linebreaks }}
+                        {% else %}
+                            Galgotias University, Plot No. 2, Yamuna Expy,<br>
+                            opposite Buddha International Circuit,<br>
+                            Sector 17A, Greater Noida,<br>
+                            Uttar Pradesh 203201
+                        {% endif %}
                     </p>
                     
                     <!-- Current Time and Visitor Counter -->
@@ -142,20 +215,20 @@
                 <div class="col-lg-2 mb-4">
                     <h5 class="footer-title">Useful Links</h5>
                     <ul class="list-unstyled footer-links">
-                        <li><a href="{% url 'conference:about' %}">About</a></li>
-                        <li><a href="{% url 'conference:tracks' %}">Tracks</a></li>
-                        <li><a href="{% url 'conference:committee' %}">Committee</a></li>
-                        <li><a href="{% url 'conference:attractions' %}">Tourist Attractions</a></li>
-                        <li><a href="{% url 'conference:contact' %}">Contact</a></li>
+                        <li><a href="{% url 'conference:about' %}"><i class="fas fa-info-circle me-1"></i>About</a></li>
+                        <li><a href="{% url 'conference:tracks' %}"><i class="fas fa-layer-group me-1"></i>Tracks</a></li>
+                        <li><a href="{% url 'conference:committee' %}"><i class="fas fa-users-cog me-1"></i>Committee</a></li>
+                        <li><a href="{% url 'conference:attractions' %}"><i class="fas fa-map-marked-alt me-1"></i>Attractions</a></li>
+                        <li><a href="{% url 'conference:contact' %}"><i class="fas fa-envelope me-1"></i>Contact</a></li>
+                        <li><a href="{% url 'conference:sitemap' %}"><i class="fas fa-sitemap me-1"></i>Site Map</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 mb-4">
                     <ul class="list-unstyled footer-links" style="margin-top: 2.5rem;">
-                        <li><a href="{% url 'conference:speakers' %}">Keynote Speakers</a></li>
-                        <li><a href="{% url 'conference:guidelines' %}">Guidelines</a></li>
-                        <li><a href="{% url 'conference:registration' %}">Registration</a></li>
-                        <li><a href="{% url 'conference:workshops' %}">Workshops</a></li>
-                        <li><a href="{% url 'conference:schedule' %}">Schedule</a></li>
+                        <li><a href="{% url 'conference:speakers' %}"><i class="fas fa-microphone-alt me-1"></i>Speakers</a></li>
+                        <li><a href="{% url 'conference:guidelines' %}"><i class="fas fa-clipboard-list me-1"></i>Guidelines</a></li>
+                        <li><a href="{% url 'conference:registration' %}"><i class="fas fa-user-plus me-1"></i>Registration</a></li>
+                        <li><a href="{% url 'conference:schedule' %}"><i class="fas fa-calendar-alt me-1"></i>Schedule</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-4 mb-4">
@@ -184,13 +257,6 @@
                                 title="Galgotias University Location">
                             </iframe>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    <div class="mt-1 mb-1">
-                        <span class="credits-text">Crafted with <span class="heart">🤍</span> by <a href="https://teamvimarsh.me" target="_blank" class="team-name">Team-V</a></span>
                     </div>
                 </div>
             </div>
@@ -252,11 +318,12 @@
         </div>
     </div>
     
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'js/script.js' %}"></script>
-    <script src="{% static 'js/pure-gemini.js' %}"></script>
+    <!-- Defer non-critical JavaScript -->
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}" defer></script>
+    <script src="{% static 'js/script.js' %}" defer></script>
+    <script src="{% static 'js/pure-gemini.js' %}" defer></script>
     
-    <!-- Time and Visitor Counter Script -->
+    <!-- Time and Visitor Counter Script - Inline for immediate execution -->
     <script>
         // Update current time every second
         function updateCurrentTime() {

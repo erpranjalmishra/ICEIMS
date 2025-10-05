@@ -1,0 +1,29 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static %}
+
+{% block content_title %}
+    <h1>{% trans "Hierarchy Levels Management" %}</h1>
+    <div style="background: #e8f4fd; border-left: 4px solid #2196F3; padding: 15px; margin: 20px 0; border-radius: 4px;">
+        <h3 style="margin-top: 0; color: #1976D2;">
+            <i class="fas fa-info-circle"></i> How to Use Hierarchy Levels
+        </h3>
+        <p style="margin: 10px 0; line-height: 1.6;">
+            <strong>Hierarchy levels</strong> organize your committee members into different categories.
+            Lower level numbers appear first on the committee page.
+        </p>
+        <ul style="margin: 10px 0; padding-left: 20px; line-height: 1.8;">
+            <li><strong>Add New Level:</strong> Click "Add Hierarchy Level" button above to create a new category (e.g., "Advisory Board", "Student Committee", etc.)</li>
+            <li><strong>Edit Level Names:</strong> Click on any level name in the list below to change it directly</li>
+            <li><strong>Level Numbers:</strong> Use sequential numbers (1, 2, 3...). Lower numbers appear first</li>
+            <li><strong>Delete Levels:</strong> You can only delete levels that have no members assigned</li>
+            <li><strong>Active/Inactive:</strong> Toggle the active status to hide/show levels without deleting them</li>
+        </ul>
+        <p style="margin: 10px 0; color: #666;">
+            <strong>💡 Tip:</strong> After adding a new level, go to "Committee Members" to assign people to it.
+        </p>
+    </div>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+{% endblock %}

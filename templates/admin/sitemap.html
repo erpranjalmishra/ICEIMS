@@ -1,0 +1,744 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Admin Site Map - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .admin-sitemap-hero {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+        color: white;
+        padding: 60px 0 40px;
+        margin: -20px -20px 30px -20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .admin-sitemap-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .admin-sitemap-hero .content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 0 20px;
+    }
+
+    .admin-sitemap-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .admin-sitemap-hero .subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .admin-sitemap-hero .user-badge {
+        display: inline-block;
+        background: rgba(255,255,255,0.2);
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        margin-top: 1rem;
+        backdrop-filter: blur(10px);
+    }
+
+    /* Stats Cards */
+    .stats-row {
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        text-align: center;
+        transition: all 0.3s ease;
+        border-left: 4px solid #1e3a5f;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(30,58,95,0.15);
+    }
+
+    .stat-card .number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e3a5f;
+        display: block;
+        margin-bottom: 0.3rem;
+    }
+
+    .stat-card .label {
+        color: #6c757d;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    /* Category Sections */
+    .category-section {
+        margin-bottom: 3rem;
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.06);
+    }
+
+    .category-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .category-icon {
+        width: 55px;
+        height: 55px;
+        background: linear-gradient(135deg, #1e3a5f, #2c5282);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.6rem;
+        margin-right: 1.2rem;
+        box-shadow: 0 4px 15px rgba(30,58,95,0.3);
+    }
+
+    .category-title {
+        margin: 0;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1e3a5f;
+    }
+
+    /* Admin Pages Grid */
+    .admin-pages-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.2rem;
+    }
+
+    .admin-page-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        position: relative;
+        cursor: pointer;
+        overflow: hidden;
+    }
+
+    .admin-page-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #1e3a5f, #2c5282);
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
+    }
+
+    .admin-page-card:hover::before {
+        transform: scaleY(1);
+    }
+
+    .admin-page-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(30,58,95,0.15);
+        border-color: rgba(30,58,95,0.2);
+        background: white;
+    }
+
+    .admin-card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.8rem;
+    }
+
+    .admin-page-icon {
+        width: 45px;
+        height: 45px;
+        background: rgba(30,58,95,0.1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1e3a5f;
+        font-size: 1.3rem;
+        margin-right: 0.8rem;
+        transition: all 0.3s ease;
+    }
+
+    .admin-page-card:hover .admin-page-icon {
+        background: #1e3a5f;
+        color: white;
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .admin-page-title {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #333;
+        flex: 1;
+    }
+
+    .admin-page-description {
+        color: #6c757d;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        margin: 0 0 0.8rem 0;
+    }
+
+    .admin-page-link {
+        display: inline-flex;
+        align-items: center;
+        color: #1e3a5f;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+
+    .admin-page-link i {
+        margin-left: 0.4rem;
+        transition: transform 0.3s ease;
+    }
+
+    .admin-page-link:hover {
+        color: #2c5282;
+    }
+
+    .admin-page-link:hover i {
+        transform: translateX(4px);
+    }
+
+    /* Permission Badge */
+    .permission-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(30,58,95,0.1);
+        color: #1e3a5f;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    /* Search Box */
+    .search-container {
+        max-width: 600px;
+        margin: 0 auto 2rem;
+    }
+
+    .search-input {
+        border-radius: 50px;
+        padding: 0.9rem 1.3rem;
+        border: 2px solid #e9ecef;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .search-input:focus {
+        border-color: #1e3a5f;
+        box-shadow: 0 0 0 0.2rem rgba(30,58,95,0.1);
+        outline: none;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-custom {
+        background: transparent;
+        padding: 0.8rem 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .breadcrumb-custom a {
+        color: #1e3a5f;
+        text-decoration: none;
+    }
+
+    .breadcrumb-custom .active {
+        color: #6c757d;
+    }
+
+    /* Animations */
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .category-section {
+        animation: slideInUp 0.5s ease;
+    }
+
+    /* Quick Access Banner */
+    .quick-access {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .quick-access h3 {
+        margin: 0 0 1rem 0;
+        font-size: 1.3rem;
+    }
+
+    .quick-btn {
+        background: white;
+        color: #667eea;
+        padding: 0.6rem 1.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        margin: 0 0.5rem;
+        display: inline-block;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .quick-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        color: #764ba2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="admin-sitemap-hero">
+    <div class="content">
+        <h1><i class="fas fa-sitemap me-3"></i>Admin Site Map</h1>
+        <p class="subtitle">Complete navigation for all administrative functions</p>
+        <div class="user-badge">
+            <i class="fas fa-user-shield me-2"></i>{{ request.user.get_full_name|default:request.user.username }}
+            {% if request.user.is_superuser %}
+            <span class="badge bg-warning text-dark ms-2">Superuser</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="container-fluid">
+    <div class="row stats-row">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <span class="number">{{ total_pages }}</span>
+                <span class="label">Accessible Pages</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <span class="number">{{ admin_structure|length }}</span>
+                <span class="label">Categories</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <span class="number"><i class="fas fa-shield-alt"></i></span>
+                <span class="label">Permission Based</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <span class="number"><i class="fas fa-bolt"></i></span>
+                <span class="label">Quick Access</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-custom">
+            <li class="breadcrumb-item"><a href="{% url 'conference:admin_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Site Map</li>
+        </ol>
+    </nav>
+
+    <!-- Quick Access -->
+    <div class="quick-access">
+        <h3><i class="fas fa-star me-2"></i>Quick Access</h3>
+        <a href="{% url 'conference:admin_dashboard' %}" class="quick-btn">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+        <a href="{% url 'conference:home' %}" class="quick-btn">
+            <i class="fas fa-home me-2"></i>Public Site
+        </a>
+        <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;" class="quick-btn">
+            <i class="fas fa-arrow-up me-2"></i>Top
+        </a>
+    </div>
+
+    <!-- Search -->
+    <div class="search-container">
+        <input type="text" class="form-control search-input" id="adminSitemapSearch" placeholder="🔍 Search admin pages...">
+    </div>
+
+    <!-- Sitemap Content -->
+    
+    <!-- Dashboard -->
+    {% if admin_structure.dashboard %}
+    <div class="category-section" data-category="dashboard">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-tachometer-alt"></i>
+            </div>
+            <h2 class="category-title">Dashboard</h2>
+        </div>
+        <div class="admin-pages-grid">
+            {% for page in admin_structure.dashboard %}
+            <div class="admin-page-card" data-page-name="{{ page.name|lower }}">
+                <div class="admin-card-header">
+                    <div class="admin-page-icon">
+                        <i class="fas {{ page.icon }}"></i>
+                    </div>
+                    <h3 class="admin-page-title">{{ page.name }}</h3>
+                </div>
+                <p class="admin-page-description">{{ page.description }}</p>
+                <a href="{{ page.url }}" class="admin-page-link">
+                    Access <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Content Management -->
+    {% if admin_structure.content_management %}
+    <div class="category-section" data-category="content">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-edit"></i>
+            </div>
+            <h2 class="category-title">Content Management</h2>
+        </div>
+        <div class="admin-pages-grid">
+            {% for page in admin_structure.content_management %}
+            <div class="admin-page-card" data-page-name="{{ page.name|lower }}">
+                <div class="admin-card-header">
+                    <div class="admin-page-icon">
+                        <i class="fas {{ page.icon }}"></i>
+                    </div>
+                    <h3 class="admin-page-title">{{ page.name }}</h3>
+                </div>
+                <p class="admin-page-description">{{ page.description }}</p>
+                <a href="{{ page.url }}" class="admin-page-link">
+                    Manage <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Notices & Timeline -->
+    {% if admin_structure.notices_timeline %}
+    <div class="category-section" data-category="notices">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-bell"></i>
+            </div>
+            <h2 class="category-title">Notices & Timeline</h2>
+        </div>
+        <div class="admin-pages-grid">
+            {% for page in admin_structure.notices_timeline %}
+            <div class="admin-page-card" data-page-name="{{ page.name|lower }}">
+                <div class="admin-card-header">
+                    <div class="admin-page-icon">
+                        <i class="fas {{ page.icon }}"></i>
+                    </div>
+                    <h3 class="admin-page-title">{{ page.name }}</h3>
+                </div>
+                <p class="admin-page-description">{{ page.description }}</p>
+                <a href="{{ page.url }}" class="admin-page-link">
+                    Manage <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- People Management -->
+    {% if admin_structure.people_management %}
+    <div class="category-section" data-category="people">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h2 class="category-title">People Management</h2>
+        </div>
+        <div class="admin-pages-grid">
+            {% for page in admin_structure.people_management %}
+            <div class="admin-page-card" data-page-name="{{ page.name|lower }}">
+                <div class="admin-card-header">
+                    <div class="admin-page-icon">
+                        <i class="fas {{ page.icon }}"></i>
+                    </div>
+                    <h3 class="admin-page-title">{{ page.name }}</h3>
+                </div>
+                <p class="admin-page-description">{{ page.description }}</p>
+                <a href="{{ page.url }}" class="admin-page-link">
+                    Manage <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Schedule & Events -->
+    {% if admin_structure.schedule_events %}
+    <div class="category-section" data-category="schedule">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <h2 class="category-title">Schedule & Events</h2>
+        </div>
+        <div class="admin-pages-grid">
+            {% for page in admin_structure.schedule_events %}
+            <div class="admin-page-card" data-page-name="{{ page.name|lower }}">
+                <div class="admin-card-header">
+                    <div class="admin-page-icon">
+                        <i class="fas {{ page.icon }}"></i>
+                    </div>
+                    <h3 class="admin-page-title">{{ page.name }}</h3>
+                </div>
+                <p class="admin-page-description">{{ page.description }}</p>
+                <a href="{{ page.url }}" class="admin-page-link">
+                    Manage <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Conference Setup -->
+    {% if admin_structure.conference_setup %}
+    <div class="category-section" data-category="conference">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-cogs"></i>
+            </div>
+            <h2 class="category-title">Conference Setup</h2>
+        </div>
+        <div class="admin-pages-grid">
+            {% for page in admin_structure.conference_setup %}
+            <div class="admin-page-card" data-page-name="{{ page.name|lower }}">
+                <div class="admin-card-header">
+                    <div class="admin-page-icon">
+                        <i class="fas {{ page.icon }}"></i>
+                    </div>
+                    <h3 class="admin-page-title">{{ page.name }}</h3>
+                </div>
+                <p class="admin-page-description">{{ page.description }}</p>
+                <a href="{{ page.url }}" class="admin-page-link">
+                    Configure <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- University -->
+    {% if admin_structure.university %}
+    <div class="category-section" data-category="university">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-university"></i>
+            </div>
+            <h2 class="category-title">University Management</h2>
+        </div>
+        <div class="admin-pages-grid">
+            {% for page in admin_structure.university %}
+            <div class="admin-page-card" data-page-name="{{ page.name|lower }}">
+                <div class="admin-card-header">
+                    <div class="admin-page-icon">
+                        <i class="fas {{ page.icon }}"></i>
+                    </div>
+                    <h3 class="admin-page-title">{{ page.name }}</h3>
+                </div>
+                <p class="admin-page-description">{{ page.description }}</p>
+                <a href="{{ page.url }}" class="admin-page-link">
+                    Manage <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- User Management -->
+    {% if admin_structure.user_management %}
+    <div class="category-section" data-category="users">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-user-cog"></i>
+            </div>
+            <h2 class="category-title">User Management</h2>
+        </div>
+        <div class="admin-pages-grid">
+            {% for page in admin_structure.user_management %}
+            <div class="admin-page-card" data-page-name="{{ page.name|lower }}">
+                <div class="admin-card-header">
+                    <div class="admin-page-icon">
+                        <i class="fas {{ page.icon }}"></i>
+                    </div>
+                    <h3 class="admin-page-title">{{ page.name }}</h3>
+                </div>
+                <p class="admin-page-description">{{ page.description }}</p>
+                <a href="{{ page.url }}" class="admin-page-link">
+                    Manage <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Email System -->
+    {% if admin_structure.email_system %}
+    <div class="category-section" data-category="email">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <h2 class="category-title">Email System</h2>
+        </div>
+        <div class="admin-pages-grid">
+            {% for page in admin_structure.email_system %}
+            <div class="admin-page-card" data-page-name="{{ page.name|lower }}">
+                <div class="admin-card-header">
+                    <div class="admin-page-icon">
+                        <i class="fas {{ page.icon }}"></i>
+                    </div>
+                    <h3 class="admin-page-title">{{ page.name }}</h3>
+                </div>
+                <p class="admin-page-description">{{ page.description }}</p>
+                <a href="{{ page.url }}" class="admin-page-link">
+                    Access <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- System -->
+    {% if admin_structure.system %}
+    <div class="category-section" data-category="system">
+        <div class="category-header">
+            <div class="category-icon">
+                <i class="fas fa-server"></i>
+            </div>
+            <h2 class="category-title">System</h2>
+        </div>
+        <div class="admin-pages-grid">
+            {% for page in admin_structure.system %}
+            <div class="admin-page-card" data-page-name="{{ page.name|lower }}">
+                <div class="admin-card-header">
+                    <div class="admin-page-icon">
+                        <i class="fas {{ page.icon }}"></i>
+                    </div>
+                    <h3 class="admin-page-title">{{ page.name }}</h3>
+                </div>
+                <p class="admin-page-description">{{ page.description }}</p>
+                <a href="{{ page.url }}" class="admin-page-link">
+                    Access <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Empty State -->
+    {% if total_pages == 0 %}
+    <div class="empty-state">
+        <i class="fas fa-ban"></i>
+        <h3>No Pages Available</h3>
+        <p>You don't have permission to access any admin pages.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Search functionality
+document.getElementById('adminSitemapSearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const pageCards = document.querySelectorAll('.admin-page-card');
+    
+    pageCards.forEach(card => {
+        const pageName = card.getAttribute('data-page-name');
+        const pageText = card.textContent.toLowerCase();
+        
+        if (pageName.includes(searchTerm) || pageText.includes(searchTerm)) {
+            card.style.display = 'block';
+            card.style.animation = 'slideInUp 0.3s ease';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Show/hide category sections
+    document.querySelectorAll('.category-section').forEach(section => {
+        const visibleCards = section.querySelectorAll('.admin-page-card[style*="display: block"]').length;
+        const allCards = section.querySelectorAll('.admin-page-card');
+        const hasVisibleCards = Array.from(allCards).some(card => card.style.display !== 'none');
+        
+        if (searchTerm === '') {
+            section.style.display = 'block';
+        } else {
+            section.style.display = hasVisibleCards ? 'block' : 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

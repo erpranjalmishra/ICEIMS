@@ -1,0 +1,89 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Dashboard - ICEIMS 2026 Admin{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .dashboard-welcome {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(160, 53, 47, 0.3);
+    }
+
+    .dashboard-welcome h2 {
+        margin: 0 0 0.5rem 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .dashboard-welcome p {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 1.1rem;
+    }
+
+    .custom-dashboard-link {
+        display: inline-block;
+        background: white;
+        color: var(--primary-color);
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 700;
+        margin-top: 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .custom-dashboard-link:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        color: var(--primary-color);
+    }
+
+    .admin-notice {
+        background: #d1ecf1;
+        border-left: 4px solid #17a2b8;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+
+    .admin-notice h3 {
+        color: #0c5460;
+        margin: 0 0 0.5rem 0;
+        font-size: 1.2rem;
+    }
+
+    .admin-notice p {
+        color: #0c5460;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="dashboard-welcome">
+        <h2><i class="fas fa-tachometer-alt"></i> Welcome to ICEIMS 2026 Admin</h2>
+        <p>International Conference on Emerging & Intelligent Management Systems</p>
+        <a href="{% url 'conference:admin_dashboard' %}" class="custom-dashboard-link">
+            <i class="fas fa-th-large"></i> Go to Enhanced Dashboard
+        </a>
+    </div>
+
+    <div class="admin-notice">
+        <h3><i class="fas fa-info-circle"></i> Two Admin Interfaces Available</h3>
+        <p><strong>Enhanced Dashboard:</strong> Click the button above for the full-featured conference management dashboard with advanced tools and visualizations.</p>
+        <p><strong>Django Admin:</strong> Continue below to use the standard Django admin interface for direct model management.</p>
+    </div>
+
+    {{ block.super }}
+</div>
+{% endblock %}

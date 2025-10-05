@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Email Templates - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>📧 Email Templates</h2>
+                <a href="{% url 'conference:email_template_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create Template
+                </a>
+            </div>
+
+            <!-- Filter and Search -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Template Type</label>
+                            <select name="type" class="form-select">
+                                <option value="">All Types</option>
+                                {% for value, label in template_types %}
+                                    <option value="{{ value }}" {% if current_type == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Search</label>
+                            <input type="text" name="search" class="form-control" 
+                                   placeholder="Search by name or subject..." 
+                                   value="{{ search_query|default:'' }}">
+                        </div>
+                        <div class="col-md-2 align-self-end">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-search"></i> Filter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Templates Table -->
+            <div class="card">
+                <div class="card-body">
+                    {% if templates %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Subject</th>
+                                        <th>Created By</th>
+                                        <th>Created At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for template in templates %}
+                                        <tr>
+                                            <td><strong>{{ template.name }}</strong></td>
+                                            <td>
+                                                <span class="badge bg-info">
+                                                    {{ template.get_template_type_display }}
+                                                </span>
+                                            </td>
+                                            <td>{{ template.subject|truncatewords:8 }}</td>
+                                            <td>{{ template.created_by.username|default:"System" }}</td>
+                                            <td>{{ template.created_at|date:"M d, Y H:i" }}</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="{% url 'conference:email_template_preview' template.pk %}" 
+                                                       class="btn btn-sm btn-info" 
+                                                       target="_blank" 
+                                                       title="Preview">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{% url 'conference:email_template_edit' template.pk %}" 
+                                                       class="btn btn-sm btn-warning" 
+                                                       title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="{% url 'conference:email_template_delete' template.pk %}" 
+                                                       class="btn btn-sm btn-danger" 
+                                                       title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if templates.has_other_pages %}
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center mt-4">
+                                    {% if templates.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}">First</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ templates.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}">Previous</a>
+                                        </li>
+                                    {% endif %}
+
+                                    <li class="page-item active">
+                                        <span class="page-link">
+                                            Page {{ templates.number }} of {{ templates.paginator.num_pages }}
+                                        </span>
+                                    </li>
+
+                                    {% if templates.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ templates.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}">Next</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ templates.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}">Last</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No email templates found.
+                            {% if search_query or current_type %}
+                                <a href="{% url 'conference:email_template_list' %}" class="alert-link">Clear filters</a>
+                            {% else %}
+                                <a href="{% url 'conference:email_template_create' %}" class="alert-link">Create your first template</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Back to Admin Panel -->
+            <div class="mt-3">
+                <a href="{% url 'conference:admin_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Admin Panel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

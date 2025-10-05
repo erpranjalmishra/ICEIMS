@@ -1,0 +1,652 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FAQ - Frequently Asked Questions{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #a0352f 0%, #e56d2d 100%);
+        --secondary-gradient: linear-gradient(135deg, #e56d2d 0%, #a0352f 100%);
+        --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --dark-bg: #1a1a2e;
+        --card-bg: #fff;
+        --shadow-sm: 0 2px 10px rgba(0,0,0,0.08);
+        --shadow-lg: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    /* Hero Section */
+    .faq-hero {
+        background: var(--primary-gradient);
+        padding: 100px 0 60px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .faq-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,144C960,149,1056,139,1152,122.7C1248,107,1344,85,1392,74.7L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+        background-size: cover;
+        background-position: bottom;
+        opacity: 0.3;
+    }
+
+    .faq-hero h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 1;
+    }
+
+    .faq-hero p {
+        font-size: 1.3rem;
+        opacity: 0.95;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Search Bar */
+    .faq-search-container {
+        position: relative;
+        z-index: 1;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .faq-search {
+        width: 100%;
+        padding: 18px 60px 18px 25px;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        transition: all 0.3s;
+    }
+
+    .faq-search:focus {
+        outline: none;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        transform: translateY(-2px);
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 25px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #a0352f;
+        font-size: 1.5rem;
+    }
+
+    /* Stats Section */
+    .faq-stats {
+        margin-top: 3rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-card {
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    /* Category Filters */
+    .category-filters {
+        padding: 40px 0;
+        background: #f8f9fa;
+    }
+
+    .category-btn {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 50px;
+        padding: 12px 30px;
+        margin: 8px;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .category-btn:hover {
+        background: var(--primary-gradient);
+        color: white;
+        border-color: transparent;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .category-btn.active {
+        background: var(--primary-gradient);
+        color: white;
+        border-color: transparent;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .category-count {
+        background: rgba(0,0,0,0.1);
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    /* FAQ Items */
+    .faq-section {
+        padding: 60px 0;
+    }
+
+    .faq-category-title {
+        font-size: 2rem;
+        font-weight: 700;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .faq-item {
+        background: white;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s;
+        overflow: hidden;
+        border: 2px solid transparent;
+    }
+
+    .faq-item:hover {
+        box-shadow: var(--shadow-lg);
+        border-color: #667eea;
+        transform: translateY(-3px);
+    }
+
+    .faq-item.featured {
+        border: 2px solid #667eea;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    }
+
+    .faq-question {
+        padding: 25px 30px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        font-size: 1.15rem;
+        color: #2d3748;
+        transition: all 0.3s;
+    }
+
+    .faq-question:hover {
+        color: #667eea;
+    }
+
+    .faq-question i {
+        transition: transform 0.3s;
+        color: #667eea;
+        font-size: 1.3rem;
+    }
+
+    .faq-item.active .faq-question i {
+        transform: rotate(180deg);
+    }
+
+    .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease;
+    }
+
+    .faq-answer-content {
+        padding: 0 30px 25px;
+        color: #4a5568;
+        line-height: 1.8;
+        font-size: 1.05rem;
+    }
+
+    .faq-item.active .faq-answer {
+        max-height: 1000px;
+    }
+
+    .faq-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    .badge-featured {
+        background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+        color: white;
+    }
+
+    .badge-high {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        color: white;
+    }
+
+    /* Helpful Buttons */
+    .faq-helpful {
+        padding: 0 30px 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-top: 1px solid #e0e0e0;
+        padding-top: 20px;
+        margin-top: 15px;
+    }
+
+    .helpful-text {
+        color: #718096;
+        font-size: 0.95rem;
+    }
+
+    .helpful-btn {
+        background: #f7fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+
+    .helpful-btn:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+        transform: translateY(-2px);
+    }
+
+    .helpful-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .empty-icon {
+        font-size: 5rem;
+        color: #cbd5e0;
+        margin-bottom: 20px;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        color: #4a5568;
+        margin-bottom: 10px;
+    }
+
+    .empty-text {
+        color: #718096;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .faq-hero h1 {
+            font-size: 2.5rem;
+        }
+
+        .faq-hero p {
+            font-size: 1.1rem;
+        }
+
+        .category-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            padding: 20px;
+        }
+
+        .faq-answer-content {
+            padding: 0 20px 20px;
+            font-size: 0.95rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="faq-hero">
+    <div class="container">
+        <div class="text-center">
+            <h1><i class="fas fa-question-circle"></i> Frequently Asked Questions</h1>
+            <p>Find answers to common questions or ask our AI assistant</p>
+            
+            <!-- Search Bar -->
+            <div class="faq-search-container">
+                <form method="get" action="{% url 'conference:faq' %}">
+                    <div style="position: relative;">
+                        <input 
+                            type="text" 
+                            name="q" 
+                            class="faq-search" 
+                            placeholder="Search for answers..." 
+                            value="{{ query }}"
+                            autocomplete="off"
+                        >
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Stats -->
+            <div class="faq-stats">
+                <div class="row justify-content-center">
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">{{ total_faqs }}</div>
+                            <div class="stat-label">Total Questions</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">{{ categories.count }}</div>
+                            <div class="stat-label">Categories</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">AI</div>
+                            <div class="stat-label">Powered</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">Available</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Filters -->
+{% if categories %}
+<section class="category-filters">
+    <div class="container">
+        <div class="text-center">
+            <a href="{% url 'conference:faq' %}" class="category-btn {% if not selected_category %}active{% endif %}">
+                <i class="fas fa-th"></i> All Questions
+                <span class="category-count">{{ total_faqs }}</span>
+            </a>
+            {% for category in categories %}
+            <a href="?category={{ category.slug }}" class="category-btn {% if selected_category.id == category.id %}active{% endif %}">
+                <i class="{{ category.icon }}"></i> {{ category.name }}
+                <span class="category-count">{{ category.faqs.count }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        {% if query %}
+        <div class="mb-4">
+            <h3>Search Results for "{{ query }}"</h3>
+            <p class="text-muted">Found {{ faqs.count }} result{{ faqs.count|pluralize }}</p>
+        </div>
+        {% endif %}
+
+        {% if featured_faqs and not query and not selected_category %}
+        <!-- Featured FAQs -->
+        <div class="mb-5">
+            <h2 class="faq-category-title">
+                <i class="fas fa-star"></i> Featured Questions
+            </h2>
+            {% for faq in featured_faqs %}
+            <div class="faq-item featured" data-faq-id="{{ faq.id }}">
+                <div class="faq-question">
+                    <span>
+                        {{ faq.question }}
+                        <span class="faq-badge badge-featured">Featured</span>
+                        {% if faq.priority == 'high' or faq.priority == 'critical' %}
+                        <span class="faq-badge badge-high">Important</span>
+                        {% endif %}
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        {{ faq.answer|safe }}
+                    </div>
+                    <div class="faq-helpful">
+                        <span class="helpful-text">Was this helpful?</span>
+                        <button class="helpful-btn btn-helpful" data-faq-id="{{ faq.id }}">
+                            <i class="fas fa-thumbs-up"></i> Yes
+                        </button>
+                        <button class="helpful-btn btn-not-helpful" data-faq-id="{{ faq.id }}">
+                            <i class="fas fa-thumbs-down"></i> No
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- All FAQs by Category -->
+        {% if faqs %}
+            {% regroup faqs by category as faq_categories %}
+            {% for category_group in faq_categories %}
+            <div class="mb-5">
+                <h2 class="faq-category-title">
+                    {% if category_group.grouper %}
+                    <i class="{{ category_group.grouper.icon }}"></i> {{ category_group.grouper.name }}
+                    {% else %}
+                    <i class="fas fa-question-circle"></i> General Questions
+                    {% endif %}
+                </h2>
+                {% for faq in category_group.list %}
+                <div class="faq-item" data-faq-id="{{ faq.id }}">
+                    <div class="faq-question">
+                        <span>
+                            {{ faq.question }}
+                            {% if faq.priority == 'high' or faq.priority == 'critical' %}
+                            <span class="faq-badge badge-high">Important</span>
+                            {% endif %}
+                        </span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            {{ faq.answer|safe }}
+                        </div>
+                        <div class="faq-helpful">
+                            <span class="helpful-text">Was this helpful?</span>
+                            <button class="helpful-btn btn-helpful" data-faq-id="{{ faq.id }}">
+                                <i class="fas fa-thumbs-up"></i> Yes
+                            </button>
+                            <button class="helpful-btn btn-not-helpful" data-faq-id="{{ faq.id }}">
+                                <i class="fas fa-thumbs-down"></i> No
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3 class="empty-title">No Questions Found</h3>
+            <p class="empty-text">
+                {% if query %}
+                We couldn't find any questions matching "{{ query }}". Try asking our AI assistant below!
+                {% else %}
+                No FAQs available at the moment. Please check back later or ask our AI assistant!
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- AI Chatbot is available globally from base.html -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // FAQ Accordion
+    document.querySelectorAll('.faq-question').forEach(question => {
+        question.addEventListener('click', function() {
+            const faqItem = this.parentElement;
+            const isActive = faqItem.classList.contains('active');
+            
+            // Close all FAQs
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Open clicked FAQ if it wasn't active
+            if (!isActive) {
+                faqItem.classList.add('active');
+                
+                // Track view
+                const faqId = faqItem.dataset.faqId;
+                if (faqId) {
+                    fetch(`/faq/${faqId}/helpful/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json'
+                        }
+                    }).catch(err => console.log('View tracking failed'));
+                }
+            }
+        });
+    });
+
+    // Helpful/Not Helpful Buttons
+    document.querySelectorAll('.btn-helpful').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const faqId = this.dataset.faqId;
+            
+            fetch(`/faq/${faqId}/helpful/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                this.classList.add('active');
+                this.innerHTML = '<i class="fas fa-check"></i> Thank you!';
+                this.disabled = true;
+                
+                // Disable not helpful button
+                const notHelpfulBtn = this.nextElementSibling;
+                if (notHelpfulBtn) {
+                    notHelpfulBtn.disabled = true;
+                }
+            })
+            .catch(err => console.error('Error:', err));
+        });
+    });
+
+    document.querySelectorAll('.btn-not-helpful').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const faqId = this.dataset.faqId;
+            
+            fetch(`/faq/${faqId}/not-helpful/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                this.classList.add('active');
+                this.innerHTML = '<i class="fas fa-check"></i> Feedback received';
+                this.disabled = true;
+                
+                // Disable helpful button
+                const helpfulBtn = this.previousElementSibling;
+                if (helpfulBtn) {
+                    helpfulBtn.disabled = true;
+                }
+            })
+            .catch(err => console.error('Error:', err));
+        });
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Auto-open first featured FAQ
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstFeatured = document.querySelector('.faq-item.featured');
+        if (firstFeatured && !document.querySelector('.faq-item.active')) {
+            firstFeatured.classList.add('active');
+        }
+    });
+</script>
+{% endblock %}

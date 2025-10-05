@@ -1,0 +1,155 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}Scheduled Emails - ICEIMS Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2"><i class="bi bi-calendar-check"></i> Scheduled Emails</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <a href="{% url 'conference:send_email' %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-circle"></i> Schedule New Email
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select form-select-sm" id="status" name="status">
+                        <option value="">All Statuses</option>
+                        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="sent" {% if request.GET.status == 'sent' %}selected{% endif %}>Sent</option>
+                        <option value="failed" {% if request.GET.status == 'failed' %}selected{% endif %}>Failed</option>
+                        <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="date_from" class="form-label">From Date</label>
+                    <input type="date" class="form-control form-control-sm" id="date_from" name="date_from" value="{{ request.GET.date_from }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="date_to" class="form-label">To Date</label>
+                    <input type="date" class="form-control form-control-sm" id="date_to" name="date_to" value="{{ request.GET.date_to }}">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-sm btn-primary me-2">
+                        <i class="bi bi-funnel"></i> Filter
+                    </button>
+                    <a href="{% url 'conference:scheduled_emails' %}" class="btn btn-sm btn-secondary">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scheduled Emails Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Template</th>
+                            <th>Recipients</th>
+                            <th>Scheduled Time</th>
+                            <th>Status</th>
+                            <th>Created By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for email in scheduled_emails %}
+                        <tr>
+                            <td><code>#{{ email.id }}</code></td>
+                            <td>
+                                <strong>{{ email.template.name }}</strong><br>
+                                <small class="text-muted">{{ email.template.get_template_type_display }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ email.recipient_count }} recipients</span><br>
+                                <small class="text-muted">{{ email.recipient_type|title }}</small>
+                            </td>
+                            <td>
+                                <i class="bi bi-calendar"></i> {{ email.scheduled_time|date:"M d, Y" }}<br>
+                                <i class="bi bi-clock"></i> {{ email.scheduled_time|time:"H:i" }}
+                            </td>
+                            <td>
+                                {% if email.status == 'pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif email.status == 'sent' %}
+                                    <span class="badge bg-success">Sent</span>
+                                {% elif email.status == 'failed' %}
+                                    <span class="badge bg-danger">Failed</span>
+                                {% elif email.status == 'cancelled' %}
+                                    <span class="badge bg-secondary">Cancelled</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ email.created_by.username }}</td>
+                            <td>
+                                {% if email.status == 'pending' %}
+                                    <a href="{% url 'conference:send_scheduled_email_now' email.id %}" 
+                                       class="btn btn-sm btn-success" 
+                                       onclick="return confirm('Send this email now?')">
+                                        <i class="bi bi-send"></i> Send Now
+                                    </a>
+                                    <a href="{% url 'conference:cancel_scheduled_email' email.id %}" 
+                                       class="btn btn-sm btn-danger" 
+                                       onclick="return confirm('Cancel this scheduled email?')">
+                                        <i class="bi bi-x-circle"></i> Cancel
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 2rem;"></i><br>
+                                No scheduled emails found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if scheduled_emails.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if scheduled_emails.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ scheduled_emails.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in scheduled_emails.paginator.page_range %}
+                        {% if scheduled_emails.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > scheduled_emails.number|add:'-3' and num < scheduled_emails.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if scheduled_emails.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ scheduled_emails.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Next</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

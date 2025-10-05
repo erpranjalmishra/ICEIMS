@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Create{% endif %} Track - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .form-container {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        max-width: 900px;
+        margin: 0 auto 3rem;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .form-section-title {
+        color: var(--primary-color);
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-section-title i {
+        margin-right: 0.75rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-help {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    .color-preview {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+        margin-top: 0.5rem;
+    }
+    
+    .topic-editor {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 0.5rem;
+    }
+    
+    .topic-counter {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 0.5rem;
+    }
+    
+    .image-preview {
+        max-width: 300px;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+    
+    .required::after {
+        content: " *";
+        color: red;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div class="container">
+        <h1><i class="fas fa-{% if is_edit %}edit{% else %}plus{% endif %} me-2"></i>{% if is_edit %}Edit{% else %}Create New{% endif %} Track</h1>
+        <p class="mb-0">{% if is_edit %}Update track information and topics{% else %}Add a new conference track with topics{% endif %}</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="form-container">
+        <form method="post" enctype="multipart/form-data" id="trackForm">
+            {% csrf_token %}
+            
+            <!-- Basic Information Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Basic Information
+                </h3>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="track_number" class="form-label required">Track Number</label>
+                        <input type="number" class="form-control" id="track_number" name="track_number" 
+                               value="{% if track %}{{ track.track_number }}{% else %}{{ next_track_number }}{% endif %}" 
+                               min="1" required>
+                        <div class="form-help">Unique number for this track</div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="track_type" class="form-label required">Track Type</label>
+                        <select class="form-select" id="track_type" name="track_type" required>
+                            <option value="regular" {% if track and track.track_type == 'regular' %}selected{% endif %}>Regular Track</option>
+                            <option value="special" {% if track and track.track_type == 'special' %}selected{% endif %}>Special Session/Track</option>
+                        </select>
+                        <div class="form-help">Type of conference track</div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="title" class="form-label required">Track Title</label>
+                    <input type="text" class="form-control" id="title" name="title" 
+                           value="{% if track %}{{ track.title }}{% endif %}" required 
+                           placeholder="e.g., Artificial Intelligence and Machine Learning">
+                    <div class="form-help">Main title/name for the track</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="track_chair" class="form-label">Track Chair</label>
+                    <input type="text" class="form-control" id="track_chair" name="track_chair" 
+                           value="{% if track %}{{ track.track_chair }}{% endif %}" 
+                           placeholder="e.g., Dr. John Smith, MIT">
+                    <div class="form-help">Optional: Name and affiliation of track chair</div>
+                </div>
+            </div>
+            
+            <!-- Topics Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">
+                    <i class="fas fa-list-ul"></i>
+                    Track Topics
+                </h3>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Topics/Research Areas</label>
+                    <div class="topic-editor">
+                        <textarea class="form-control" id="description" name="description" rows="12" 
+                                  placeholder="Enter one topic per line, for example:&#10;Machine Learning Algorithms&#10;Deep Learning and Neural Networks&#10;Natural Language Processing&#10;Computer Vision&#10;Reinforcement Learning">{% if track %}{{ track.description }}{% endif %}</textarea>
+                    </div>
+                    <div class="form-help">
+                        <strong>Important:</strong> Add one topic per line. Each line will be displayed as a separate bullet point.
+                    </div>
+                    <div class="topic-counter" id="topicCounter">0 topics</div>
+                </div>
+            </div>
+            
+            <!-- Display Settings Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">
+                    <i class="fas fa-palette"></i>
+                    Display Settings
+                </h3>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="display_order" class="form-label">Display Order</label>
+                        <input type="number" class="form-control" id="display_order" name="display_order" 
+                               value="{% if track %}{{ track.display_order }}{% else %}{{ next_track_number }}{% endif %}" 
+                               min="0">
+                        <div class="form-help">Controls the display order on the website (lower numbers appear first)</div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="color" class="form-label">Track Color</label>
+                        <input type="color" class="form-control" id="color" name="color" 
+                               value="{% if track %}{{ track.color }}{% else %}#a0352f{% endif %}" 
+                               style="width: 100%; height: 50px;">
+                        <div class="form-help">Choose a color to represent this track</div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                               {% if not track or track.is_active %}checked{% endif %}>
+                        <label class="form-check-label" for="is_active">
+                            <strong>Active (Display on Website)</strong>
+                        </label>
+                    </div>
+                    <div class="form-help">Uncheck to hide this track from the public website</div>
+                </div>
+            </div>
+            
+            <!-- Image Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">
+                    <i class="fas fa-image"></i>
+                    Track Image (Optional)
+                </h3>
+                
+                <div class="mb-3">
+                    <label for="image" class="form-label">Upload Image</label>
+                    <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                    <div class="form-help">Optional: Upload an image or icon for this track</div>
+                    
+                    {% if track and track.image %}
+                    <div class="mt-3">
+                        <img src="{{ track.image.url }}" alt="{{ track.title }}" class="image-preview">
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="remove_image" name="remove_image">
+                            <label class="form-check-label" for="remove_image">
+                                Remove current image
+                            </label>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a href="{% url 'conference:track_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>{% if is_edit %}Update Track{% else %}Create Track{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Topic counter
+const descriptionField = document.getElementById('description');
+const topicCounter = document.getElementById('topicCounter');
+
+function updateTopicCount() {
+    const topics = descriptionField.value.split('\n').filter(line => line.trim().length > 0);
+    const count = topics.length;
+    topicCounter.textContent = count + ' topic' + (count !== 1 ? 's' : '');
+}
+
+descriptionField.addEventListener('input', updateTopicCount);
+updateTopicCount(); // Initial count
+
+// Form validation
+document.getElementById('trackForm').addEventListener('submit', function(e) {
+    const trackNumber = document.getElementById('track_number').value;
+    const title = document.getElementById('title').value;
+    
+    if (!trackNumber || !title) {
+        e.preventDefault();
+        alert('Please fill in all required fields (Track Number and Title)');
+        return false;
+    }
+});
+</script>
+{% endblock %}

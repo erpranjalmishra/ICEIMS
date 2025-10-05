@@ -1,0 +1,114 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}{{ form_title }} - ICEIMS Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ form_title }}</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <a href="{% url 'conference:email_template_list' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Template Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{{ template.name|default:'' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="template_type" class="form-label">Template Type *</label>
+                            <select class="form-select" id="template_type" name="template_type" required>
+                                <option value="">-- Select Type --</option>
+                                <option value="welcome" {% if template.template_type == 'welcome' %}selected{% endif %}>Welcome Email</option>
+                                <option value="login_notification" {% if template.template_type == 'login_notification' %}selected{% endif %}>Login Notification</option>
+                                <option value="security_alert" {% if template.template_type == 'security_alert' %}selected{% endif %}>Security Alert</option>
+                                <option value="otp_verification" {% if template.template_type == 'otp_verification' %}selected{% endif %}>OTP Verification</option>
+                                <option value="account_created" {% if template.template_type == 'account_created' %}selected{% endif %}>Account Created</option>
+                                <option value="role_assignment" {% if template.template_type == 'role_assignment' %}selected{% endif %}>Role Assignment</option>
+                                <option value="custom" {% if template.template_type == 'custom' %}selected{% endif %}>Custom</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Email Subject *</label>
+                            <input type="text" class="form-control" id="subject" name="subject" 
+                                   value="{{ template.subject|default:'' }}" required>
+                            <small class="text-muted">Available variables: {username}, {conference_name}, {email}, {role}, {otp}</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="body_html" class="form-label">HTML Body *</label>
+                            <textarea class="form-control" id="body_html" name="body_html" rows="15" required>{{ template.body_html|default:'' }}</textarea>
+                            <small class="text-muted">HTML content with inline CSS for better email compatibility</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="body_text" class="form-label">Plain Text Body</label>
+                            <textarea class="form-control" id="body_text" name="body_text" rows="8">{{ template.body_text|default:'' }}</textarea>
+                            <small class="text-muted">Plain text fallback for email clients that don't support HTML</small>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="is_active" name="is_active" 
+                                   {% if template.is_active or not template %}checked{% endif %}>
+                            <label class="form-check-label" for="is_active">
+                                Active
+                            </label>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Save Template
+                            </button>
+                            <a href="{% url 'conference:email_template_list' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Template Variables</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Available Variables:</h6>
+                    <ul class="list-unstyled">
+                        <li><code>{username}</code> - User's username</li>
+                        <li><code>{email}</code> - User's email address</li>
+                        <li><code>{conference_name}</code> - ICEIMS 2026</li>
+                        <li><code>{role}</code> - User's role</li>
+                        <li><code>{otp}</code> - One-time password</li>
+                        <li><code>{login_time}</code> - Login timestamp</li>
+                        <li><code>{ip_address}</code> - IP address</li>
+                    </ul>
+
+                    <h6 class="mt-3">Tips:</h6>
+                    <ul class="small text-muted">
+                        <li>Use inline CSS for styling</li>
+                        <li>Keep HTML simple for compatibility</li>
+                        <li>Test in multiple email clients</li>
+                        <li>Always provide plain text alternative</li>
+                        <li>Use responsive design principles</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

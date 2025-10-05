@@ -225,12 +225,19 @@
                     </div>
                     <h5 class="mb-1">{{ notice.title }}</h5>
                     <p class="text-muted mb-2">{{ notice.content|truncatewords:20 }}</p>
-                    {% if notice.show_on_pages %}
-                    <small class="text-info">
-                        <i class="fas fa-map-marker-alt"></i> 
-                        Pages: {{ notice.show_on_pages|default:"All pages" }}
-                    </small>
-                    {% endif %}
+                    <div class="d-flex gap-2 flex-wrap">
+                        {% if notice.show_on_pages %}
+                        <small class="text-info">
+                            <i class="fas fa-map-marker-alt"></i> 
+                            Pages: {{ notice.show_on_pages|default:"All pages" }}
+                        </small>
+                        {% endif %}
+                        {% if notice.link_url %}
+                        <small class="badge bg-primary">
+                            <i class="fas fa-link"></i> Link Added
+                        </small>
+                        {% endif %}
+                    </div>
                 </div>
                 
                 <div class="col-md-3">
@@ -253,6 +260,10 @@
                 
                 <div class="col-md-3 text-end">
                     <div class="btn-group-vertical">
+                        <a href="{% url 'conference:notice_edit' notice.pk %}" class="btn btn-outline-primary btn-sm mb-2">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        
                         <form method="POST" action="{% url 'conference:notice_toggle' notice.pk %}" class="mb-2">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm {% if notice.is_active %}btn-warning{% else %}btn-success{% endif %}">
@@ -264,7 +275,7 @@
                             </button>
                         </form>
                         
-                        <button class="btn btn-outline-primary btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#viewModal{{ notice.id }}">
+                        <button class="btn btn-outline-secondary btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#viewModal{{ notice.id }}">
                             <i class="fas fa-eye"></i> View
                         </button>
                         
@@ -335,8 +346,20 @@
                                 {{ notice.content|linebreaks }}
                             </div>
                         </div>
+                        {% if notice.link_url %}
+                        <div class="mt-3">
+                            <h6>Action Link</h6>
+                            <div class="alert alert-info mb-0">
+                                <p class="mb-2"><strong>Link URL:</strong> <a href="{{ notice.link_url }}" target="_blank" rel="noopener">{{ notice.link_url }}</a></p>
+                                <p class="mb-0"><strong>Button Text:</strong> {{ notice.link_text|default:"Read More" }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                     <div class="modal-footer">
+                        <a href="{% url 'conference:notice_edit' notice.pk %}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Edit Notice
+                        </a>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>

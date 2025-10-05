@@ -110,7 +110,7 @@ class MaintenanceMiddleware(MiddlewareMixin):
         return None
 
 class SecurityHeadersMiddleware(MiddlewareMixin):
-    """Add security headers for production"""
+    """Add security and performance headers"""
     
     def process_response(self, request, response):
         # Add security headers
@@ -118,5 +118,18 @@ class SecurityHeadersMiddleware(MiddlewareMixin):
         response['X-Frame-Options'] = 'DENY'
         response['X-XSS-Protection'] = '1; mode=block'
         response['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        
+        # Add performance headers
+        # Enable browser caching for static files
+        if request.path.startswith(('/static/', '/media/')):
+            response['Cache-Control'] = 'public, max-age=31536000, immutable'
+        else:
+            # For dynamic pages, cache for short time
+            response['Cache-Control'] = 'public, max-age=300'  # 5 minutes
+        
+        # Enable compression hint
+        response['Vary'] = 'Accept-Encoding'
+        
+        return response
         
         return response

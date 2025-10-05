@@ -1,0 +1,175 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Edit Sponsor - Admin Panel{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <h1 class="h3 mb-2 text-gray-800">
+                <i class="fas fa-edit me-2"></i>Edit Sponsor
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'conference:admin_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'conference:sponsor_list' %}">Sponsors</a></li>
+                    <li class="breadcrumb-item active">Edit: {{ sponsor.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Sponsor Information</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Sponsor/Partner Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ sponsor.name }}" required>
+                            <small class="form-text text-muted">Full name of the organization</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="logo" class="form-label">Logo</label>
+                            {% if sponsor.logo %}
+                            <div class="mb-2">
+                                <label class="d-block text-muted small">Current Logo:</label>
+                                <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" style="max-width: 200px; max-height: 100px; object-fit: contain; border: 1px solid #ddd; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                            </div>
+                            {% endif %}
+                            <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                            <small class="form-text text-muted">Upload new logo to replace current one (leave empty to keep existing)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="website" class="form-label">Website URL</label>
+                            <input type="url" class="form-control" id="website" name="website" value="{{ sponsor.website }}" placeholder="https://example.com">
+                            <small class="form-text text-muted">Link to organization's website (optional)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="partnership_type" class="form-label">Partnership Type <span class="text-danger">*</span></label>
+                            <select class="form-select" id="partnership_type" name="partnership_type" required>
+                                <option value="sponsorship" {% if sponsor.partnership_type == 'sponsorship' %}selected{% endif %}>Sponsorship</option>
+                                <option value="partnership" {% if sponsor.partnership_type == 'partnership' %}selected{% endif %}>Partnership</option>
+                            </select>
+                            <small class="form-text text-muted">Select whether this is a sponsorship or partnership</small>
+                        </div>
+
+                        <div class="mb-3" id="sponsorship_tier_field" {% if sponsor.partnership_type != 'sponsorship' %}style="display:none;"{% endif %}>
+                            <label for="sponsorship_tier" class="form-label">Sponsorship Tier</label>
+                            <select class="form-select" id="sponsorship_tier" name="sponsorship_tier">
+                                <option value="">None (Not Applicable)</option>
+                                <option value="platinum" {% if sponsor.sponsorship_tier == 'platinum' %}selected{% endif %}>Platinum Sponsor</option>
+                                <option value="gold" {% if sponsor.sponsorship_tier == 'gold' %}selected{% endif %}>Gold Sponsor</option>
+                                <option value="silver" {% if sponsor.sponsorship_tier == 'silver' %}selected{% endif %}>Silver Sponsor</option>
+                                <option value="bronze" {% if sponsor.sponsorship_tier == 'bronze' %}selected{% endif %}>Bronze Sponsor</option>
+                            </select>
+                            <small class="form-text text-muted">Select sponsorship tier (only for sponsors)</small>
+                        </div>
+
+                        <div class="mb-3" id="partner_type_field" {% if sponsor.partnership_type != 'partnership' %}style="display:none;"{% endif %}>
+                            <label for="partner_type" class="form-label">Partner Type</label>
+                            <select class="form-select" id="partner_type" name="partner_type">
+                                <option value="">None (Not Applicable)</option>
+                                <option value="academic" {% if sponsor.partner_type == 'academic' %}selected{% endif %}>Academic Partner</option>
+                                <option value="technology" {% if sponsor.partner_type == 'technology' %}selected{% endif %}>Technology Partner</option>
+                                <option value="media" {% if sponsor.partner_type == 'media' %}selected{% endif %}>Media Partner</option>
+                                <option value="industry" {% if sponsor.partner_type == 'industry' %}selected{% endif %}>Industry Partner</option>
+                                <option value="institutional" {% if sponsor.partner_type == 'institutional' %}selected{% endif %}>Institutional Partner</option>
+                            </select>
+                            <small class="form-text text-muted">Select partner type (only for partners)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3">{{ sponsor.description }}</textarea>
+                            <small class="form-text text-muted">Brief description (optional)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order" class="form-label">Display Order</label>
+                            <input type="number" class="form-control" id="order" name="order" value="{{ sponsor.order }}" min="0">
+                            <small class="form-text text-muted">Lower numbers appear first within the same tier/type</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {% if sponsor.is_active %}checked{% endif %}>
+                                <label class="form-check-label" for="is_active">
+                                    Display on website
+                                </label>
+                            </div>
+                        </div>
+
+                        <script>
+                        document.getElementById('partnership_type').addEventListener('change', function() {
+                            const sponsorshipTierField = document.getElementById('sponsorship_tier_field');
+                            const partnerTypeField = document.getElementById('partner_type_field');
+                            
+                            if (this.value === 'sponsorship') {
+                                sponsorshipTierField.style.display = 'block';
+                                partnerTypeField.style.display = 'none';
+                                document.getElementById('partner_type').value = '';
+                            } else {
+                                sponsorshipTierField.style.display = 'none';
+                                partnerTypeField.style.display = 'block';
+                                document.getElementById('sponsorship_tier').value = '';
+                            }
+                        });
+                        </script>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'conference:sponsor_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Sponsor
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Sponsor Details</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small"><strong>ID:</strong> {{ sponsor.id }}</p>
+                    <p class="small"><strong>Current Order:</strong> {{ sponsor.order }}</p>
+                    {% if sponsor.website %}
+                    <p class="small">
+                        <strong>Website:</strong><br>
+                        <a href="{{ sponsor.website }}" target="_blank">{{ sponsor.website|truncatechars:30 }}</a>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Tips</h6>
+                </div>
+                <div class="card-body">
+                    <h6><i class="fas fa-lightbulb text-warning me-2"></i>Logo Guidelines</h6>
+                    <ul class="small">
+                        <li>Use high-quality logos (at least 300px wide)</li>
+                        <li>Transparent PNG or SVG files work best</li>
+                        <li>Keep file sizes under 1MB</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

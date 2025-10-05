@@ -1,0 +1,394 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}Send Email - ICEIMS Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .email-preview {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        background: #f8f9fa;
+        padding: 1rem;
+    }
+    
+    .stat-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .gradient-primary {
+        background: linear-gradient(135deg, #a0352f 0%, #e56d2d 100%);
+    }
+    
+    .gradient-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    
+    .gradient-info {
+        background: linear-gradient(135deg, #17a2b8 0%, #6610f2 100%);
+    }
+    
+    .gradient-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    }
+    
+    .btn-send {
+        background: linear-gradient(135deg, #a0352f 0%, #e56d2d 100%);
+        border: none;
+        padding: 0.5rem 2rem;
+        font-weight: 500;
+    }
+    
+    .btn-send:hover {
+        background: linear-gradient(135deg, #8a2d28 0%, #d45f24 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(160, 53, 47, 0.3);
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-box {
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        border-left: 4px solid #a0352f;
+        border-radius: 0.375rem;
+        padding: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+        <div>
+            <h1 class="h2 mb-0">
+                <i class="fas fa-paper-plane text-primary me-2"></i>
+                Send Email
+            </h1>
+            <p class="text-muted mb-0 mt-1">Send emails to users using professional templates</p>
+        </div>
+        <div>
+            <a href="{% url 'conference:email_log_list' %}" class="btn btn-outline-primary btn-sm me-2">
+                <i class="fas fa-list"></i> Email Logs
+            </a>
+            <a href="{% url 'conference:scheduled_emails' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-clock"></i> Scheduled
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon gradient-primary text-white me-3">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-0 small">Total Users</p>
+                        <h4 class="mb-0 fw-bold">{{ stats.total_users }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon gradient-success text-white me-3">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-0 small">Staff Members</p>
+                        <h4 class="mb-0 fw-bold">{{ stats.staff_count }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon gradient-info text-white me-3">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-0 small">Sent Today</p>
+                        <h4 class="mb-0 fw-bold">{{ stats.emails_today }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body d-flex align-items-center">
+                    <div class="stat-icon gradient-warning text-white me-3">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted mb-0 small">Scheduled</p>
+                        <h4 class="mb-0 fw-bold">{{ stats.scheduled_count }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog text-primary me-2"></i>
+                        Email Configuration
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" id="emailForm">
+                        {% csrf_token %}
+                        
+                        <!-- Template Selection -->
+                        <div class="mb-4">
+                            <label for="template" class="form-label">
+                                <i class="fas fa-file-alt text-primary me-1"></i>
+                                Email Template *
+                            </label>
+                            <select class="form-select form-select-lg" id="template" name="template" required onchange="updatePreview()">
+                                <option value="">-- Select a Template --</option>
+                                {% for tmpl in templates %}
+                                <option value="{{ tmpl.id }}" 
+                                        data-subject="{{ tmpl.subject }}" 
+                                        data-body="{{ tmpl.body_html|escape }}"
+                                        data-type="{{ tmpl.get_template_type_display }}">
+                                    {{ tmpl.name }} ({{ tmpl.get_template_type_display }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">Choose from pre-configured professional email templates</small>
+                        </div>
+
+                        <!-- Recipient Type -->
+                        <div class="mb-4">
+                            <label for="recipient_type" class="form-label">
+                                <i class="fas fa-users text-primary me-1"></i>
+                                Recipients *
+                            </label>
+                            <select class="form-select form-select-lg" id="recipient_type" name="recipient_type" required onchange="toggleRecipientInput()">
+                                <option value="">-- Select Recipient Group --</option>
+                                <option value="all_users">
+                                    <i class="fas fa-users"></i> All Registered Users
+                                </option>
+                                <option value="all_staff">
+                                    <i class="fas fa-user-shield"></i> Staff Members Only
+                                </option>
+                                <option value="all_reviewers">
+                                    <i class="fas fa-user-graduate"></i> All Reviewers
+                                </option>
+                                <option value="all_authors">
+                                    <i class="fas fa-user-edit"></i> All Authors
+                                </option>
+                                <option value="specific">
+                                    <i class="fas fa-at"></i> Specific Email Addresses
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Specific Emails -->
+                        <div class="mb-4" id="specific_emails_div" style="display:none;">
+                            <label for="specific_emails" class="form-label">
+                                <i class="fas fa-envelope text-primary me-1"></i>
+                                Email Addresses
+                            </label>
+                            <textarea class="form-control" id="specific_emails" name="specific_emails" rows="4" 
+                                      placeholder="example1@domain.com, example2@domain.com, example3@domain.com"
+                                      style="font-family: 'Courier New', monospace;"></textarea>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                Enter multiple email addresses separated by commas
+                            </small>
+                        </div>
+
+                        <!-- Send Type -->
+                        <div class="mb-4">
+                            <label for="send_type" class="form-label">
+                                <i class="fas fa-clock text-primary me-1"></i>
+                                Delivery Method *
+                            </label>
+                            <select class="form-select form-select-lg" id="send_type" name="send_type" required onchange="toggleSchedule()">
+                                <option value="immediate">
+                                    <i class="fas fa-bolt"></i> Send Immediately
+                                </option>
+                                <option value="scheduled">
+                                    <i class="fas fa-calendar-alt"></i> Schedule for Later
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Schedule Time -->
+                        <div class="mb-4" id="schedule_div" style="display:none;">
+                            <label for="scheduled_time" class="form-label">
+                                <i class="fas fa-calendar-check text-primary me-1"></i>
+                                Schedule Date & Time
+                            </label>
+                            <input type="datetime-local" class="form-control form-control-lg" id="scheduled_time" name="scheduled_time">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                Email will be automatically sent at the specified time
+                            </small>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="info-box mb-4">
+                            <h6 class="mb-2">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                Important Notes
+                            </h6>
+                            <ul class="mb-0 small ps-3">
+                                <li class="mb-1">Emails are sent using professionally designed templates</li>
+                                <li class="mb-1">Scheduled emails are processed automatically by the system</li>
+                                <li class="mb-1">All email activity is logged and can be tracked</li>
+                                <li class="mb-1">Failed deliveries will be reported in the Email Logs</li>
+                            </ul>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="submit" class="btn btn-send btn-lg text-white" id="submit_btn">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                <span id="submit_text">Send Email Now</span>
+                            </button>
+                            <a href="{% url 'conference:admin_dashboard' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-eye text-primary me-2"></i>
+                        Email Preview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="email-preview mb-3" id="preview_subject_box" style="display:none;">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-heading text-primary me-2 mt-1"></i>
+                            <div class="flex-grow-1">
+                                <small class="text-muted d-block mb-1">Subject Line</small>
+                                <div id="preview_subject" class="fw-bold"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="email-preview" id="preview_body_box">
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-envelope-open-text fa-3x mb-3 opacity-25"></i>
+                            <p class="mb-0">Select a template to preview</p>
+                            <small>Email content will appear here</small>
+                        </div>
+                    </div>
+                    
+                    <div id="preview_content" style="display:none;">
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="fas fa-align-left text-primary me-2 mt-1"></i>
+                            <div class="flex-grow-1">
+                                <small class="text-muted d-block mb-2">Email Body</small>
+                                <div id="preview_body" style="max-height: 400px; overflow-y: auto; font-size: 0.875rem; line-height: 1.6;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleRecipientInput() {
+    const recipientType = document.getElementById('recipient_type').value;
+    const specificDiv = document.getElementById('specific_emails_div');
+    
+    if (recipientType === 'specific') {
+        specificDiv.style.display = 'block';
+        document.getElementById('specific_emails').required = true;
+    } else {
+        specificDiv.style.display = 'none';
+        document.getElementById('specific_emails').required = false;
+    }
+}
+
+function toggleSchedule() {
+    const sendType = document.getElementById('send_type').value;
+    const scheduleDiv = document.getElementById('schedule_div');
+    const submitText = document.getElementById('submit_text');
+    const submitBtn = document.getElementById('submit_btn');
+    
+    if (sendType === 'scheduled') {
+        scheduleDiv.style.display = 'block';
+        document.getElementById('scheduled_time').required = true;
+        submitText.innerHTML = '<i class=\"fas fa-calendar-check me-2\"></i>Schedule Email';
+    } else {
+        scheduleDiv.style.display = 'none';
+        document.getElementById('scheduled_time').required = false;
+        submitText.innerHTML = '<i class=\"fas fa-paper-plane me-2\"></i>Send Email Now';
+    }
+}
+
+function updatePreview() {
+    const select = document.getElementById('template');
+    const option = select.options[select.selectedIndex];
+    const subjectBox = document.getElementById('preview_subject_box');
+    const bodyBox = document.getElementById('preview_body_box');
+    const content = document.getElementById('preview_content');
+    
+    if (option.value) {
+        const subject = option.getAttribute('data-subject');
+        const body = option.getAttribute('data-body');
+        const type = option.getAttribute('data-type');
+        
+        document.getElementById('preview_subject').textContent = subject;
+        document.getElementById('preview_body').innerHTML = body;
+        
+        subjectBox.style.display = 'block';
+        bodyBox.style.display = 'none';
+        content.style.display = 'block';
+    } else {
+        subjectBox.style.display = 'none';
+        bodyBox.style.display = 'block';
+        content.style.display = 'none';
+    }
+}
+
+// Set minimum datetime to current time
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('scheduled_time').min = now.toISOString().slice(0, 16);
+});
+</script>
+{% endblock %}

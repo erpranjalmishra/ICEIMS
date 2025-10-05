@@ -1,0 +1,54 @@
+/* Custom Admin Styles for Conference Track Management */
+
+.field-topic_preview ul {
+    margin: 10px 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.field-topic_preview li {
+    margin: 5px 0;
+    color: #333;
+}
+
+.field-topic_preview em {
+    color: #666;
+}
+
+/* Track admin enhancements */
+.track-admin-help {
+    background: #f0f0f0;
+    padding: 10px;
+    border-left: 4px solid #a0352f;
+    margin: 10px 0;
+}
+
+/* Color picker field styling */
+input[type="color"] {
+    width: 100px;
+    height: 40px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+/* Better textarea for description */
+textarea#id_description {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Admin list display enhancements */
+.field-is_active_display {
+    font-weight: bold;
+}
+
+/* Topic count badge */
+.field-topic_count {
+    background: #a0352f;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    display: inline-block;
+}

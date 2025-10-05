@@ -7,11 +7,14 @@ urlpatterns = [
     # Main Conference Pages
     path('', views.home, name='home'),
     path('about/', views.about, name='about'),
+    path('university/', views.university, name='university'),
+    path('sitemap/', views.sitemap, name='sitemap'),
     path('tracks/', views.tracks, name='tracks'),
     path('committee/members/', views.committee, name='committee'),
     path('committee/speakers/', views.keynotes, name='keynotes'),
     path('speakers/', views.keynotes, name='speakers'),
     path('attractions/', views.attractions, name='attractions'),
+    path('attractions/<slug:slug>/', views.attraction_detail, name='attraction_detail'),
     path('contact/', views.contact, name='contact'),
     path('guidelines/', views.guidelines, name='guidelines'),
     path('registration/', views.registration, name='registration'),
@@ -22,6 +25,13 @@ urlpatterns = [
     path('schedule/', views.schedule, name='schedule'),
     path('awards/', views.awards, name='awards'),
     path('sponsors/', views.sponsors, name='sponsors'),
+    path('faq/', views.faq_page, name='faq'),
+    
+    # FAQ AJAX endpoints
+    path('faq/ask-ai/', views.faq_ask_ai, name='faq_ask_ai'),
+    path('faq/<int:faq_id>/helpful/', views.faq_mark_helpful, name='faq_mark_helpful'),
+    path('faq/<int:faq_id>/not-helpful/', views.faq_mark_not_helpful, name='faq_mark_not_helpful'),
+    path('faq/conversation/<int:conversation_id>/feedback/', views.faq_conversation_feedback, name='faq_conversation_feedback'),
     
     # Hidden test page - not linked in navigation
     path('secret-animations-test/', views.animations_test, name='animations_test'),
@@ -64,6 +74,7 @@ urlpatterns = [
     
     # Admin Dashboard
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-panel/sitemap/', views.admin_sitemap, name='admin_sitemap'),
     
     # Maintenance Mode Management URLs (Admin/Staff only)
     path('admin-panel/maintenance/', views.maintenance_list, name='maintenance_list'),
@@ -73,6 +84,7 @@ urlpatterns = [
     # Notice Management URLs (Admin/Staff only)
     path('admin-panel/notices/', views.notice_list, name='notice_list'),
     path('admin-panel/notices/create/', views.notice_create, name='notice_create'),
+    path('admin-panel/notices/<int:pk>/edit/', views.notice_edit, name='notice_edit'),
     path('admin-panel/notices/<int:pk>/toggle/', views.notice_toggle, name='notice_toggle'),
     path('admin-panel/notices/<int:pk>/delete/', views.notice_delete, name='notice_delete'),
     
@@ -110,6 +122,29 @@ urlpatterns = [
     path('admin-panel/committee/<int:pk>/delete/', views.committee_delete, name='committee_delete'),
     path('admin-panel/committee/reorder/', views.committee_reorder, name='committee_reorder'),
     
+    # Track Management URLs (Admin/Staff only)
+    path('admin-panel/tracks/', views.track_list, name='track_list'),
+    path('admin-panel/tracks/create/', views.track_create, name='track_create'),
+    path('admin-panel/tracks/<int:pk>/edit/', views.track_edit, name='track_edit'),
+    path('admin-panel/tracks/<int:pk>/delete/', views.track_delete, name='track_delete'),
+    path('admin-panel/tracks/<int:pk>/toggle/', views.track_toggle, name='track_toggle'),
+    path('admin-panel/tracks/bulk-action/', views.track_bulk_action, name='track_bulk_action'),
+    
+    # Tourist Attraction Management URLs (Admin/Staff only)
+    path('admin-panel/attractions/', views.attraction_list, name='attraction_list'),
+    path('admin-panel/attractions/create/', views.attraction_create, name='attraction_create'),
+    path('admin-panel/attractions/<int:pk>/edit/', views.attraction_edit, name='attraction_edit'),
+    path('admin-panel/attractions/<int:pk>/delete/', views.attraction_delete, name='attraction_delete'),
+    path('admin-panel/attractions/<int:pk>/toggle/', views.attraction_toggle, name='attraction_toggle'),
+    path('admin-panel/attractions/bulk-action/', views.attraction_bulk_action, name='attraction_bulk_action'),
+    
+    # Sponsor Management URLs (Admin/Staff only)
+    path('admin-panel/sponsors/', views.sponsor_list, name='sponsor_list'),
+    path('admin-panel/sponsors/create/', views.sponsor_create, name='sponsor_create'),
+    path('admin-panel/sponsors/<int:pk>/edit/', views.sponsor_edit, name='sponsor_edit'),
+    path('admin-panel/sponsors/<int:pk>/delete/', views.sponsor_delete, name='sponsor_delete'),
+    path('admin-panel/sponsors/bulk-action/', views.sponsor_bulk_action, name='sponsor_bulk_action'),
+    
     # Export URLs (Admin/Staff only)
     path('admin-panel/export/speakers/', views.export_speakers, name='export_speakers'),
     path('admin-panel/export/committee/', views.export_committee, name='export_committee'),
@@ -121,6 +156,26 @@ urlpatterns = [
     path('admin-panel/users/create/', views.user_create, name='user_create'),
     path('admin-panel/users/<int:user_id>/edit/', views.user_edit, name='user_edit'),
     path('admin-panel/users/<int:user_id>/delete/', views.user_delete, name='user_delete'),
+    path('admin-panel/users/fix-staff-status/', views.fix_user_staff_status, name='fix_user_staff_status'),
     path('admin-panel/roles/', views.role_management, name='role_management'),
     path('admin-panel/roles/create/', views.role_create, name='role_create'),
+    
+    # Email Management URLs (Superuser only)
+    path('admin-panel/emails/templates/', views.email_template_list, name='email_template_list'),
+    path('admin-panel/emails/templates/create/', views.email_template_create, name='email_template_create'),
+    path('admin-panel/emails/templates/<int:pk>/edit/', views.email_template_edit, name='email_template_edit'),
+    path('admin-panel/emails/templates/<int:pk>/delete/', views.email_template_delete, name='email_template_delete'),
+    path('admin-panel/emails/templates/<int:pk>/preview/', views.email_template_preview, name='email_template_preview'),
+    path('admin-panel/emails/logs/', views.email_log_list, name='email_log_list'),
+    path('admin-panel/emails/campaigns/', views.email_campaign_list, name='email_campaign_list'),
+    path('admin-panel/emails/campaigns/create/', views.email_campaign_create, name='email_campaign_create'),
+    path('admin-panel/emails/campaigns/<int:pk>/send/', views.email_campaign_send, name='email_campaign_send'),
+    path('admin-panel/emails/security/', views.security_event_list, name='security_event_list'),
+    
+    # Email Sending URLs
+    path('admin-panel/emails/send/', views.send_email, name='send_email'),
+    path('admin-panel/emails/scheduled/', views.scheduled_emails, name='scheduled_emails'),
+    path('admin-panel/emails/scheduled/<int:pk>/send-now/', views.send_scheduled_email_now, name='send_scheduled_email_now'),
+    path('admin-panel/emails/scheduled/<int:pk>/cancel/', views.cancel_scheduled_email, name='cancel_scheduled_email'),
+    path('admin-panel/emails/settings/', views.email_settings, name='email_settings'),
 ]

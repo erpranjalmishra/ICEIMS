@@ -212,6 +212,11 @@
                 <p class="mb-0">Manage admin users, roles, and permissions</p>
             </div>
             <div class="col-md-4 text-end">
+                {% if request.user.is_superuser %}
+                <a href="{% url 'conference:fix_user_staff_status' %}" class="btn btn-warning me-2" title="Fix staff status for users who can't login to Django admin">
+                    <i class="fas fa-user-cog"></i> Fix Staff Status
+                </a>
+                {% endif %}
                 <a href="{% url 'conference:user_create' %}" class="btn btn-light">
                     <i class="fas fa-user-plus"></i> Create User
                 </a>

@@ -6,6 +6,59 @@ from django.utils import timezone
 from PIL import Image
 import os
 
+class HierarchyLevel(models.Model):
+    """Customizable hierarchy level names for committee organization"""
+    level_number = models.IntegerField(unique=True, help_text="Level number (e.g., 1, 2, 3, etc.) - Lower numbers appear first")
+    level_name = models.CharField(max_length=200, help_text="Custom name for this level (e.g., 'Chief Patron', 'Patrons', 'Advisory Board', etc.)")
+    description = models.TextField(blank=True, help_text="Optional description of this level")
+    is_active = models.BooleanField(default=True, help_text="Whether this level is displayed on the website")
+    
+    class Meta:
+        ordering = ['level_number']
+        verbose_name = "Hierarchy Level"
+        verbose_name_plural = "Hierarchy Levels"
+    
+    def __str__(self):
+        return f"Level {self.level_number}: {self.level_name}"
+    
+    @classmethod
+    def get_level_choices(cls):
+        """Get all active hierarchy levels as choices for CommitteeMember"""
+        levels = cls.objects.filter(is_active=True).order_by('level_number')
+        if levels.exists():
+            return [(level.level_number, f"Level {level.level_number} - {level.level_name}") for level in levels]
+        # Fallback to default if no custom levels exist
+        return [
+            (1, 'Level 1 - Chief Patron'),
+            (2, 'Level 2 - Patrons'),
+            (3, 'Level 3 - Conference Chairs'),
+            (4, 'Level 4 - Program Chairs'),
+            (5, 'Level 5 - Technical Chairs'),
+            (6, 'Level 6 - Organizing Committee'),
+            (7, 'Level 7 - Other Chairs'),
+            (8, 'Level 8 - Committee Members'),
+        ]
+    
+    @classmethod
+    def get_level_name(cls, level_number):
+        """Get the custom name for a specific level number"""
+        try:
+            level = cls.objects.get(level_number=level_number, is_active=True)
+            return level.level_name
+        except cls.DoesNotExist:
+            # Fallback to default names
+            default_names = {
+                1: 'Chief Patron',
+                2: 'Patrons',
+                3: 'Conference Chairs',
+                4: 'Program Chairs',
+                5: 'Technical Chairs',
+                6: 'Organizing Committee',
+                7: 'Other Chairs',
+                8: 'Committee Members',
+            }
+            return default_names.get(level_number, f'Level {level_number}')
+
 class CommitteeMember(models.Model):
     ROLE_CHOICES = [
         ('chief_patron', 'Chief Patron'),
@@ -42,7 +95,7 @@ class CommitteeMember(models.Model):
     image = models.ImageField(upload_to='committee/', blank=True, null=True)
     order = models.IntegerField(default=0, help_text="Display order within the same role/level")
     role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='member', help_text="Committee role/position")
-    hierarchy_level = models.IntegerField(choices=HIERARCHY_LEVELS, default=8, help_text="Hierarchical level for organization")
+    hierarchy_level = models.IntegerField(default=8, help_text="Hierarchical level for organization (managed in Hierarchy Levels)")
     email = models.EmailField(blank=True, help_text="Contact email")
     phone = models.CharField(max_length=20, blank=True, help_text="Contact phone")
     bio = models.TextField(blank=True, help_text="Short biography")
@@ -53,6 +106,10 @@ class CommitteeMember(models.Model):
         
     def __str__(self):
         return f"{self.name} - {self.get_role_display()}"
+    
+    def get_hierarchy_level_name(self):
+        """Get the custom hierarchy level name"""
+        return HierarchyLevel.get_level_name(self.hierarchy_level)
     
     def get_role_css_class(self):
         """Return CSS class based on role for styling"""
@@ -81,31 +138,78 @@ class ConferenceTrack(models.Model):
         ('special', 'Special Session/Track'),
     ]
     
-    track_number = models.IntegerField()
-    title = models.CharField(max_length=500)
-    description = models.TextField(blank=True)
+    track_number = models.IntegerField(help_text="Track number for ordering")
+    title = models.CharField(max_length=500, help_text="Track title/name")
+    description = models.TextField(blank=True, help_text="Track topics - one per line")
     track_type = models.CharField(max_length=20, choices=TRACK_TYPES, default='regular')
-    track_chair = models.CharField(max_length=200, blank=True)
-    image = models.ImageField(upload_to='tracks/', blank=True, null=True)
+    track_chair = models.CharField(max_length=200, blank=True, help_text="Track chair name(s)")
+    image = models.ImageField(upload_to='tracks/', blank=True, null=True, help_text="Track image/icon")
+    
+    # New fields for better management
+    is_active = models.BooleanField(default=True, help_text="Display on website")
+    display_order = models.IntegerField(default=0, help_text="Custom display order (overrides track_number)")
+    color = models.CharField(max_length=7, default='#a0352f', help_text="Display color (hex code)")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['track_number']
+        ordering = ['display_order', 'track_number']
     
     def __str__(self):
         return f"Track {self.track_number}: {self.title}"
+    
+    def get_topics_list(self):
+        """Get list of topics from description"""
+        return [line.strip() for line in self.description.splitlines() if line.strip()]
+    
+    def topic_count(self):
+        """Count the number of topics"""
+        return len(self.get_topics_list())
 
 class TouristAttraction(models.Model):
+    CATEGORY_CHOICES = [
+        ('historic', 'Historic'),
+        ('memorial', 'Memorial'),
+        ('spiritual', 'Spiritual'),
+        ('temple', 'Temple'),
+        ('unesco', 'UNESCO Site'),
+        ('entertainment', 'Entertainment'),
+        ('shopping', 'Shopping'),
+        ('wonder', 'Wonder of World'),
+        ('garden', 'Garden'),
+        ('market', 'Market'),
+    ]
+    
     name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=250, unique=True, blank=True)
     description = models.TextField()
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='historic')
     image = models.ImageField(upload_to='attractions/', blank=True, null=True)
-    location_url = models.URLField(blank=True)
+    image_url = models.URLField(blank=True, help_text="External image URL (used if no image uploaded)")
+    location_url = models.URLField(blank=True, help_text="Google Maps URL")
+    map_embed = models.TextField(blank=True, help_text="Google Maps embed iframe code")
+    guide_link = models.URLField(blank=True, help_text="Link to detailed guide/blog page")
+    distance = models.CharField(max_length=50, blank=True, help_text="Distance from KIET (e.g., '45 km')")
+    time_required = models.CharField(max_length=50, blank=True, help_text="Time required to visit (e.g., '2-3 hours')")
+    rating = models.DecimalField(max_digits=2, decimal_places=1, default=4.5, help_text="Rating out of 5")
+    is_featured = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['order']
+        ordering = ['order', 'name']
+        verbose_name = "Tourist Attraction"
+        verbose_name_plural = "Tourist Attractions"
     
     def __str__(self):
         return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
 class ImportantDate(models.Model):
     event = models.CharField(max_length=200)
@@ -147,16 +251,79 @@ class ConferenceSettings(models.Model):
         return self.site_title
 
 class Sponsor(models.Model):
+    PARTNERSHIP_TYPES = [
+        ('sponsorship', 'Sponsorship'),
+        ('partnership', 'Partnership'),
+    ]
+    
+    SPONSORSHIP_TIERS = [
+        ('', 'None (Not Applicable)'),
+        ('platinum', 'Platinum Sponsor'),
+        ('gold', 'Gold Sponsor'),
+        ('silver', 'Silver Sponsor'),
+        ('bronze', 'Bronze Sponsor'),
+    ]
+    
+    PARTNER_TYPES = [
+        ('', 'None (Not Applicable)'),
+        ('academic', 'Academic Partner'),
+        ('technology', 'Technology Partner'),
+        ('media', 'Media Partner'),
+        ('industry', 'Industry Partner'),
+        ('institutional', 'Institutional Partner'),
+    ]
+    
     name = models.CharField(max_length=200)
     logo = models.ImageField(upload_to='sponsors/')
     website = models.URLField(blank=True)
-    order = models.IntegerField(default=0)
+    
+    # New fields for partnership type
+    partnership_type = models.CharField(
+        max_length=20, 
+        choices=PARTNERSHIP_TYPES, 
+        default='sponsorship',
+        help_text="Select whether this is a sponsorship or partnership"
+    )
+    
+    # Sponsorship tier (only applicable when partnership_type is 'sponsorship')
+    sponsorship_tier = models.CharField(
+        max_length=20, 
+        choices=SPONSORSHIP_TIERS, 
+        blank=True,
+        default='',
+        help_text="Select sponsorship tier (only for sponsors)"
+    )
+    
+    # Partner type (only applicable when partnership_type is 'partnership')
+    partner_type = models.CharField(
+        max_length=20, 
+        choices=PARTNER_TYPES, 
+        blank=True,
+        default='',
+        help_text="Select partner type (only for partners)"
+    )
+    
+    description = models.TextField(blank=True, help_text="Brief description of the sponsor/partner")
+    order = models.IntegerField(default=0, help_text="Display order within the same tier/type")
+    is_active = models.BooleanField(default=True, help_text="Display on website")
     
     class Meta:
-        ordering = ['order']
+        ordering = ['partnership_type', 'sponsorship_tier', 'partner_type', 'order']
     
     def __str__(self):
+        if self.partnership_type == 'sponsorship' and self.sponsorship_tier:
+            return f"{self.name} ({self.get_sponsorship_tier_display()})"
+        elif self.partnership_type == 'partnership' and self.partner_type:
+            return f"{self.name} ({self.get_partner_type_display()})"
         return self.name
+    
+    def get_display_category(self):
+        """Get the display category for grouping"""
+        if self.partnership_type == 'sponsorship':
+            return self.get_sponsorship_tier_display() if self.sponsorship_tier else 'Sponsor'
+        elif self.partnership_type == 'partnership':
+            return self.get_partner_type_display() if self.partner_type else 'Partner'
+        return 'Other'
 
 # Blog Post Models
 class Category(models.Model):
@@ -346,6 +513,8 @@ class Notice(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     notice_type = models.CharField(max_length=20, choices=NOTICE_TYPES, default='info')
+    link_url = models.URLField(blank=True, help_text="Optional link URL for 'Read More' or 'Learn More' button")
+    link_text = models.CharField(max_length=100, blank=True, default="Read More", help_text="Text for the link button")
     is_active = models.BooleanField(default=True)
     is_urgent = models.BooleanField(default=False, help_text="Urgent notices appear at the top")
     start_date = models.DateTimeField(default=timezone.now)
@@ -705,6 +874,8 @@ class AdminRole(models.Model):
     can_manage_committee = models.BooleanField(default=False)
     can_manage_notices = models.BooleanField(default=False)
     can_manage_timeline = models.BooleanField(default=False)
+    can_manage_tracks = models.BooleanField(default=False, help_text="Permission to manage conference tracks")
+    can_manage_attractions = models.BooleanField(default=False, help_text="Permission to manage tourist attractions")
     can_export_data = models.BooleanField(default=False)
     can_view_logs = models.BooleanField(default=False)
     
@@ -726,10 +897,10 @@ class UserProfile(models.Model):
     admin_role = models.ForeignKey(AdminRole, on_delete=models.SET_NULL, null=True, blank=True)
     
     # Additional profile information
-    phone = models.CharField(max_length=20, blank=True)
-    department = models.CharField(max_length=100, blank=True)
-    position = models.CharField(max_length=100, blank=True)
-    bio = models.TextField(blank=True)
+    phone = models.CharField(max_length=20, blank=True, default='')
+    department = models.CharField(max_length=100, blank=True, default='')
+    position = models.CharField(max_length=100, blank=True, default='')
+    bio = models.TextField(blank=True, default='')
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     
     # Access control
@@ -778,3 +949,1071 @@ class UserSession(models.Model):
     
     class Meta:
         ordering = ['-last_activity']
+
+
+class EmailTemplate(models.Model):
+    """Email templates for automated emails"""
+    TEMPLATE_TYPES = [
+        ('welcome', 'Welcome Email'),
+        ('login_notification', 'Login Notification'),
+        ('security_alert', 'Security Alert'),
+        ('password_reset', 'Password Reset'),
+        ('otp_verification', 'OTP Verification'),
+        ('account_created', 'Account Created'),
+        ('role_assigned', 'Role Assigned'),
+        ('permission_changed', 'Permission Changed'),
+        ('data_export', 'Data Export Notification'),
+        ('custom', 'Custom Email'),
+    ]
+    
+    name = models.CharField(max_length=200, unique=True)
+    template_type = models.CharField(max_length=50, choices=TEMPLATE_TYPES)
+    subject = models.CharField(max_length=300)
+    body_html = models.TextField(help_text="HTML content with template variables")
+    body_text = models.TextField(help_text="Plain text fallback", blank=True)
+    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # Template variables help text
+    variables_help = models.TextField(
+        default="Available variables: {{user_name}}, {{email}}, {{site_name}}, {{login_time}}, {{ip_address}}, {{action}}",
+        help_text="List of available template variables"
+    )
+    
+    def __str__(self):
+        return f"{self.name} ({self.get_template_type_display()})"
+    
+    class Meta:
+        ordering = ['template_type', 'name']
+
+
+class EmailLog(models.Model):
+    """Log all sent emails for tracking and debugging"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('sent', 'Sent'),
+        ('failed', 'Failed'),
+        ('bounced', 'Bounced'),
+    ]
+    
+    recipient = models.EmailField()
+    recipient_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    subject = models.CharField(max_length=300)
+    body = models.TextField()
+    template = models.ForeignKey(EmailTemplate, on_delete=models.SET_NULL, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    error_message = models.TextField(blank=True)
+    
+    # Tracking
+    sent_at = models.DateTimeField(null=True, blank=True)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    clicked_at = models.DateTimeField(null=True, blank=True)
+    
+    # Metadata
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.recipient} - {self.subject} ({self.status})"
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['recipient']),
+            models.Index(fields=['status']),
+            models.Index(fields=['-created_at']),
+        ]
+
+
+class OTPVerification(models.Model):
+    """OTP verification for secure login"""
+    OTP_PURPOSES = [
+        ('login', 'Login Verification'),
+        ('password_reset', 'Password Reset'),
+        ('email_change', 'Email Change'),
+        ('sensitive_action', 'Sensitive Action'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otp_codes')
+    otp_code = models.CharField(max_length=10)
+    purpose = models.CharField(max_length=50, choices=OTP_PURPOSES, default='login')
+    is_verified = models.BooleanField(default=False)
+    is_used = models.BooleanField(default=False)
+    
+    # Security
+    attempts = models.IntegerField(default=0)
+    max_attempts = models.IntegerField(default=3)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    
+    # Timing
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    verified_at = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.purpose} - {self.otp_code}"
+    
+    def is_valid(self):
+        """Check if OTP is still valid"""
+        if self.is_used or self.is_verified:
+            return False
+        if timezone.now() > self.expires_at:
+            return False
+        if self.attempts >= self.max_attempts:
+            return False
+        return True
+    
+    def verify(self, code):
+        """Verify OTP code"""
+        self.attempts += 1
+        if self.otp_code == code and self.is_valid():
+            self.is_verified = True
+            self.is_used = True
+            self.verified_at = timezone.now()
+            self.save()
+            return True
+        self.save()
+        return False
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'is_verified']),
+            models.Index(fields=['expires_at']),
+        ]
+
+
+class SecurityEvent(models.Model):
+    """Log security-related events"""
+    EVENT_TYPES = [
+        ('login', 'User Login'),
+        ('login_failed', 'Failed Login Attempt'),
+        ('logout', 'User Logout'),
+        ('password_change', 'Password Changed'),
+        ('email_change', 'Email Changed'),
+        ('role_change', 'Role Changed'),
+        ('permission_change', 'Permission Changed'),
+        ('account_locked', 'Account Locked'),
+        ('account_unlocked', 'Account Unlocked'),
+        ('otp_sent', 'OTP Sent'),
+        ('otp_verified', 'OTP Verified'),
+        ('otp_failed', 'OTP Failed'),
+        ('data_export', 'Data Exported'),
+        ('suspicious_activity', 'Suspicious Activity'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='security_events')
+    event_type = models.CharField(max_length=50, choices=EVENT_TYPES)
+    description = models.TextField()
+    
+    # Context
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.TextField(blank=True)
+    location = models.CharField(max_length=200, blank=True, help_text="Geo-location if available")
+    
+    # Notification
+    email_sent = models.BooleanField(default=False)
+    email_sent_at = models.DateTimeField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.get_event_type_display()} - {self.created_at}"
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['event_type']),
+        ]
+
+
+class EmailCampaign(models.Model):
+    """Email campaigns for bulk sending"""
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('scheduled', 'Scheduled'),
+        ('sending', 'Sending'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    name = models.CharField(max_length=200)
+    subject = models.CharField(max_length=300)
+    body_html = models.TextField()
+    body_text = models.TextField(blank=True)
+    
+    # Recipients
+    recipient_filter = models.CharField(
+        max_length=50,
+        choices=[
+            ('all_users', 'All Users'),
+            ('admin_users', 'Admin Users'),
+            ('subscribers', 'Newsletter Subscribers'),
+            ('custom', 'Custom List'),
+        ],
+        default='all_users'
+    )
+    custom_recipients = models.TextField(blank=True, help_text="Email addresses, one per line")
+    
+    # Scheduling
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    scheduled_at = models.DateTimeField(null=True, blank=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    # Statistics
+    total_recipients = models.IntegerField(default=0)
+    sent_count = models.IntegerField(default=0)
+    failed_count = models.IntegerField(default=0)
+    opened_count = models.IntegerField(default=0)
+    clicked_count = models.IntegerField(default=0)
+    
+    # Management
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.name} ({self.get_status_display()})"
+
+    class Meta:
+        ordering = ['-created_at']
+
+
+class ScheduledEmail(models.Model):
+    """Scheduled emails to be sent at a specific time"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('sent', 'Sent'),
+        ('failed', 'Failed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    RECIPIENT_TYPES = [
+        ('all_users', 'All Users'),
+        ('all_staff', 'All Staff'),
+        ('all_reviewers', 'All Reviewers'),
+        ('all_authors', 'All Authors'),
+        ('specific', 'Specific Emails'),
+        ('user_group', 'User Group'),
+    ]
+    
+    template = models.ForeignKey(EmailTemplate, on_delete=models.CASCADE, related_name='scheduled_sends')
+    recipient_type = models.CharField(max_length=50, choices=RECIPIENT_TYPES)
+    recipient_emails = models.TextField(blank=True, help_text="Comma-separated email addresses for specific recipients")
+    recipient_count = models.IntegerField(default=0)
+    
+    scheduled_time = models.DateTimeField()
+    sent_time = models.DateTimeField(null=True, blank=True)
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    error_message = models.TextField(blank=True)
+    
+    emails_sent = models.IntegerField(default=0)
+    emails_failed = models.IntegerField(default=0)
+    
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.template.name} - Scheduled for {self.scheduled_time}"
+    
+    class Meta:
+        ordering = ['scheduled_time']
+        verbose_name = 'Scheduled Email'
+        verbose_name_plural = 'Scheduled Emails'
+
+
+class UniversityInfo(models.Model):
+    """University information for About Galgotias University section"""
+    # Basic Information
+    name = models.CharField(max_length=200, default="Galgotias University")
+    tagline = models.CharField(max_length=500, blank=True, help_text="University tagline/motto")
+    
+    # Main Content
+    about_text = models.TextField(help_text="Main about text for homepage")
+    full_description = models.TextField(help_text="Detailed description for dedicated page")
+    
+    # Statistics
+    student_count = models.CharField(max_length=20, default="30K+", help_text="e.g., 30K+")
+    school_count = models.CharField(max_length=20, default="20", help_text="Number of schools")
+    program_count = models.CharField(max_length=20, default="200+", help_text="Number of programs")
+    faculty_count = models.CharField(max_length=20, blank=True, help_text="Number of faculty members")
+    campus_area = models.CharField(max_length=50, blank=True, help_text="e.g., '52 acres'")
+    established_year = models.CharField(max_length=4, default="2011", help_text="Year established")
+    
+    # Location
+    address = models.TextField(blank=True)
+    city = models.CharField(max_length=100, default="Greater Noida")
+    state = models.CharField(max_length=100, default="Uttar Pradesh")
+    country = models.CharField(max_length=100, default="India")
+    pincode = models.CharField(max_length=10, blank=True)
+    
+    # Contact
+    phone = models.CharField(max_length=50, blank=True)
+    email = models.EmailField(blank=True)
+    website = models.URLField(blank=True)
+    
+    # Social Media
+    facebook_url = models.URLField(blank=True)
+    twitter_url = models.URLField(blank=True)
+    linkedin_url = models.URLField(blank=True)
+    instagram_url = models.URLField(blank=True)
+    youtube_url = models.URLField(blank=True)
+    
+    # Features & Highlights
+    key_features = models.TextField(
+        blank=True, 
+        help_text="Key features, one per line. These will be displayed as bullet points."
+    )
+    accreditations = models.TextField(
+        blank=True,
+        help_text="Accreditations and rankings, one per line"
+    )
+    
+    # SEO
+    meta_description = models.CharField(max_length=160, blank=True)
+    meta_keywords = models.CharField(max_length=200, blank=True)
+    
+    # Settings
+    is_active = models.BooleanField(default=True, help_text="Only one record should be active")
+    show_on_homepage = models.BooleanField(default=True)
+    show_stats = models.BooleanField(default=True, help_text="Show statistics on homepage")
+    
+    # Management
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "University Information"
+        verbose_name_plural = "University Information"
+        ordering = ['-is_active', '-updated_at']
+    
+    def __str__(self):
+        return f"{self.name} - {'Active' if self.is_active else 'Inactive'}"
+    
+    def get_features_list(self):
+        """Get list of key features"""
+        return [feature.strip() for feature in self.key_features.splitlines() if feature.strip()]
+    
+    def get_accreditations_list(self):
+        """Get list of accreditations"""
+        return [acc.strip() for acc in self.accreditations.splitlines() if acc.strip()]
+    
+    def get_social_links(self):
+        """Get dictionary of social media links"""
+        links = {}
+        if self.facebook_url:
+            links['facebook'] = self.facebook_url
+        if self.twitter_url:
+            links['twitter'] = self.twitter_url
+        if self.linkedin_url:
+            links['linkedin'] = self.linkedin_url
+        if self.instagram_url:
+            links['instagram'] = self.instagram_url
+        if self.youtube_url:
+            links['youtube'] = self.youtube_url
+        return links
+    
+    def save(self, *args, **kwargs):
+        # Ensure only one active instance
+        if self.is_active:
+            UniversityInfo.objects.filter(is_active=True).exclude(pk=self.pk).update(is_active=False)
+        super().save(*args, **kwargs)
+
+
+class UniversityGallery(models.Model):
+    """Gallery images for Galgotias University"""
+    CATEGORY_CHOICES = [
+        ('campus', 'Campus'),
+        ('facilities', 'Facilities'),
+        ('labs', 'Laboratories'),
+        ('library', 'Library'),
+        ('hostel', 'Hostel'),
+        ('sports', 'Sports & Recreation'),
+        ('events', 'Events'),
+        ('classrooms', 'Classrooms'),
+        ('auditorium', 'Auditorium'),
+        ('infrastructure', 'Infrastructure'),
+        ('student_life', 'Student Life'),
+        ('other', 'Other'),
+    ]
+    
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='university/gallery/')
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='campus')
+    
+    # Display Settings
+    is_featured = models.BooleanField(default=False, help_text="Show in homepage slider")
+    is_active = models.BooleanField(default=True)
+    display_order = models.IntegerField(default=0, help_text="Lower numbers appear first")
+    
+    # Additional Info
+    photographer = models.CharField(max_length=100, blank=True)
+    photo_date = models.DateField(null=True, blank=True, help_text="When photo was taken")
+    
+    # Management
+    uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "University Gallery Image"
+        verbose_name_plural = "University Gallery Images"
+        ordering = ['category', 'display_order', '-created_at']
+    
+    def __str__(self):
+        return f"{self.title} ({self.get_category_display()})"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        
+        # Resize image if too large
+        if self.image:
+            img_path = self.image.path
+            if os.path.exists(img_path):
+                with Image.open(img_path) as img:
+                    # Resize if larger than 1920x1080
+                    if img.height > 1080 or img.width > 1920:
+                        img.thumbnail((1920, 1080), Image.Resampling.LANCZOS)
+                        img.save(img_path, optimize=True, quality=85)
+
+
+class FAQCategory(models.Model):
+    """FAQ categories for organization"""
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True, blank=True)
+    description = models.TextField(blank=True)
+    icon = models.CharField(max_length=50, default='fas fa-question-circle', help_text='FontAwesome icon class')
+    display_order = models.IntegerField(default=0, help_text='Lower numbers appear first')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'FAQ Category'
+        verbose_name_plural = 'FAQ Categories'
+        ordering = ['display_order', 'name']
+    
+    def __str__(self):
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+
+class FAQ(models.Model):
+    """Frequently Asked Questions with AI-powered answers"""
+    PRIORITY_CHOICES = [
+        ('low', 'Low Priority'),
+        ('medium', 'Medium Priority'),
+        ('high', 'High Priority'),
+        ('critical', 'Critical/Important'),
+    ]
+    
+    category = models.ForeignKey(FAQCategory, on_delete=models.CASCADE, related_name='faqs', null=True, blank=True)
+    question = models.TextField(help_text='The FAQ question')
+    answer = models.TextField(help_text='The FAQ answer')
+    
+    # AI Enhancement
+    ai_enhanced = models.BooleanField(default=False, help_text='Was this answer enhanced by AI?')
+    ai_response = models.TextField(blank=True, help_text='AI-generated response (if applicable)')
+    
+    # Metadata
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
+    views = models.PositiveIntegerField(default=0, help_text='Number of times viewed')
+    helpful_count = models.PositiveIntegerField(default=0, help_text='Number of helpful votes')
+    not_helpful_count = models.PositiveIntegerField(default=0, help_text='Number of not helpful votes')
+    
+    # Display Settings
+    is_published = models.BooleanField(default=True, help_text='Show on FAQ page')
+    is_featured = models.BooleanField(default=False, help_text='Show in featured FAQs')
+    display_order = models.IntegerField(default=0, help_text='Lower numbers appear first')
+    
+    # Tags & Keywords
+    tags = models.CharField(max_length=200, blank=True, help_text='Comma-separated tags for search')
+    keywords = models.TextField(blank=True, help_text='Keywords for AI matching')
+    
+    # Management
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_faqs')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'FAQ'
+        verbose_name_plural = 'FAQs'
+        ordering = ['-priority', 'display_order', '-created_at']
+        indexes = [
+            models.Index(fields=['is_published', '-created_at']),
+            models.Index(fields=['category', 'is_published']),
+        ]
+    
+    def __str__(self):
+        return self.question[:100]
+    
+    def increment_views(self):
+        """Increment view count"""
+        self.views += 1
+        self.save(update_fields=['views'])
+    
+    def mark_helpful(self):
+        """Mark as helpful"""
+        self.helpful_count += 1
+        self.save(update_fields=['helpful_count'])
+    
+    def mark_not_helpful(self):
+        """Mark as not helpful"""
+        self.not_helpful_count += 1
+        self.save(update_fields=['not_helpful_count'])
+    
+    def get_tags_list(self):
+        """Get list of tags"""
+        return [tag.strip() for tag in self.tags.split(',') if tag.strip()]
+    
+    @property
+    def helpfulness_ratio(self):
+        """Calculate helpfulness ratio"""
+        total = self.helpful_count + self.not_helpful_count
+        if total == 0:
+            return 0
+        return (self.helpful_count / total) * 100
+
+
+class AIConversation(models.Model):
+    """Store AI conversations for FAQ assistance"""
+    session_id = models.CharField(max_length=100, db_index=True)
+    user_question = models.TextField()
+    ai_response = models.TextField()
+    matched_faq = models.ForeignKey(FAQ, on_delete=models.SET_NULL, null=True, blank=True, related_name='conversations')
+    
+    # Feedback
+    was_helpful = models.BooleanField(null=True, blank=True)
+    feedback_text = models.TextField(blank=True)
+    
+    # Metadata
+    response_time = models.FloatField(default=0, help_text='Response time in seconds')
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'AI Conversation'
+        verbose_name_plural = 'AI Conversations'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['session_id', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user_question[:50]}... ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
+
+
+# =============================================================================
+# GUIDELINES MODELS
+# =============================================================================
+
+class GuidelineCategory(models.Model):
+    """Categories for organizing guidelines"""
+    ICON_CHOICES = [
+        ('fas fa-file-alt', 'Document'),
+        ('fas fa-book', 'Book'),
+        ('fas fa-list-ol', 'List'),
+        ('fas fa-check-circle', 'Check Circle'),
+        ('fas fa-info-circle', 'Info Circle'),
+        ('fas fa-clipboard-check', 'Clipboard Check'),
+        ('fas fa-tasks', 'Tasks'),
+        ('fas fa-file-pdf', 'PDF File'),
+        ('fas fa-code', 'Code'),
+        ('fas fa-image', 'Image'),
+    ]
+    
+    title = models.CharField(max_length=200, help_text='Category name')
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
+    description = models.TextField(blank=True, help_text='Brief description of this category')
+    icon = models.CharField(max_length=50, choices=ICON_CHOICES, default='fas fa-file-alt')
+    color = models.CharField(max_length=7, default='#667eea', help_text='Hex color code for category badge')
+    display_order = models.IntegerField(default=0, help_text='Lower numbers appear first')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Guideline Category'
+        verbose_name_plural = 'Guideline Categories'
+        ordering = ['display_order', 'title']
+    
+    def __str__(self):
+        return self.title
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+
+class Guideline(models.Model):
+    """Individual guidelines with rich content"""
+    CONTENT_TYPE_CHOICES = [
+        ('text', 'Text Content'),
+        ('checklist', 'Checklist'),
+        ('steps', 'Step-by-Step Guide'),
+        ('tips', 'Tips & Best Practices'),
+        ('requirements', 'Requirements'),
+        ('table', 'Table Data'),
+    ]
+    
+    category = models.ForeignKey(GuidelineCategory, on_delete=models.CASCADE, related_name='guidelines', null=True, blank=True)
+    title = models.CharField(max_length=300, help_text='Guideline title')
+    slug = models.SlugField(max_length=300, unique=True, blank=True)
+    
+    # Content
+    short_description = models.TextField(help_text='Brief summary (1-2 sentences)', max_length=500)
+    content = models.TextField(help_text='Main guideline content (supports HTML)')
+    content_type = models.CharField(max_length=20, choices=CONTENT_TYPE_CHOICES, default='text')
+    
+    # Table Data
+    table_data = models.JSONField(blank=True, null=True, help_text='Table data in JSON format')
+    table_file = models.FileField(upload_to='guidelines/tables/', blank=True, null=True, help_text='Excel or CSV file to import as table')
+    table_title = models.CharField(max_length=200, blank=True, help_text='Title for the table')
+    table_has_header = models.BooleanField(default=True, help_text='First row contains headers')
+    
+    # Additional resources
+    additional_info = models.TextField(blank=True, help_text='Extra information, notes, or warnings')
+    downloadable_file = models.FileField(upload_to='guidelines/files/', blank=True, null=True, help_text='PDF, DOCX, or other file')
+    external_link = models.URLField(blank=True, help_text='External resource URL')
+    video_url = models.URLField(blank=True, help_text='YouTube or Vimeo URL')
+    
+    # Display settings
+    is_important = models.BooleanField(default=False, help_text='Highlight as important')
+    is_published = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False, help_text='Show in featured section')
+    display_order = models.IntegerField(default=0)
+    
+    # Metadata
+    views = models.PositiveIntegerField(default=0)
+    helpful_count = models.PositiveIntegerField(default=0)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_guidelines')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Guideline'
+        verbose_name_plural = 'Guidelines'
+        ordering = ['-is_featured', '-is_important', 'display_order', 'title']
+    
+    def __str__(self):
+        return self.title
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+    
+    def increment_views(self):
+        """Increment view count"""
+        self.views += 1
+        self.save(update_fields=['views'])
+    
+    def mark_helpful(self):
+        """Mark as helpful"""
+        self.helpful_count += 1
+        self.save(update_fields=['helpful_count'])
+
+
+class GuidelineChecklist(models.Model):
+    """Checklist items for guidelines"""
+    guideline = models.ForeignKey(Guideline, on_delete=models.CASCADE, related_name='checklist_items')
+    item_text = models.CharField(max_length=500)
+    description = models.TextField(blank=True)
+    is_required = models.BooleanField(default=False, help_text='Mark as required/mandatory')
+    display_order = models.IntegerField(default=0)
+    
+    class Meta:
+        verbose_name = 'Checklist Item'
+        verbose_name_plural = 'Checklist Items'
+        ordering = ['display_order', 'id']
+    
+    def __str__(self):
+        return f"{self.guideline.title} - {self.item_text[:50]}"
+
+
+# =============================================================================
+# AWARDS MODELS
+# =============================================================================
+
+class AwardCategory(models.Model):
+    """Award categories"""
+    CATEGORY_TYPE_CHOICES = [
+        ('paper', 'Best Paper Awards'),
+        ('presentation', 'Best Presentation Awards'),
+        ('poster', 'Best Poster Awards'),
+        ('student', 'Student Awards'),
+        ('research', 'Research Excellence Awards'),
+        ('innovation', 'Innovation Awards'),
+        ('service', 'Service Awards'),
+        ('special', 'Special Recognition'),
+    ]
+    
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
+    category_type = models.CharField(max_length=20, choices=CATEGORY_TYPE_CHOICES, default='paper')
+    description = models.TextField(help_text='Description of this award category')
+    icon = models.CharField(max_length=50, default='fas fa-trophy')
+    color = models.CharField(max_length=7, default='#ffd700', help_text='Hex color for badge/icon')
+    prize_details = models.TextField(blank=True, help_text='Prize money, certificate, etc.')
+    eligibility = models.TextField(blank=True, help_text='Who can apply for this award')
+    
+    # Display settings
+    display_order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    show_on_homepage = models.BooleanField(default=False)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Award Category'
+        verbose_name_plural = 'Award Categories'
+        ordering = ['display_order', 'name']
+    
+    def __str__(self):
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+
+class Award(models.Model):
+    """Individual awards and winners"""
+    STATUS_CHOICES = [
+        ('upcoming', 'Upcoming - Not Yet Awarded'),
+        ('open', 'Open for Nominations'),
+        ('closed', 'Nominations Closed'),
+        ('announced', 'Winner Announced'),
+    ]
+    
+    category = models.ForeignKey(AwardCategory, on_delete=models.CASCADE, related_name='awards')
+    title = models.CharField(max_length=300, help_text='Award title/name')
+    slug = models.SlugField(max_length=300, unique=True, blank=True)
+    description = models.TextField(help_text='Award description and criteria')
+    
+    # Winner information (if announced)
+    winner_name = models.CharField(max_length=300, blank=True)
+    winner_affiliation = models.CharField(max_length=300, blank=True, help_text='University/Organization')
+    winner_photo = models.ImageField(upload_to='awards/winners/', blank=True, null=True)
+    winner_bio = models.TextField(blank=True)
+    winning_work_title = models.CharField(max_length=500, blank=True, help_text='Paper/Project title')
+    winning_work_description = models.TextField(blank=True)
+    
+    # Award details
+    prize_amount = models.CharField(max_length=100, blank=True, help_text='e.g., $500, Certificate + Trophy')
+    sponsored_by = models.CharField(max_length=200, blank=True, help_text='Sponsor name')
+    
+    # Timeline
+    nomination_start = models.DateField(null=True, blank=True)
+    nomination_end = models.DateField(null=True, blank=True)
+    announcement_date = models.DateField(null=True, blank=True)
+    
+    # Status
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='upcoming')
+    is_featured = models.BooleanField(default=False)
+    
+    # Display
+    display_order = models.IntegerField(default=0)
+    year = models.IntegerField(default=2026, help_text='Conference year')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Award'
+        verbose_name_plural = 'Awards'
+        ordering = ['-year', '-is_featured', 'display_order', 'title']
+    
+    def __str__(self):
+        return f"{self.title} ({self.year})"
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(f"{self.title}-{self.year}")
+        super().save(*args, **kwargs)
+    
+    @property
+    def is_nomination_open(self):
+        """Check if nomination period is active"""
+        from django.utils import timezone
+        if not self.nomination_start or not self.nomination_end:
+            return False
+        today = timezone.now().date()
+        return self.nomination_start <= today <= self.nomination_end
+
+
+class AwardCriteria(models.Model):
+    """Evaluation criteria for awards"""
+    award = models.ForeignKey(Award, on_delete=models.CASCADE, related_name='criteria')
+    criterion_name = models.CharField(max_length=200, help_text='e.g., Originality, Impact, Presentation')
+    description = models.TextField(blank=True)
+    weight_percentage = models.IntegerField(default=0, help_text='Weight in evaluation (0-100)')
+    display_order = models.IntegerField(default=0)
+    
+    class Meta:
+        verbose_name = 'Award Criterion'
+        verbose_name_plural = 'Award Criteria'
+        ordering = ['display_order', 'criterion_name']
+    
+    def __str__(self):
+        return f"{self.award.title} - {self.criterion_name}"
+
+
+class PastWinner(models.Model):
+    """Past award winners from previous conferences"""
+    award_name = models.CharField(max_length=300)
+    year = models.IntegerField()
+    winner_name = models.CharField(max_length=300)
+    winner_affiliation = models.CharField(max_length=300, blank=True)
+    winner_photo = models.ImageField(upload_to='awards/past_winners/', blank=True, null=True)
+    work_title = models.CharField(max_length=500, blank=True)
+    work_description = models.TextField(blank=True)
+    
+    display_order = models.IntegerField(default=0)
+    is_featured = models.BooleanField(default=False)
+    
+    class Meta:
+        verbose_name = 'Past Winner'
+        verbose_name_plural = 'Past Winners'
+        ordering = ['-year', 'display_order']
+    
+    def __str__(self):
+        return f"{self.winner_name} - {self.award_name} ({self.year})"
+
+
+# =============================================================================
+# SITE SETTINGS - Logos, Images, Hero Slider Configuration
+# =============================================================================
+
+class SiteSettings(models.Model):
+    """Global site settings for logos, images, and configurations"""
+    
+    # Site Information
+    site_name = models.CharField(max_length=200, default='ICCCA 2026')
+    site_tagline = models.CharField(max_length=500, blank=True, help_text='Tagline shown in header/footer')
+    
+    # Logos
+    main_logo = models.ImageField(upload_to='site/logos/', blank=True, null=True, help_text='Main logo (used in header)')
+    footer_logo = models.ImageField(upload_to='site/logos/', blank=True, null=True, help_text='Footer logo (can be different from main)')
+    favicon = models.ImageField(upload_to='site/logos/', blank=True, null=True, help_text='Browser favicon (16x16 or 32x32 px)')
+    
+    # Contact Information
+    contact_email = models.EmailField(blank=True)
+    contact_phone = models.CharField(max_length=50, blank=True)
+    contact_address = models.TextField(blank=True)
+    
+    # Social Media Links
+    facebook_url = models.URLField(blank=True)
+    twitter_url = models.URLField(blank=True)
+    linkedin_url = models.URLField(blank=True)
+    instagram_url = models.URLField(blank=True)
+    youtube_url = models.URLField(blank=True)
+    
+    # Theme Colors
+    primary_color = models.CharField(max_length=7, default='#a0352f', help_text='Hex color code (e.g., #a0352f)')
+    secondary_color = models.CharField(max_length=7, default='#e56d2d', help_text='Hex color code (e.g., #e56d2d)')
+    
+    # Submit Paper Button
+    submit_paper_url = models.URLField(blank=True, default='#submit-paper', help_text='URL for Submit Paper button (default: #submit-paper)')
+    submit_paper_text = models.CharField(max_length=50, default='Submit Paper', help_text='Text for Submit Paper button')
+    
+    # Meta
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    class Meta:
+        verbose_name = 'Website Control - Site Settings'
+        verbose_name_plural = 'Website Control - Site Settings'
+    
+    def __str__(self):
+        return f"Site Settings - {self.site_name}"
+    
+    def save(self, *args, **kwargs):
+        # Ensure only one instance exists
+        if not self.pk and SiteSettings.objects.exists():
+            # Update existing instance instead of creating new
+            existing = SiteSettings.objects.first()
+            self.pk = existing.pk
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_settings(cls):
+        """Get or create site settings"""
+        settings, created = cls.objects.get_or_create(pk=1)
+        return settings
+
+
+class HeroSlide(models.Model):
+    """Hero slider slides with images or videos"""
+    
+    SLIDE_TYPE_CHOICES = [
+        ('image', 'Image Slide'),
+        ('video', 'Video Slide'),
+    ]
+    
+    title = models.CharField(max_length=200, blank=True, help_text='Slide title (optional overlay text)')
+    subtitle = models.CharField(max_length=500, blank=True, help_text='Subtitle or description')
+    slide_type = models.CharField(max_length=10, choices=SLIDE_TYPE_CHOICES, default='image')
+    
+    # Image Slide
+    image = models.ImageField(upload_to='hero/slides/', blank=True, null=True, help_text='Slide background image')
+    
+    # Video Slide
+    video_file = models.FileField(upload_to='hero/videos/', blank=True, null=True, help_text='Upload video file (MP4, WebM)')
+    video_url = models.URLField(blank=True, help_text='Or use YouTube/Vimeo URL')
+    video_thumbnail = models.ImageField(upload_to='hero/thumbnails/', blank=True, null=True, help_text='Video thumbnail/poster image')
+    
+    # Call to Action
+    cta_text = models.CharField(max_length=100, blank=True, help_text='Button text (e.g., "Register Now")')
+    cta_url = models.CharField(max_length=500, blank=True, help_text='Button link URL')
+    cta_style = models.CharField(max_length=20, default='primary', choices=[
+        ('primary', 'Primary Button'),
+        ('secondary', 'Secondary Button'),
+        ('outline', 'Outline Button'),
+    ])
+    
+    # Display Settings
+    display_order = models.IntegerField(default=0, help_text='Lower numbers appear first')
+    is_active = models.BooleanField(default=True)
+    
+    # Text Overlay Settings
+    text_position = models.CharField(max_length=20, default='center', choices=[
+        ('left', 'Left'),
+        ('center', 'Center'),
+        ('right', 'Right'),
+    ])
+    text_color = models.CharField(max_length=7, default='#ffffff', help_text='Text overlay color (hex)')
+    show_overlay = models.BooleanField(default=True, help_text='Show dark overlay for better text readability')
+    
+    # Meta
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Website Control - Hero Slider'
+        verbose_name_plural = 'Website Control - Hero Sliders'
+        ordering = ['display_order', '-created_at']
+    
+    def __str__(self):
+        return f"{self.title} ({self.get_slide_type_display()})"
+
+
+class SliderSettings(models.Model):
+    """Global slider configuration and controls"""
+    
+    # Slider Controls
+    autoplay = models.BooleanField(default=True, help_text='Auto-advance slides')
+    autoplay_speed = models.IntegerField(default=5000, help_text='Milliseconds between slides (e.g., 5000 = 5 seconds)')
+    transition_speed = models.IntegerField(default=1000, help_text='Transition duration in milliseconds (e.g., 1000 = 1 second)')
+    
+    transition_effect = models.CharField(max_length=20, default='fade', choices=[
+        ('fade', 'Fade'),
+        ('slide', 'Slide'),
+        ('zoom', 'Zoom'),
+        ('slide-fade', 'Slide + Fade'),
+    ])
+    
+    # Navigation
+    show_arrows = models.BooleanField(default=True, help_text='Show prev/next arrows')
+    show_dots = models.BooleanField(default=True, help_text='Show navigation dots')
+    pause_on_hover = models.BooleanField(default=True, help_text='Pause autoplay when hovering')
+    
+    # Mobile Settings
+    autoplay_mobile = models.BooleanField(default=True, help_text='Enable autoplay on mobile devices')
+    show_arrows_mobile = models.BooleanField(default=False, help_text='Show arrows on mobile')
+    
+    # Hero Slider Height
+    slider_height_desktop = models.IntegerField(default=700, help_text='Slider height on desktop (pixels)')
+    slider_height_mobile = models.IntegerField(default=500, help_text='Slider height on mobile (pixels)')
+    
+    # Performance
+    lazy_load = models.BooleanField(default=True, help_text='Lazy load images for better performance')
+    preload_slides = models.IntegerField(default=2, help_text='Number of slides to preload (1-5)')
+    
+    # Meta
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Website Control - Slider Settings'
+        verbose_name_plural = 'Website Control - Slider Settings'
+    
+    def __str__(self):
+        return f"Slider Settings (Speed: {self.autoplay_speed}ms)"
+    
+    def save(self, *args, **kwargs):
+        # Ensure only one instance exists
+        if not self.pk and SliderSettings.objects.exists():
+            existing = SliderSettings.objects.first()
+            self.pk = existing.pk
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_settings(cls):
+        """Get or create slider settings"""
+        settings, created = cls.objects.get_or_create(pk=1)
+        return settings
+
+
+# =============================================================================
+# SIGNALS - Auto-parse tables when Guideline is saved
+# =============================================================================
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+@receiver(post_save, sender=Guideline)
+def auto_parse_guideline_table(sender, instance, created, **kwargs):
+    """Automatically parse table file when a Guideline is saved"""
+    # Only parse if:
+    # 1. Table file exists
+    # 2. Content type is 'table'
+    # 3. Table data is not already populated (to avoid infinite loop)
+    # 4. This is not already a recursive save
+    
+    if hasattr(instance, '_parsing_table'):
+        # Prevent infinite recursion
+        return
+    
+    if instance.table_file and instance.content_type == 'table' and not instance.table_data:
+        try:
+            from conference.utils.table_parser import parse_table_file
+            import os
+            
+            # Mark that we're parsing to prevent recursion
+            instance._parsing_table = True
+            
+            file_path = instance.table_file.path
+            if os.path.exists(file_path):
+                table_data = parse_table_file(file_path, instance.table_has_header)
+                # Update only table_data field to avoid triggering full save
+                Guideline.objects.filter(pk=instance.pk).update(table_data=table_data)
+                # Update the instance in memory
+                instance.table_data = table_data
+                print(f"✅ Auto-parsed table for '{instance.title}': {table_data['total_rows']} rows × {table_data['total_columns']} columns")
+        except Exception as e:
+            print(f"❌ Error auto-parsing table for '{instance.title}': {str(e)}")
+            import traceback
+            traceback.print_exc()
+        finally:
+            # Clean up the flag
+            if hasattr(instance, '_parsing_table'):
+                delattr(instance, '_parsing_table')

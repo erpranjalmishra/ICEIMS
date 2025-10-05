@@ -1,0 +1,12 @@
+{% extends "admin/change_form.html" %}
+
+{% block form_top %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('heroslide_form');
+    if (form) {
+        form.setAttribute('enctype', 'multipart/form-data');
+    }
+});
+</script>
+{% endblock %}

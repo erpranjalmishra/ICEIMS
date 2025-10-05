@@ -123,6 +123,15 @@
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     
+                    <!-- Important Notice -->
+                    <div class="alert alert-info mb-4" style="border-left: 4px solid #0dcaf0;">
+                        <h6 class="alert-heading mb-2"><i class="fas fa-info-circle me-2"></i>User Access Permissions</h6>
+                        <ul class="mb-0" style="font-size: 0.9rem;">
+                            <li><strong>Admin User:</strong> Can access the custom admin dashboard (/admin-panel/)</li>
+                            <li><strong>Staff Status:</strong> Required to login to Django admin panel (/admin/) - <strong>Both checkboxes should be checked for full admin access</strong></li>
+                        </ul>
+                    </div>
+                    
                     <!-- Basic User Information -->
                     <div class="form-section">
                         <h6><i class="fas fa-user me-2"></i>Basic Information</h6>
@@ -188,10 +197,10 @@
                                         </label>
                                     </div>
                                     <div class="form-check mt-2">
-                                        <input class="form-check-input" type="checkbox" id="is_staff" name="is_staff">
+                                        <input class="form-check-input" type="checkbox" id="is_staff" name="is_staff" checked>
                                         <label class="form-check-label" for="is_staff">
                                             <strong>Staff Status</strong>
-                                            <small class="d-block text-muted">Can access Django admin panel</small>
+                                            <small class="d-block text-muted">Required to login to Django admin panel (/admin/)</small>
                                         </label>
                                     </div>
                                 </div>

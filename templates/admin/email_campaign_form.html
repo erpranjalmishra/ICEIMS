@@ -1,0 +1,114 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}{{ form_title }} - ICEIMS Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">{{ form_title }}</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <a href="{% url 'conference:email_campaign_list' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Campaign Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{{ campaign.name|default:'' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="template" class="form-label">Email Template *</label>
+                            <select class="form-select" id="template" name="template" required>
+                                <option value="">-- Select Template --</option>
+                                {% for tmpl in templates %}
+                                <option value="{{ tmpl.id }}" {% if campaign.template.id == tmpl.id %}selected{% endif %}>
+                                    {{ tmpl.name }} ({{ tmpl.get_template_type_display }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="recipient_filter" class="form-label">Recipient Filter</label>
+                            <select class="form-select" id="recipient_filter" name="recipient_filter">
+                                <option value="all" {% if campaign.recipient_filter == 'all' %}selected{% endif %}>All Users</option>
+                                <option value="reviewers" {% if campaign.recipient_filter == 'reviewers' %}selected{% endif %}>Reviewers Only</option>
+                                <option value="authors" {% if campaign.recipient_filter == 'authors' %}selected{% endif %}>Authors Only</option>
+                                <option value="admins" {% if campaign.recipient_filter == 'admins' %}selected{% endif %}>Admins Only</option>
+                                <option value="attendees" {% if campaign.recipient_filter == 'attendees' %}selected{% endif %}>Attendees Only</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="scheduled_for" class="form-label">Schedule Send Time (Optional)</label>
+                            <input type="datetime-local" class="form-control" id="scheduled_for" name="scheduled_for" 
+                                   value="{{ campaign.scheduled_for|date:'Y-m-d\TH:i' }}">
+                            <small class="text-muted">Leave empty to send immediately</small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <strong>Note:</strong> 
+                            <ul class="mb-0">
+                                <li>Emails will be sent based on the selected recipient filter</li>
+                                <li>Campaign status will be tracked in the campaign list</li>
+                                <li>You can preview the template before sending</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Create Campaign
+                            </button>
+                            <a href="{% url 'conference:email_campaign_list' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Campaign Info</h5>
+                </div>
+                <div class="card-body">
+                    <h6>What is a Campaign?</h6>
+                    <p class="small text-muted">
+                        Email campaigns allow you to send emails to multiple recipients at once using a pre-defined template.
+                    </p>
+
+                    <h6 class="mt-3">Recipient Filters:</h6>
+                    <ul class="small text-muted">
+                        <li><strong>All Users:</strong> Send to everyone</li>
+                        <li><strong>Reviewers:</strong> Only paper reviewers</li>
+                        <li><strong>Authors:</strong> Only paper authors</li>
+                        <li><strong>Admins:</strong> Only admin staff</li>
+                        <li><strong>Attendees:</strong> Only registered attendees</li>
+                    </ul>
+
+                    <h6 class="mt-3">Tips:</h6>
+                    <ul class="small text-muted">
+                        <li>Test your template first with a preview</li>
+                        <li>Schedule campaigns for optimal delivery times</li>
+                        <li>Monitor campaign status in the list</li>
+                        <li>Check email logs for delivery confirmation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

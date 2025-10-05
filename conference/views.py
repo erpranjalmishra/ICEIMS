@@ -16,59 +16,103 @@ from .models import (
     CommitteeMember, ConferenceTrack, TouristAttraction, 
     ImportantDate, Slider, ConferenceSettings, Sponsor,
     BlogPost, Category, Tag, Comment, Newsletter,
-    MaintenanceMode, Notice
+    MaintenanceMode, Notice, EmailLog, UniversityInfo, UniversityGallery
 )
 
 def home(request):
-    """Home page view with all conference information"""
+    """Home page view with all conference information - Optimized"""
+    from django.core.cache import cache
+    from .models import HeroSlide
     
-    # Get active notices for home page
-    current_time = timezone.now()
-    notices = Notice.objects.filter(
-        is_active=True,
-        start_date__lte=current_time
-    ).filter(
-        Q(end_date__isnull=True) | Q(end_date__gte=current_time)
-    ).filter(
-        Q(show_on_pages='') | Q(show_on_pages__icontains='home') | Q(show_on_pages__icontains='all')
-    ).order_by('-is_urgent', '-created_at')
+    # Try to get cached data first - updated cache key to force refresh
+    cache_key = 'homepage_data_v3'
+    context = cache.get(cache_key)
     
-    # Get timeline items for home page
-    from .models import Timeline
-    timeline_items = Timeline.objects.filter(
-        is_public=True
-    ).order_by('date')[:6]  # Show first 6 items
-    
-    # Get all data for the homepage
-    context = {
-        # Notices
-        'notices': notices,
+    if context is None:
+        # Get active notices for home page
+        current_time = timezone.now()
+        notices = Notice.objects.filter(
+            is_active=True,
+            start_date__lte=current_time
+        ).filter(
+            Q(end_date__isnull=True) | Q(end_date__gte=current_time)
+        ).filter(
+            Q(show_on_pages='') | Q(show_on_pages__icontains='home') | Q(show_on_pages__icontains='all')
+        ).order_by('-is_urgent', '-created_at')[:5]  # Limit to 5 most recent
         
-        # Timeline items
-        'timeline_items': timeline_items,
+        # Get timeline items for home page
+        from .models import Timeline
+        timeline_items = Timeline.objects.filter(
+            is_public=True
+        ).order_by('date')[:6]  # Show first 6 items
         
-        # Slider images
-        'slider_images': Slider.objects.filter(is_active=True),
+        # Get hero slides (new website control feature)
+        hero_slides = HeroSlide.objects.filter(is_active=True).order_by('display_order')
         
-        # Committee members
-        'committee_members': CommitteeMember.objects.all(),
+        # Get all data for the homepage with optimized queries
+        context = {
+            # Notices
+            'notices': list(notices),  # Convert to list for caching
+            
+            # Timeline items
+            'timeline_items': list(timeline_items),
+            
+            # Hero Slides (new)
+            'hero_slides': list(hero_slides) if hero_slides.exists() else None,
+            
+            # Slider images (fallback if no hero slides)
+            'slider_images': list(Slider.objects.filter(is_active=True).only('id', 'title', 'image', 'order')),
+            
+            # Committee members - only fetch what's needed
+            'committee_members': list(CommitteeMember.objects.all().only(
+                'id', 'name', 'role', 'organization', 'image', 'hierarchy_level', 'order'
+            )),
+            
+            # Conference tracks - optimized with only()
+            'conference_tracks': list(ConferenceTrack.objects.filter(
+                is_active=True
+            ).only('id', 'title', 'track_type', 'track_number', 'description').order_by('display_order', 'track_number')),
+            
+            'regular_tracks': list(ConferenceTrack.objects.filter(
+                track_type='regular', is_active=True
+            ).only('id', 'title', 'track_number', 'description').order_by('display_order', 'track_number')),
+            
+            'special_tracks': list(ConferenceTrack.objects.filter(
+                track_type='special', is_active=True
+            ).only('id', 'title', 'track_number', 'description').order_by('display_order', 'track_number')),
+            
+            # Tourist attractions - limit fields
+            'tourist_attractions': list(TouristAttraction.objects.all().only(
+                'id', 'name', 'description', 'image', 'order'
+            )),
+            
+            # Important dates
+            'important_dates': list(ImportantDate.objects.all().only(
+                'id', 'event', 'date', 'description', 'order'
+            )),
+            
+            # Sponsors - only active ones with all fields for tier/description display
+            'sponsors': list(Sponsor.objects.filter(is_active=True).only(
+                'id', 'name', 'logo', 'website', 'order', 'partnership_type', 
+                'sponsorship_tier', 'partner_type', 'description'
+            ).order_by('order')),
+            
+            # University information for About section
+            'university_info': UniversityInfo.objects.filter(is_active=True, show_on_homepage=True).first(),
+            
+            # Featured gallery images for university slider
+            'university_gallery': list(UniversityGallery.objects.filter(
+                is_active=True, is_featured=True
+            ).only('id', 'title', 'description', 'image').order_by('display_order')[:5]),
+            
+            # Conference settings
+            'conference_settings': ConferenceSettings.objects.only(
+                'id', 'site_title', 'conference_dates', 'location'
+            ).first(),
+        }
         
-        # Conference tracks
-        'regular_tracks': ConferenceTrack.objects.filter(track_type='regular'),
-        'special_tracks': ConferenceTrack.objects.filter(track_type='special'),
-        
-        # Tourist attractions
-        'tourist_attractions': TouristAttraction.objects.all(),
-        
-        # Important dates
-        'important_dates': ImportantDate.objects.all(),
-        
-        # Sponsors
-        'sponsors': Sponsor.objects.all(),
-        
-        # Conference settings
-        'conference_settings': ConferenceSettings.objects.first(),
-    }
+        # Cache for 5 minutes (300 seconds)
+        cache.set(cache_key, context, 300)
     
     return render(request, 'home.html', context)
 
@@ -80,8 +124,8 @@ def about(request):
 def tracks(request):
     """Conference tracks page"""
     context = {
-        'regular_tracks': ConferenceTrack.objects.filter(track_type='regular'),
-        'special_tracks': ConferenceTrack.objects.filter(track_type='special'),
+        'regular_tracks': ConferenceTrack.objects.filter(track_type='regular', is_active=True).order_by('display_order', 'track_number'),
+        'special_tracks': ConferenceTrack.objects.filter(track_type='special', is_active=True).order_by('display_order', 'track_number'),
     }
     return render(request, 'tracks.html', context)
 
@@ -92,16 +136,250 @@ def committee(request):
 
 def attractions(request):
     """Tourist attractions page"""
-    attractions = TouristAttraction.objects.all()
+    attractions = TouristAttraction.objects.filter(is_active=True).order_by('order', 'name')
     return render(request, 'attractions.html', {'attractions': attractions})
+
+def attraction_detail(request, slug):
+    """Individual attraction detail page"""
+    # Map of slug to template file
+    attraction_templates = {
+        'red-fort': 'blog/attractions/red-fort.html',
+        'india-gate': 'blog/attractions/india-gate.html',
+        'lotus-temple': 'blog/attractions/lotus-temple.html',
+        'qutub-minar': 'blog/attractions/qutub-minar.html',
+        'akshardham-temple': 'blog/attractions/akshardham-temple.html',
+        'worlds-of-wonder': 'blog/attractions/worlds-of-wonder.html',
+        'great-india-place': 'blog/attractions/great-india-place.html',
+        'taj-mahal': 'blog/attractions/taj-mahal.html',
+        'humayuns-tomb': 'blog/attractions/humayuns-tomb.html',
+        'iskcon-temple': 'blog/attractions/iskcon-temple.html',
+        'chandni-chowk': 'blog/attractions/chandni-chowk.html',
+        'lodhi-gardens': 'blog/attractions/lodhi-gardens.html',
+    }
+    
+    template = attraction_templates.get(slug)
+    if template:
+        return render(request, template)
+    else:
+        # If template doesn't exist, return 404
+        from django.http import Http404
+        raise Http404("Attraction guide not found")
+
+def university(request):
+    """Galgotias University dedicated page with gallery"""
+    # Get active university info
+    university_info = UniversityInfo.objects.filter(is_active=True).first()
+    
+    # If no university info exists, create default
+    if not university_info:
+        university_info = UniversityInfo.objects.create(
+            name="Galgotias University",
+            about_text="The university began operations in the 2011-2012 academic session and welcomed its first batch of students in July 2011. Since then, it has grown exponentially to become one of India's premier educational institutions, nurturing more than 30K+ students from across the globe.",
+            full_description="Galgotias University, established in 2011, is a premier educational institution located in Greater Noida, Uttar Pradesh. The university has rapidly emerged as a leading center for higher education in India, offering a wide range of undergraduate, postgraduate, and doctoral programs across various disciplines including Engineering, Management, Law, and Applied Sciences. With state-of-the-art infrastructure, experienced faculty, and a commitment to excellence, Galgotias University provides a holistic educational experience that prepares students for global careers.",
+            is_active=True
+        )
+    
+    # Get gallery images - all active ones
+    gallery_images = UniversityGallery.objects.filter(is_active=True).order_by('category', 'display_order')
+    
+    # Get featured images for homepage slider
+    featured_images = UniversityGallery.objects.filter(is_active=True, is_featured=True).order_by('display_order')[:5]
+    
+    # Group images by category for the gallery
+    from itertools import groupby
+    gallery_by_category = {}
+    for category, images in groupby(gallery_images, key=lambda x: x.category):
+        gallery_by_category[category] = list(images)
+    
+    context = {
+        'university_info': university_info,
+        'gallery_images': gallery_images,
+        'featured_images': featured_images,
+        'gallery_by_category': gallery_by_category,
+        'categories': UniversityGallery.CATEGORY_CHOICES,
+    }
+    
+    return render(request, 'university.html', context)
+
+def sitemap(request):
+    """Public sitemap page showing all available pages"""
+    from django.urls import reverse
+    
+    # Organize pages by category
+    sitemap_structure = {
+        'main_pages': [
+            {'name': 'Home', 'url': reverse('conference:home'), 'icon': 'fa-home', 'description': 'Conference homepage with latest updates'},
+            {'name': 'About Conference', 'url': reverse('conference:about'), 'icon': 'fa-info-circle', 'description': 'Learn about ICEIMS 2026'},
+            {'name': 'Galgotias University', 'url': reverse('conference:university'), 'icon': 'fa-university', 'description': 'Explore our world-class campus'},
+            {'name': 'Contact Us', 'url': reverse('conference:contact'), 'icon': 'fa-envelope', 'description': 'Get in touch with us'},
+        ],
+        'conference_info': [
+            {'name': 'Conference Tracks', 'url': reverse('conference:tracks'), 'icon': 'fa-layer-group', 'description': 'Technical program areas'},
+            {'name': 'Important Dates', 'url': reverse('conference:home') + '#timeline', 'icon': 'fa-calendar-alt', 'description': 'Key deadlines and milestones'},
+            {'name': 'Guidelines', 'url': reverse('conference:guidelines'), 'icon': 'fa-file-alt', 'description': 'Submission and presentation guidelines'},
+            {'name': 'Registration', 'url': reverse('conference:registration'), 'icon': 'fa-user-plus', 'description': 'Register for the conference'},
+            {'name': 'Schedule', 'url': reverse('conference:schedule'), 'icon': 'fa-calendar-week', 'description': 'Conference program schedule'},
+        ],
+        'people': [
+            {'name': 'Committee Members', 'url': reverse('conference:committee'), 'icon': 'fa-users', 'description': 'Organizing committee'},
+            {'name': 'Keynote Speakers', 'url': reverse('conference:keynotes'), 'icon': 'fa-microphone', 'description': 'Featured speakers and presentations'},
+        ],
+        'events': [
+            {'name': 'Workshops', 'url': reverse('conference:workshops'), 'icon': 'fa-hands-helping', 'description': 'Pre-conference workshops'},
+            {'name': 'Panel Discussions', 'url': reverse('conference:panels'), 'icon': 'fa-comments', 'description': 'Expert panel sessions'},
+            {'name': 'Networking Events', 'url': reverse('conference:networking'), 'icon': 'fa-handshake', 'description': 'Network with peers'},
+            {'name': 'Awards', 'url': reverse('conference:awards'), 'icon': 'fa-trophy', 'description': 'Conference awards and recognition'},
+        ],
+        'resources': [
+            {'name': 'Blog', 'url': reverse('conference:blog_public_list'), 'icon': 'fa-blog', 'description': 'Latest news and articles'},
+            {'name': 'Tourist Attractions', 'url': reverse('conference:attractions'), 'icon': 'fa-map-marked-alt', 'description': 'Explore NCR region'},
+            {'name': 'Sponsors & Partners', 'url': reverse('conference:sponsors'), 'icon': 'fa-handshake', 'description': 'Our supporters'},
+            {'name': 'Previous Conference', 'url': reverse('conference:previous'), 'icon': 'fa-history', 'description': 'Past conference highlights'},
+        ],
+    }
+    
+    context = {
+        'sitemap_structure': sitemap_structure,
+        'total_pages': sum(len(pages) for pages in sitemap_structure.values()),
+    }
+    
+    return render(request, 'sitemap.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def admin_sitemap(request):
+    """Admin sitemap showing all admin panel pages"""
+    from django.urls import reverse
+    
+    # Get user profile for permission checking
+    profile = getattr(request.user, 'profile', None)
+    
+    # Organize admin pages by category
+    admin_structure = {
+        'dashboard': [
+            {'name': 'Admin Dashboard', 'url': reverse('conference:admin_dashboard'), 'icon': 'fa-tachometer-alt', 'description': 'Main control panel', 'permission': 'can_access_dashboard'},
+        ],
+        'content_management': [
+            {'name': 'Blog Management', 'url': reverse('conference:blog_list'), 'icon': 'fa-blog', 'description': 'Manage blog posts', 'permission': 'can_manage_blog'},
+            {'name': 'Create Blog Post', 'url': reverse('conference:blog_create'), 'icon': 'fa-plus-circle', 'description': 'Write new article', 'permission': 'can_manage_blog'},
+            {'name': 'Comments', 'url': reverse('conference:comment_list'), 'icon': 'fa-comments', 'description': 'Moderate comments', 'permission': 'can_manage_blog'},
+            {'name': 'Categories', 'url': reverse('conference:category_list'), 'icon': 'fa-tags', 'description': 'Manage categories', 'permission': 'can_manage_blog'},
+        ],
+        'notices_timeline': [
+            {'name': 'Notices', 'url': reverse('conference:notice_list'), 'icon': 'fa-bullhorn', 'description': 'Manage announcements', 'permission': 'can_manage_notices'},
+            {'name': 'Create Notice', 'url': reverse('conference:notice_create'), 'icon': 'fa-plus', 'description': 'New announcement', 'permission': 'can_manage_notices'},
+            {'name': 'Timeline', 'url': reverse('conference:timeline_list'), 'icon': 'fa-calendar', 'description': 'Manage timeline', 'permission': 'can_manage_timeline'},
+            {'name': 'Status Updates', 'url': reverse('conference:status_update_list'), 'icon': 'fa-broadcast-tower', 'description': 'Conference updates', 'permission': 'can_manage_content'},
+        ],
+        'people_management': [
+            {'name': 'Speakers', 'url': reverse('conference:speaker_list'), 'icon': 'fa-microphone', 'description': 'Manage speakers', 'permission': 'can_manage_speakers'},
+            {'name': 'Committee Members', 'url': reverse('conference:committee_list'), 'icon': 'fa-users', 'description': 'Manage committee', 'permission': 'can_manage_committee'},
+        ],
+        'schedule_events': [
+            {'name': 'Schedule', 'url': reverse('conference:schedule_list'), 'icon': 'fa-calendar-week', 'description': 'Manage schedule', 'permission': 'can_manage_schedule'},
+        ],
+        'conference_setup': [
+            {'name': 'Conference Tracks', 'url': reverse('conference:track_list'), 'icon': 'fa-layer-group', 'description': 'Manage tracks', 'permission': 'can_manage_tracks'},
+            {'name': 'Tourist Attractions', 'url': reverse('conference:attraction_list'), 'icon': 'fa-map-marked-alt', 'description': 'Manage attractions', 'permission': 'can_manage_attractions'},
+            {'name': 'Sponsors', 'url': reverse('conference:sponsor_list'), 'icon': 'fa-handshake', 'description': 'Manage sponsors', 'permission': 'can_manage_content'},
+        ],
+        'university': [
+            {'name': 'University Information', 'url': '/admin/conference/universityinfo/', 'icon': 'fa-university', 'description': 'Edit university info', 'permission': 'can_manage_content'},
+            {'name': 'University Gallery', 'url': '/admin/conference/universitygallery/', 'icon': 'fa-images', 'description': 'Manage gallery', 'permission': 'can_manage_content'},
+        ],
+        'user_management': [
+            {'name': 'User Management', 'url': reverse('conference:user_management'), 'icon': 'fa-users-cog', 'description': 'Manage users', 'permission': 'can_manage_users'},
+            {'name': 'Role Management', 'url': reverse('conference:role_management'), 'icon': 'fa-user-shield', 'description': 'Manage roles', 'permission': 'can_manage_users'},
+        ],
+        'email_system': [
+            {'name': 'Send Email', 'url': reverse('conference:send_email'), 'icon': 'fa-paper-plane', 'description': 'Send emails', 'permission': None},
+            {'name': 'Email Templates', 'url': reverse('conference:email_template_list'), 'icon': 'fa-envelope-open-text', 'description': 'Manage templates', 'permission': None},
+            {'name': 'Email Logs', 'url': reverse('conference:email_log_list'), 'icon': 'fa-list', 'description': 'View email logs', 'permission': None},
+            {'name': 'Security Events', 'url': reverse('conference:security_event_list'), 'icon': 'fa-shield-alt', 'description': 'Security logs', 'permission': None},
+        ],
+        'system': [
+            {'name': 'Maintenance Mode', 'url': reverse('conference:maintenance_list'), 'icon': 'fa-tools', 'description': 'Site maintenance', 'permission': 'can_manage_content'},
+            {'name': 'Django Admin', 'url': '/admin/', 'icon': 'fa-database', 'description': 'Django admin panel', 'permission': None},
+        ],
+    }
+    
+    # Filter pages based on permissions
+    filtered_structure = {}
+    for category, pages in admin_structure.items():
+        accessible_pages = []
+        for page in pages:
+            # Check if user has permission
+            if request.user.is_superuser:
+                accessible_pages.append(page)
+            elif page['permission'] is None:
+                if request.user.is_staff:
+                    accessible_pages.append(page)
+            elif profile and profile.has_permission(page['permission']):
+                accessible_pages.append(page)
+        
+        if accessible_pages:
+            filtered_structure[category] = accessible_pages
+    
+    context = {
+        'admin_structure': filtered_structure,
+        'total_pages': sum(len(pages) for pages in filtered_structure.values()),
+    }
+    
+    return render(request, 'admin/sitemap.html', context)
 
 def contact(request):
     """Contact page view"""
     return render(request, 'contact.html')
 
 def guidelines(request):
-    """Guidelines page view"""
-    return render(request, 'guidelines.html')
+    """Dynamic Guidelines page with all categories and guidelines"""
+    from .models import GuidelineCategory, Guideline
+    
+    # Get all active categories with published guidelines
+    categories = GuidelineCategory.objects.filter(
+        is_active=True,
+        guidelines__is_published=True
+    ).distinct().prefetch_related('guidelines')
+    
+    # Get featured guidelines
+    featured_guidelines = Guideline.objects.filter(
+        is_published=True,
+        is_featured=True
+    ).select_related('category').order_by('-is_important', 'display_order')[:6]
+    
+    # Get all published guidelines
+    all_guidelines = Guideline.objects.filter(
+        is_published=True
+    ).select_related('category').prefetch_related('checklist_items').order_by(
+        'category__display_order', '-is_important', 'display_order'
+    )
+    
+    # Search functionality
+    query = request.GET.get('q', '')
+    if query:
+        all_guidelines = all_guidelines.filter(
+            Q(title__icontains=query) |
+            Q(short_description__icontains=query) |
+            Q(content__icontains=query)
+        )
+    
+    # Category filter
+    category_slug = request.GET.get('category', '')
+    selected_category = None
+    if category_slug:
+        selected_category = GuidelineCategory.objects.filter(slug=category_slug).first()
+        if selected_category:
+            all_guidelines = all_guidelines.filter(category=selected_category)
+    
+    context = {
+        'categories': categories,
+        'featured_guidelines': featured_guidelines,
+        'guidelines': all_guidelines,
+        'query': query,
+        'selected_category': selected_category,
+        'total_guidelines': all_guidelines.count(),
+    }
+    return render(request, 'guidelines.html', context)
 
 def keynotes(request):
     """Keynote speakers page view with dynamic data"""
@@ -173,16 +451,94 @@ def schedule(request):
     return render(request, 'schedule.html', context)
 
 def awards(request):
-    """Awards page view"""
-    return render(request, 'awards.html')
+    """Dynamic Awards page with all categories and awards"""
+    from .models import AwardCategory, Award, PastWinner
+    
+    # Get all active categories with awards
+    categories = AwardCategory.objects.filter(
+        is_active=True
+    ).prefetch_related('awards').order_by('display_order')
+    
+    # Get featured awards
+    featured_awards = Award.objects.filter(
+        is_featured=True
+    ).select_related('category').order_by('-year', 'display_order')[:6]
+    
+    # Get current year awards
+    current_year = 2026
+    current_awards = Award.objects.filter(
+        year=current_year
+    ).select_related('category').prefetch_related('criteria').order_by('display_order')
+    
+    # Get announced winners
+    announced_winners = Award.objects.filter(
+        status='announced',
+        year=current_year
+    ).select_related('category').order_by('display_order')
+    
+    # Get open nominations
+    open_nominations = Award.objects.filter(
+        status='open'
+    ).select_related('category').order_by('nomination_end')
+    
+    # Get past winners (from PastWinner model)
+    past_winners = PastWinner.objects.filter(
+        is_featured=True
+    ).order_by('-year', 'display_order')[:10]
+    
+    # Group all awards by category
+    awards_by_category = {}
+    for category in categories:
+        category_awards = current_awards.filter(category=category)
+        if category_awards.exists():
+            awards_by_category[category] = category_awards
+    
+    context = {
+        'categories': categories,
+        'featured_awards': featured_awards,
+        'current_awards': current_awards,
+        'announced_winners': announced_winners,
+        'open_nominations': open_nominations,
+        'past_winners': past_winners,
+        'awards_by_category': awards_by_category,
+        'current_year': current_year,
+        'total_awards': current_awards.count(),
+    }
+    return render(request, 'awards.html', context)
 
 def sponsors(request):
-    """Sponsors page view"""
-    sponsors = Sponsor.objects.all()
+    """Sponsors page view - dynamic sponsors from database grouped by tier/type"""
+    # Get only active sponsors
+    all_sponsors = Sponsor.objects.filter(is_active=True).order_by('order')
+    
+    # Group sponsors by sponsorship tiers
+    platinum_sponsors = all_sponsors.filter(partnership_type='sponsorship', sponsorship_tier='platinum')
+    gold_sponsors = all_sponsors.filter(partnership_type='sponsorship', sponsorship_tier='gold')
+    silver_sponsors = all_sponsors.filter(partnership_type='sponsorship', sponsorship_tier='silver')
+    bronze_sponsors = all_sponsors.filter(partnership_type='sponsorship', sponsorship_tier='bronze')
+    
+    # Group by partner types
+    academic_partners = all_sponsors.filter(partnership_type='partnership', partner_type='academic')
+    technology_partners = all_sponsors.filter(partnership_type='partnership', partner_type='technology')
+    media_partners = all_sponsors.filter(partnership_type='partnership', partner_type='media')
+    industry_partners = all_sponsors.filter(partnership_type='partnership', partner_type='industry')
+    institutional_partners = all_sponsors.filter(partnership_type='partnership', partner_type='institutional')
+    
+    conference_settings = ConferenceSettings.objects.first()
+    
     context = {
-        'sponsors': sponsors,
-        # For now, display all sponsors without tiers since the model doesn't have a tier field
-        'all_sponsors': sponsors,
+        'sponsors': all_sponsors,
+        'all_sponsors': all_sponsors,
+        'platinum_sponsors': platinum_sponsors,
+        'gold_sponsors': gold_sponsors,
+        'silver_sponsors': silver_sponsors,
+        'bronze_sponsors': bronze_sponsors,
+        'academic_partners': academic_partners,
+        'technology_partners': technology_partners,
+        'media_partners': media_partners,
+        'industry_partners': industry_partners,
+        'institutional_partners': institutional_partners,
+        'conference_settings': conference_settings,
     }
     return render(request, 'sponsors.html', context)
 
@@ -194,6 +550,106 @@ def animations_test(request):
 
 def is_admin_or_staff(user):
     return user.is_authenticated and (user.is_staff or user.is_superuser)
+
+def has_blog_permission(user):
+    """Check if user can manage blog"""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    if hasattr(user, 'profile') and user.profile:
+        return user.profile.has_permission('can_manage_blog')
+    return False
+
+def has_notice_permission(user):
+    """Check if user can manage notices"""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    if hasattr(user, 'profile') and user.profile:
+        return user.profile.has_permission('can_manage_notices')
+    return False
+
+def has_timeline_permission(user):
+    """Check if user can manage timeline"""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    if hasattr(user, 'profile') and user.profile:
+        return user.profile.has_permission('can_manage_timeline')
+    return False
+
+def has_schedule_permission(user):
+    """Check if user can manage schedule"""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    if hasattr(user, 'profile') and user.profile:
+        return user.profile.has_permission('can_manage_schedule')
+    return False
+
+def has_speaker_permission(user):
+    """Check if user can manage speakers"""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    if hasattr(user, 'profile') and user.profile:
+        return user.profile.has_permission('can_manage_speakers')
+    return False
+
+def has_committee_permission(user):
+    """Check if user can manage committee"""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    if hasattr(user, 'profile') and user.profile:
+        return user.profile.has_permission('can_manage_committee')
+    return False
+
+def has_content_permission(user):
+    """Check if user can manage general content (tracks, attractions, etc)"""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    if hasattr(user, 'profile') and user.profile:
+        return user.profile.has_permission('can_manage_content')
+    return False
+
+def has_track_permission(user):
+    """Check if user can manage conference tracks"""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    if hasattr(user, 'profile') and user.profile:
+        return user.profile.has_permission('can_manage_tracks') or user.profile.has_permission('can_manage_content')
+    return False
+
+def has_attraction_permission(user):
+    """Check if user can manage tourist attractions"""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    if hasattr(user, 'profile') and user.profile:
+        return user.profile.has_permission('can_manage_attractions') or user.profile.has_permission('can_manage_content')
+    return False
+
+def has_export_permission(user):
+    """Check if user can export data"""
+    if not user.is_authenticated:
+        return False
+    if user.is_superuser:
+        return True
+    if hasattr(user, 'profile') and user.profile:
+        return user.profile.has_permission('can_export_data')
+    return False
 
 # Public Blog Views (No authentication required for viewing)
 @ensure_csrf_cookie
@@ -480,7 +936,7 @@ def newsletter_signup(request):
 # Blog List View
 @ensure_csrf_cookie
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_blog_permission)
 def blog_list(request):
     posts = BlogPost.objects.all().order_by('-created_at')
     
@@ -525,7 +981,7 @@ def blog_list(request):
 # Create Blog Post
 @ensure_csrf_cookie
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_blog_permission)
 def blog_create(request):
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -596,7 +1052,7 @@ def blog_create(request):
 # Edit Blog Post
 @ensure_csrf_cookie
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_blog_permission)
 def blog_edit(request, slug):
     post = get_object_or_404(BlogPost, slug=slug)
     
@@ -665,7 +1121,7 @@ def blog_delete(request, slug):
 
 # Category Management
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_blog_permission)
 def category_list(request):
     categories = Category.objects.annotate(post_count=Count('posts')).order_by('name')
     
@@ -676,7 +1132,7 @@ def category_list(request):
     return render(request, 'blog/category_list.html', context)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_blog_permission)
 def category_create(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -752,7 +1208,7 @@ def blog_bulk_action(request):
 
 # Analytics Dashboard
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_blog_permission)
 def blog_analytics(request):
     total_posts = BlogPost.objects.count()
     published_posts = BlogPost.objects.filter(status='published').count()
@@ -791,7 +1247,7 @@ def blog_analytics(request):
 # Comment Management Views
 @ensure_csrf_cookie
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_blog_permission)
 def comment_list(request):
     """List all comments with filtering options"""
     comments = Comment.objects.all().order_by('-created_at')
@@ -895,7 +1351,7 @@ def comment_bulk_action(request):
 # Maintenance Mode Management
 @ensure_csrf_cookie
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_content_permission)
 def maintenance_list(request):
     """List maintenance mode configurations"""
     maintenances = MaintenanceMode.objects.all().order_by('-created_at')
@@ -916,7 +1372,7 @@ def maintenance_list(request):
 
 @ensure_csrf_cookie
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_content_permission)
 def maintenance_create(request):
     """Create new maintenance mode"""
     if request.method == 'POST':
@@ -946,7 +1402,7 @@ def maintenance_create(request):
 
 @ensure_csrf_cookie
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_content_permission)
 def maintenance_toggle(request, pk):
     """Toggle maintenance mode on/off"""
     maintenance = get_object_or_404(MaintenanceMode, pk=pk)
@@ -961,7 +1417,7 @@ def maintenance_toggle(request, pk):
 # Notice Management  
 @ensure_csrf_cookie
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_notice_permission)
 def notice_list(request):
     """List all notices"""
     notices = Notice.objects.all().order_by('-is_urgent', '-created_at')
@@ -982,7 +1438,7 @@ def notice_list(request):
 
 @ensure_csrf_cookie
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_notice_permission)
 def notice_create(request):
     """Create new notice"""
     if request.method == 'POST':
@@ -994,6 +1450,8 @@ def notice_create(request):
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
         show_on_pages = request.POST.get('show_on_pages', '')
+        link_url = request.POST.get('link_url', '')
+        link_text = request.POST.get('link_text', 'Read More')
         
         notice = Notice.objects.create(
             title=title,
@@ -1004,6 +1462,8 @@ def notice_create(request):
             start_date=start_date if start_date else timezone.now(),
             end_date=end_date if end_date else None,
             show_on_pages=show_on_pages,
+            link_url=link_url,
+            link_text=link_text if link_text else 'Read More',
             created_by=request.user
         )
         
@@ -1011,6 +1471,35 @@ def notice_create(request):
         return redirect('conference:notice_list')
     
     return render(request, 'admin/notice_create.html')
+
+@ensure_csrf_cookie
+@login_required
+@user_passes_test(has_notice_permission)
+def notice_edit(request, pk):
+    """Edit existing notice"""
+    notice = get_object_or_404(Notice, pk=pk)
+    
+    if request.method == 'POST':
+        notice.title = request.POST.get('title')
+        notice.content = request.POST.get('content')
+        notice.notice_type = request.POST.get('notice_type')
+        notice.is_active = request.POST.get('is_active') == 'on'
+        notice.is_urgent = request.POST.get('is_urgent') == 'on'
+        notice.start_date = request.POST.get('start_date') or timezone.now()
+        notice.end_date = request.POST.get('end_date') or None
+        notice.show_on_pages = request.POST.get('show_on_pages', '')
+        notice.link_url = request.POST.get('link_url', '')
+        notice.link_text = request.POST.get('link_text', 'Read More')
+        
+        notice.save()
+        
+        messages.success(request, f'Notice "{notice.title}" updated successfully!')
+        return redirect('conference:notice_list')
+    
+    context = {
+        'notice': notice,
+    }
+    return render(request, 'admin/notice_edit.html', context)
 
 @login_required
 @user_passes_test(is_admin_or_staff)
@@ -1046,22 +1535,53 @@ def admin_dashboard(request):
     from django.utils import timezone
     from django.contrib.admin.models import LogEntry
     from django.contrib.contenttypes.models import ContentType
-    from .models import BlogPost, Comment, Notice, MaintenanceMode, Timeline, StatusUpdate, Speaker, CommitteeMember, Schedule, UserProfile
+    from .models import (BlogPost, Comment, Notice, MaintenanceMode, Timeline, StatusUpdate, Speaker, CommitteeMember, 
+                        Schedule, UserProfile, FAQCategory, FAQ, AIConversation, GuidelineCategory, Guideline, 
+                        AwardCategory, Award, PastWinner, SiteSettings, HeroSlide, SliderSettings)
     
     # Get or create user profile
     profile, created = UserProfile.objects.get_or_create(user=request.user)
     
     # Get statistics
+    from .models import ConferenceTrack, TouristAttraction
+    
     stats = {
         'blog_posts': BlogPost.objects.count(),
+        'published_posts': BlogPost.objects.filter(status='published').count(),
         'pending_comments': Comment.objects.filter(status='pending').count(),
         'active_notices': Notice.objects.filter(is_active=True).count(),
         'maintenance_modes': MaintenanceMode.objects.filter(is_active=True).count(),
         'speakers': Speaker.objects.count(),
+        'keynote_speakers': Speaker.objects.filter(speaker_type='keynote').count(),
         'committee_members': CommitteeMember.objects.count(),
         'timeline_items': Timeline.objects.count(),
         'status_updates': StatusUpdate.objects.count(),
         'schedule_items': Schedule.objects.count(),
+        'conference_tracks': ConferenceTrack.objects.count(),
+        'active_tracks': ConferenceTrack.objects.filter(is_active=True).count(),
+        'tourist_attractions': TouristAttraction.objects.count(),
+        'active_attractions': TouristAttraction.objects.filter(is_active=True).count(),
+        'sponsors': Sponsor.objects.count(),
+        'university_info': UniversityInfo.objects.count(),
+        'gallery_images': UniversityGallery.objects.count(),
+        'faq_categories': FAQCategory.objects.filter(is_active=True).count(),
+        'published_faqs': FAQ.objects.filter(is_published=True).count(),
+        'total_faqs': FAQ.objects.count(),
+        'ai_conversations': AIConversation.objects.count(),
+        'guideline_categories': GuidelineCategory.objects.filter(is_active=True).count(),
+        'published_guidelines': Guideline.objects.filter(is_published=True).count(),
+        'total_guidelines': Guideline.objects.count(),
+        'award_categories': AwardCategory.objects.filter(is_active=True).count(),
+        'total_awards': Award.objects.count(),
+        'announced_awards': Award.objects.filter(status='announced').count(),
+        'open_nominations': Award.objects.filter(status='open').count(),
+        'past_winners': PastWinner.objects.count(),
+        'total_users': User.objects.count(),
+        'admin_users': User.objects.filter(is_staff=True).count(),
+        'site_settings_configured': SiteSettings.objects.exists(),
+        'hero_slides': HeroSlide.objects.count(),
+        'active_slides': HeroSlide.objects.filter(is_active=True).count(),
+        'slider_settings_configured': SliderSettings.objects.exists(),
     }
     
     # Get recent activities from Django admin logs
@@ -1289,10 +1809,10 @@ def user_edit(request, user_id):
             profile.admin_role = None
             
         profile.is_admin_user = request.POST.get('is_admin_user') == 'on'
-        profile.phone = request.POST.get('phone')
-        profile.department = request.POST.get('department')
-        profile.position = request.POST.get('position')
-        profile.bio = request.POST.get('bio')
+        profile.phone = request.POST.get('phone', '')
+        profile.department = request.POST.get('department', '')
+        profile.position = request.POST.get('position', '')
+        profile.bio = request.POST.get('bio', '')
         
         # Handle avatar upload
         if 'avatar' in request.FILES:
@@ -1336,6 +1856,37 @@ def user_delete(request, user_id):
         messages.success(request, f'User "{username}" deleted successfully!')
     
     return redirect('conference:user_management')
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def fix_user_staff_status(request):
+    """Fix staff status for admin users who can't login to Django admin"""
+    from django.contrib.auth.models import User
+    
+    if request.method == 'POST':
+        # Get all users with admin profile but without staff status
+        admin_users = User.objects.filter(profile__is_admin_user=True, is_staff=False)
+        
+        updated_count = 0
+        for user in admin_users:
+            user.is_staff = True
+            user.save()
+            updated_count += 1
+        
+        if updated_count > 0:
+            messages.success(request, f'Successfully granted staff status to {updated_count} admin user(s). They can now login to Django admin panel.')
+        else:
+            messages.info(request, 'All admin users already have staff status.')
+        
+        return redirect('conference:user_management')
+    
+    # GET request - show confirmation page
+    admin_users_without_staff = User.objects.filter(profile__is_admin_user=True, is_staff=False)
+    
+    context = {
+        'users_to_fix': admin_users_without_staff,
+    }
+    return render(request, 'admin/fix_staff_status.html', context)
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser or (hasattr(u, 'profile') and u.profile.has_permission('can_manage_users')))
@@ -1401,7 +1952,7 @@ def has_admin_permission(user, permission):
 
 # Timeline Management Views
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_timeline_permission)
 def timeline_list(request):
     """List all timeline items"""
     from .models import Timeline
@@ -1427,7 +1978,7 @@ def timeline_list(request):
     return render(request, 'admin/timeline_list.html', context)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_timeline_permission)
 def timeline_create(request):
     """Create new timeline item"""
     from .models import Timeline
@@ -1468,7 +2019,7 @@ def timeline_create(request):
     return render(request, 'admin/timeline_create.html', context)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_timeline_permission)
 def timeline_edit(request, pk):
     """Edit timeline item"""
     from .models import Timeline
@@ -1514,7 +2065,7 @@ def timeline_delete(request, pk):
 
 # Status Update Management Views
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_timeline_permission)
 def status_update_list(request):
     """List all status updates"""
     from .models import StatusUpdate
@@ -1540,7 +2091,7 @@ def status_update_list(request):
     return render(request, 'admin/status_update_list.html', context)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_timeline_permission)
 def status_update_create(request):
     """Create new status update"""
     from .models import StatusUpdate, Timeline
@@ -1582,7 +2133,7 @@ def status_update_create(request):
     return render(request, 'admin/status_update_create.html', context)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_timeline_permission)
 def status_update_edit(request, pk):
     """Edit status update"""
     from .models import StatusUpdate, Timeline
@@ -1644,7 +2195,7 @@ def status_update_toggle(request, pk):
 
 # Schedule Management Views
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_schedule_permission)
 def schedule_list(request):
     """List all schedule items"""
     from .models import Schedule
@@ -1685,7 +2236,7 @@ def schedule_list(request):
     return render(request, 'admin/schedule_list.html', context)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_schedule_permission)
 def schedule_create(request):
     """Create new schedule item"""
     from .models import Schedule
@@ -1730,7 +2281,7 @@ def schedule_create(request):
     return render(request, 'admin/schedule_create.html', context)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_schedule_permission)
 def schedule_edit(request, pk):
     """Edit schedule item"""
     from .models import Schedule
@@ -1791,7 +2342,7 @@ def schedule_toggle(request, pk):
 
 # Speaker Management Views
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_speaker_permission)
 def speaker_list(request):
     """List all speakers"""
     from .models import Speaker
@@ -1828,7 +2379,7 @@ def speaker_list(request):
     return render(request, 'admin/speaker_list.html', context)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_speaker_permission)
 def speaker_create(request):
     """Create new speaker"""
     from .models import Speaker
@@ -1889,7 +2440,7 @@ def speaker_create(request):
     return render(request, 'admin/speaker_create.html', context)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_speaker_permission)
 def speaker_edit(request, pk):
     """Edit speaker"""
     from .models import Speaker
@@ -1963,7 +2514,7 @@ def speaker_toggle(request, pk):
 
 # Committee Management Views
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_committee_permission)
 def committee_list(request):
     """List all committee members"""
     from .models import CommitteeMember
@@ -1977,7 +2528,7 @@ def committee_list(request):
     return render(request, 'admin/committee_list.html', context)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_committee_permission)
 def committee_create(request):
     """Create new committee member"""
     from .models import CommitteeMember
@@ -2012,15 +2563,21 @@ def committee_create(request):
         messages.success(request, f'Committee member "{name}" created successfully!')
         return redirect('conference:committee_list')
     
+    from .models import HierarchyLevel
+    
+    # Get dynamic hierarchy levels from database
+    hierarchy_choices = [(level.level_number, f"Level {level.level_number} - {level.level_name}") 
+                        for level in HierarchyLevel.objects.filter(is_active=True).order_by('level_number')]
+    
     context = {
         'next_order': CommitteeMember.objects.count() + 1,
         'role_choices': CommitteeMember.ROLE_CHOICES,
-        'hierarchy_choices': CommitteeMember.HIERARCHY_LEVELS,
+        'hierarchy_choices': hierarchy_choices,
     }
     return render(request, 'admin/committee_create.html', context)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_committee_permission)
 def committee_edit(request, pk):
     """Edit committee member"""
     from .models import CommitteeMember
@@ -2047,10 +2604,16 @@ def committee_edit(request, pk):
         messages.success(request, f'Committee member "{committee_member.name}" updated successfully!')
         return redirect('conference:committee_list')
     
+    from .models import HierarchyLevel
+    
+    # Get dynamic hierarchy levels from database
+    hierarchy_choices = [(level.level_number, f"Level {level.level_number} - {level.level_name}") 
+                        for level in HierarchyLevel.objects.filter(is_active=True).order_by('level_number')]
+    
     context = {
         'committee_member': committee_member,
         'role_choices': CommitteeMember.ROLE_CHOICES,
-        'hierarchy_choices': CommitteeMember.HIERARCHY_LEVELS,
+        'hierarchy_choices': hierarchy_choices,
     }
     return render(request, 'admin/committee_edit.html', context)
 
@@ -2114,7 +2677,8 @@ from django.contrib.contenttypes.models import ContentType
 from io import BytesIO
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@login_required
+@user_passes_test(has_export_permission)
 def export_speakers(request):
     """Export speakers list in various formats"""
     export_format = request.GET.get('format', 'excel')
@@ -2134,7 +2698,7 @@ def export_speakers(request):
         return HttpResponse("Invalid format", status=400)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_export_permission)
 def export_committee(request):
     """Export committee members list in various formats"""
     export_format = request.GET.get('format', 'excel')
@@ -2153,7 +2717,7 @@ def export_committee(request):
         return HttpResponse("Invalid format", status=400)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_export_permission)
 def export_schedule(request):
     """Export schedule list in various formats"""
     export_format = request.GET.get('format', 'excel')
@@ -2173,7 +2737,7 @@ def export_schedule(request):
         return HttpResponse("Invalid format", status=400)
 
 @login_required
-@user_passes_test(is_admin_or_staff)
+@user_passes_test(has_export_permission)
 def export_logs(request):
     """Export activity logs in various formats"""
     export_format = request.GET.get('format', 'excel')
@@ -2880,3 +3444,1463 @@ def export_schedule_json(schedules):
     response = HttpResponse(json.dumps(data, indent=2), content_type='application/json')
     response['Content-Disposition'] = f'attachment; filename="conference_schedule_{datetime.now().strftime("%Y%m%d_%H%M")}.json"'
     return response
+
+
+# ==================== TRACK MANAGEMENT VIEWS ====================
+
+@login_required
+@user_passes_test(has_track_permission)
+def track_list(request):
+    """List all conference tracks with management options"""
+    tracks = ConferenceTrack.objects.all().order_by('display_order', 'track_number')
+    
+    # Get statistics
+    total_tracks = tracks.count()
+    active_tracks = tracks.filter(is_active=True).count()
+    regular_tracks = tracks.filter(track_type='regular').count()
+    special_tracks = tracks.filter(track_type='special').count()
+    
+    context = {
+        'tracks': tracks,
+        'total_tracks': total_tracks,
+        'active_tracks': active_tracks,
+        'regular_tracks': regular_tracks,
+        'special_tracks': special_tracks,
+    }
+    return render(request, 'admin/track_list.html', context)
+
+
+@login_required
+@user_passes_test(has_track_permission)
+def track_create(request):
+    """Create a new conference track"""
+    if request.method == 'POST':
+        track_number = request.POST.get('track_number')
+        title = request.POST.get('title')
+        description = request.POST.get('description', '')
+        track_type = request.POST.get('track_type', 'regular')
+        track_chair = request.POST.get('track_chair', '')
+        is_active = request.POST.get('is_active') == 'on'
+        display_order = request.POST.get('display_order', 0)
+        color = request.POST.get('color', '#a0352f')
+        
+        # Handle image upload
+        image = request.FILES.get('image')
+        
+        try:
+            track = ConferenceTrack.objects.create(
+                track_number=track_number,
+                title=title,
+                description=description,
+                track_type=track_type,
+                track_chair=track_chair,
+                is_active=is_active,
+                display_order=display_order or track_number,
+                color=color,
+                image=image
+            )
+            messages.success(request, f'Track "{track.title}" created successfully!')
+            return redirect('conference:track_list')
+        except Exception as e:
+            messages.error(request, f'Error creating track: {str(e)}')
+    
+    # Get the next available track number
+    last_track = ConferenceTrack.objects.all().order_by('-track_number').first()
+    next_track_number = (last_track.track_number + 1) if last_track else 1
+    
+    context = {
+        'next_track_number': next_track_number,
+    }
+    return render(request, 'admin/track_form.html', context)
+
+
+@login_required
+@user_passes_test(has_track_permission)
+def track_edit(request, pk):
+    """Edit an existing conference track"""
+    track = get_object_or_404(ConferenceTrack, pk=pk)
+    
+    if request.method == 'POST':
+        track.track_number = request.POST.get('track_number')
+        track.title = request.POST.get('title')
+        track.description = request.POST.get('description', '')
+        track.track_type = request.POST.get('track_type', 'regular')
+        track.track_chair = request.POST.get('track_chair', '')
+        track.is_active = request.POST.get('is_active') == 'on'
+        track.display_order = request.POST.get('display_order', track.track_number)
+        track.color = request.POST.get('color', '#a0352f')
+        
+        # Handle image upload
+        if 'image' in request.FILES:
+            track.image = request.FILES['image']
+        
+        # Handle image removal
+        if request.POST.get('remove_image') == 'on' and track.image:
+            track.image.delete()
+            track.image = None
+        
+        try:
+            track.save()
+            messages.success(request, f'Track "{track.title}" updated successfully!')
+            return redirect('conference:track_list')
+        except Exception as e:
+            messages.error(request, f'Error updating track: {str(e)}')
+    
+    context = {
+        'track': track,
+        'is_edit': True,
+    }
+    return render(request, 'admin/track_form.html', context)
+
+
+@login_required
+@user_passes_test(has_track_permission)
+def track_delete(request, pk):
+    """Delete a conference track"""
+    track = get_object_or_404(ConferenceTrack, pk=pk)
+    
+    if request.method == 'POST':
+        track_title = track.title
+        track.delete()
+        messages.success(request, f'Track "{track_title}" deleted successfully!')
+        return redirect('conference:track_list')
+    
+    context = {
+        'track': track,
+    }
+    return render(request, 'admin/track_confirm_delete.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def track_toggle(request, pk):
+    """Toggle track active status"""
+    track = get_object_or_404(ConferenceTrack, pk=pk)
+    track.is_active = not track.is_active
+    track.save()
+    
+    status = "activated" if track.is_active else "deactivated"
+    messages.success(request, f'Track "{track.title}" {status} successfully!')
+    
+    return redirect('conference:track_list')
+
+
+@login_required
+@user_passes_test(has_track_permission)
+@require_POST
+def track_bulk_action(request):
+    """Handle bulk actions on tracks"""
+    action = request.POST.get('action')
+    track_ids = request.POST.getlist('track_ids')
+    
+    if not track_ids:
+        messages.warning(request, 'No tracks selected.')
+        return redirect('conference:track_list')
+    
+    tracks = ConferenceTrack.objects.filter(id__in=track_ids)
+    
+    if action == 'activate':
+        tracks.update(is_active=True)
+        messages.success(request, f'{tracks.count()} track(s) activated successfully!')
+    elif action == 'deactivate':
+        tracks.update(is_active=False)
+        messages.success(request, f'{tracks.count()} track(s) deactivated successfully!')
+    elif action == 'delete':
+        count = tracks.count()
+        tracks.delete()
+        messages.success(request, f'{count} track(s) deleted successfully!')
+    elif action == 'regular':
+        tracks.update(track_type='regular')
+        messages.success(request, f'{tracks.count()} track(s) changed to Regular Track!')
+    elif action == 'special':
+        tracks.update(track_type='special')
+        messages.success(request, f'{tracks.count()} track(s) changed to Special Session!')
+    else:
+        messages.error(request, 'Invalid action selected.')
+    
+    return redirect('conference:track_list')
+
+
+# Tourist Attraction Management Views
+@login_required
+@user_passes_test(has_attraction_permission)
+def attraction_list(request):
+    """List all tourist attractions"""
+    attractions = TouristAttraction.objects.all().order_by('order', 'name')
+    
+    # Filter by category
+    category_filter = request.GET.get('category')
+    if category_filter:
+        attractions = attractions.filter(category=category_filter)
+    
+    # Filter by status
+    status_filter = request.GET.get('status')
+    if status_filter == 'active':
+        attractions = attractions.filter(is_active=True)
+    elif status_filter == 'inactive':
+        attractions = attractions.filter(is_active=False)
+    
+    # Search functionality
+    search = request.GET.get('search')
+    if search:
+        attractions = attractions.filter(
+            Q(name__icontains=search) |
+            Q(description__icontains=search) |
+            Q(category__icontains=search)
+        )
+    
+    # Statistics
+    total_attractions = TouristAttraction.objects.count()
+    active_attractions = TouristAttraction.objects.filter(is_active=True).count()
+    featured_attractions = TouristAttraction.objects.filter(is_featured=True).count()
+    
+    context = {
+        'attractions': attractions,
+        'total_attractions': total_attractions,
+        'active_attractions': active_attractions,
+        'featured_attractions': featured_attractions,
+        'category_filter': category_filter,
+        'status_filter': status_filter,
+        'search': search,
+        'category_choices': TouristAttraction.CATEGORY_CHOICES,
+    }
+    return render(request, 'admin/attraction_list.html', context)
+
+
+@login_required
+@user_passes_test(has_attraction_permission)
+def attraction_create(request):
+    """Create new tourist attraction"""
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        slug = request.POST.get('slug') or slugify(name)
+        description = request.POST.get('description')
+        category = request.POST.get('category')
+        image_url = request.POST.get('image_url', '')
+        location_url = request.POST.get('location_url', '')
+        map_embed = request.POST.get('map_embed', '')
+        guide_link = request.POST.get('guide_link', '')
+        distance = request.POST.get('distance', '')
+        time_required = request.POST.get('time_required', '')
+        rating = request.POST.get('rating', 4.5)
+        is_featured = request.POST.get('is_featured') == 'on'
+        is_active = request.POST.get('is_active') == 'on'
+        order = request.POST.get('order', 0)
+        
+        try:
+            attraction = TouristAttraction.objects.create(
+                name=name,
+                slug=slug,
+                description=description,
+                category=category,
+                image_url=image_url,
+                location_url=location_url,
+                map_embed=map_embed,
+                guide_link=guide_link,
+                distance=distance,
+                time_required=time_required,
+                rating=rating,
+                is_featured=is_featured,
+                is_active=is_active,
+                order=order
+            )
+            
+            # Handle image upload
+            if 'image' in request.FILES:
+                attraction.image = request.FILES['image']
+                attraction.save()
+            
+            messages.success(request, f'Attraction "{name}" created successfully!')
+            return redirect('conference:attraction_list')
+        except Exception as e:
+            messages.error(request, f'Error creating attraction: {str(e)}')
+    
+    context = {
+        'category_choices': TouristAttraction.CATEGORY_CHOICES,
+        'is_edit': False,
+    }
+    return render(request, 'admin/attraction_form.html', context)
+
+
+@login_required
+@user_passes_test(has_attraction_permission)
+def attraction_edit(request, pk):
+    """Edit tourist attraction"""
+    attraction = get_object_or_404(TouristAttraction, pk=pk)
+    
+    if request.method == 'POST':
+        attraction.name = request.POST.get('name')
+        attraction.slug = request.POST.get('slug') or slugify(attraction.name)
+        attraction.description = request.POST.get('description')
+        attraction.category = request.POST.get('category')
+        attraction.image_url = request.POST.get('image_url', '')
+        attraction.location_url = request.POST.get('location_url', '')
+        attraction.map_embed = request.POST.get('map_embed', '')
+        attraction.guide_link = request.POST.get('guide_link', '')
+        attraction.distance = request.POST.get('distance', '')
+        attraction.time_required = request.POST.get('time_required', '')
+        attraction.rating = request.POST.get('rating', 4.5)
+        attraction.is_featured = request.POST.get('is_featured') == 'on'
+        attraction.is_active = request.POST.get('is_active') == 'on'
+        attraction.order = request.POST.get('order', 0)
+        
+        # Handle image upload
+        if 'image' in request.FILES:
+            attraction.image = request.FILES['image']
+        
+        # Handle image removal
+        if request.POST.get('remove_image') == 'on' and attraction.image:
+            attraction.image.delete()
+            attraction.image = None
+        
+        try:
+            attraction.save()
+            messages.success(request, f'Attraction "{attraction.name}" updated successfully!')
+            return redirect('conference:attraction_list')
+        except Exception as e:
+            messages.error(request, f'Error updating attraction: {str(e)}')
+    
+    context = {
+        'attraction': attraction,
+        'category_choices': TouristAttraction.CATEGORY_CHOICES,
+        'is_edit': True,
+    }
+    return render(request, 'admin/attraction_form.html', context)
+
+
+@login_required
+@user_passes_test(has_attraction_permission)
+def attraction_delete(request, pk):
+    """Delete tourist attraction"""
+    attraction = get_object_or_404(TouristAttraction, pk=pk)
+    
+    if request.method == 'POST':
+        attraction_name = attraction.name
+        attraction.delete()
+        messages.success(request, f'Attraction "{attraction_name}" deleted successfully!')
+        return redirect('conference:attraction_list')
+    
+    context = {
+        'attraction': attraction,
+    }
+    return render(request, 'admin/attraction_confirm_delete.html', context)
+
+
+@login_required
+@login_required
+@user_passes_test(has_attraction_permission)
+def attraction_toggle(request, pk):
+    """Toggle attraction active status"""
+    attraction = get_object_or_404(TouristAttraction, pk=pk)
+    attraction.is_active = not attraction.is_active
+    attraction.save()
+    
+    status = "activated" if attraction.is_active else "deactivated"
+    messages.success(request, f'Attraction "{attraction.name}" {status} successfully!')
+    
+    return redirect('conference:attraction_list')
+
+
+@login_required
+@user_passes_test(has_attraction_permission)
+@require_POST
+def attraction_bulk_action(request):
+    """Handle bulk actions on attractions"""
+    action = request.POST.get('action')
+    attraction_ids = request.POST.getlist('attraction_ids')
+    
+    if not attraction_ids:
+        messages.warning(request, 'No attractions selected.')
+        return redirect('conference:attraction_list')
+    
+    attractions = TouristAttraction.objects.filter(id__in=attraction_ids)
+    
+    if action == 'activate':
+        attractions.update(is_active=True)
+        messages.success(request, f'{attractions.count()} attraction(s) activated successfully!')
+    elif action == 'deactivate':
+        attractions.update(is_active=False)
+        messages.success(request, f'{attractions.count()} attraction(s) deactivated successfully!')
+    elif action == 'delete':
+        count = attractions.count()
+        attractions.delete()
+        messages.success(request, f'{count} attraction(s) deleted successfully!')
+    elif action == 'feature':
+        attractions.update(is_featured=True)
+        messages.success(request, f'{attractions.count()} attraction(s) marked as featured!')
+    elif action == 'unfeature':
+        attractions.update(is_featured=False)
+        messages.success(request, f'{attractions.count()} attraction(s) unmarked as featured!')
+    else:
+        messages.error(request, 'Invalid action selected.')
+    
+    return redirect('conference:attraction_list')
+
+
+# ============================================================================
+# EMAIL MANAGEMENT VIEWS
+# ============================================================================
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def email_template_list(request):
+    """List all email templates"""
+    from .models import EmailTemplate
+    
+    templates = EmailTemplate.objects.all().order_by('template_type', 'name')
+    
+    # Filter by template type if requested
+    template_type = request.GET.get('type')
+    if template_type:
+        templates = templates.filter(template_type=template_type)
+    
+    # Search functionality
+    search_query = request.GET.get('search')
+    if search_query:
+        templates = templates.filter(
+            Q(name__icontains=search_query) |
+            Q(subject__icontains=search_query) |
+            Q(body_text__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(templates, 20)
+    page = request.GET.get('page', 1)
+    templates_page = paginator.get_page(page)
+    
+    context = {
+        'templates': templates_page,
+        'template_types': EmailTemplate.TEMPLATE_TYPES,
+        'current_type': template_type,
+        'search_query': search_query,
+    }
+    return render(request, 'admin/email_template_list.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def email_template_create(request):
+    """Create new email template"""
+    from .models import EmailTemplate
+    
+    if request.method == 'POST':
+        template = EmailTemplate(
+            name=request.POST.get('name'),
+            template_type=request.POST.get('template_type'),
+            subject=request.POST.get('subject'),
+            body_html=request.POST.get('body_html'),
+            body_text=request.POST.get('body_text'),
+            template_variables=request.POST.get('template_variables', ''),
+            created_by=request.user
+        )
+        
+        try:
+            template.save()
+            messages.success(request, f'Email template "{template.name}" created successfully!')
+            return redirect('conference:email_template_list')
+        except Exception as e:
+            messages.error(request, f'Error creating template: {str(e)}')
+    
+    context = {
+        'template_types': EmailTemplate.TEMPLATE_TYPES,
+    }
+    return render(request, 'admin/email_template_form.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def email_template_edit(request, pk):
+    """Edit email template"""
+    from .models import EmailTemplate
+    
+    template = get_object_or_404(EmailTemplate, pk=pk)
+    
+    if request.method == 'POST':
+        template.name = request.POST.get('name')
+        template.template_type = request.POST.get('template_type')
+        template.subject = request.POST.get('subject')
+        template.body_html = request.POST.get('body_html')
+        template.body_text = request.POST.get('body_text')
+        template.template_variables = request.POST.get('template_variables', '')
+        
+        try:
+            template.save()
+            messages.success(request, f'Email template "{template.name}" updated successfully!')
+            return redirect('conference:email_template_list')
+        except Exception as e:
+            messages.error(request, f'Error updating template: {str(e)}')
+    
+    context = {
+        'template': template,
+        'template_types': EmailTemplate.TEMPLATE_TYPES,
+        'is_edit': True,
+    }
+    return render(request, 'admin/email_template_form.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def email_template_delete(request, pk):
+    """Delete email template"""
+    from .models import EmailTemplate
+    
+    template = get_object_or_404(EmailTemplate, pk=pk)
+    
+    if request.method == 'POST':
+        template_name = template.name
+        template.delete()
+        messages.success(request, f'Email template "{template_name}" deleted successfully!')
+        return redirect('conference:email_template_list')
+    
+    context = {
+        'template': template,
+    }
+    return render(request, 'admin/email_template_confirm_delete.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def email_template_preview(request, pk):
+    """Preview email template with sample data"""
+    from .models import EmailTemplate
+    
+    template = get_object_or_404(EmailTemplate, pk=pk)
+    
+    # Sample context data for preview
+    sample_context = {
+        'user_name': request.user.get_full_name() or request.user.username,
+        'email': request.user.email,
+        'username': request.user.username,
+        'login_url': request.build_absolute_uri('/admin-panel/login/'),
+        'support_email': 'support@iceims2026.com',
+        'otp_code': '123456',
+        'expiry_minutes': '10',
+        'ip_address': request.META.get('REMOTE_ADDR', 'Unknown'),
+        'user_agent': request.META.get('HTTP_USER_AGENT', 'Unknown'),
+        'login_time': timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'location': 'Sample Location',
+        'event_type': 'Sample Event',
+        'description': 'Sample security event description',
+        'time': timezone.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'role': 'Administrator',
+        'role_name': 'Super Administrator',
+        'role_description': 'Full access to all features',
+        'purpose': 'Login Verification',
+    }
+    
+    # Replace template variables
+    html_content = template.body_html
+    for key, value in sample_context.items():
+        html_content = html_content.replace(f'{{{{{key}}}}}', str(value))
+    
+    return HttpResponse(html_content)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def email_log_list(request):
+    """List all email logs"""
+    from .models import EmailLog
+    
+    logs = EmailLog.objects.all().select_related('template').order_by('-sent_at')
+    
+    # Filter by status
+    status = request.GET.get('status')
+    if status:
+        logs = logs.filter(status=status)
+    
+    # Filter by date range
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    if date_from:
+        logs = logs.filter(sent_at__gte=date_from)
+    if date_to:
+        logs = logs.filter(sent_at__lte=date_to)
+    
+    # Search by recipient
+    search_query = request.GET.get('search')
+    if search_query:
+        logs = logs.filter(
+            Q(recipient_email__icontains=search_query) |
+            Q(subject__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(logs, 50)
+    page = request.GET.get('page', 1)
+    logs_page = paginator.get_page(page)
+    
+    # Statistics
+    stats = {
+        'total': EmailLog.objects.count(),
+        'sent': EmailLog.objects.filter(status='sent').count(),
+        'failed': EmailLog.objects.filter(status='failed').count(),
+        'pending': EmailLog.objects.filter(status='pending').count(),
+    }
+    
+    context = {
+        'logs': logs_page,
+        'stats': stats,
+        'current_status': status,
+        'search_query': search_query,
+        'date_from': date_from,
+        'date_to': date_to,
+    }
+    return render(request, 'admin/email_log_list.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def email_campaign_list(request):
+    """List all email campaigns"""
+    from .models import EmailCampaign
+    
+    campaigns = EmailCampaign.objects.all().select_related('template', 'created_by').order_by('-created_at')
+    
+    # Filter by status
+    status = request.GET.get('status')
+    if status:
+        campaigns = campaigns.filter(status=status)
+    
+    # Search
+    search_query = request.GET.get('search')
+    if search_query:
+        campaigns = campaigns.filter(
+            Q(name__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
+    
+    # Pagination
+    paginator = Paginator(campaigns, 20)
+    page = request.GET.get('page', 1)
+    campaigns_page = paginator.get_page(page)
+    
+    context = {
+        'campaigns': campaigns_page,
+        'current_status': status,
+        'search_query': search_query,
+    }
+    return render(request, 'admin/email_campaign_list.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def email_campaign_create(request):
+    """Create new email campaign"""
+    from .models import EmailCampaign, EmailTemplate
+    from .email_utils import send_bulk_email
+    
+    if request.method == 'POST':
+        campaign = EmailCampaign(
+            name=request.POST.get('name'),
+            description=request.POST.get('description'),
+            template_id=request.POST.get('template_id'),
+            recipient_filter=request.POST.get('recipient_filter', 'all'),
+            created_by=request.user
+        )
+        
+        # Handle scheduled send
+        scheduled_for = request.POST.get('scheduled_for')
+        if scheduled_for:
+            campaign.scheduled_for = scheduled_for
+            campaign.status = 'scheduled'
+        else:
+            campaign.status = 'draft'
+        
+        try:
+            campaign.save()
+            
+            # If send immediately is checked
+            if request.POST.get('send_immediately') == 'on' and not scheduled_for:
+                # Get recipients based on filter
+                recipients = []
+                if campaign.recipient_filter == 'all':
+                    recipients = User.objects.filter(email__isnull=False).values_list('email', flat=True)
+                elif campaign.recipient_filter == 'admins':
+                    recipients = User.objects.filter(is_staff=True, email__isnull=False).values_list('email', flat=True)
+                elif campaign.recipient_filter == 'superusers':
+                    recipients = User.objects.filter(is_superuser=True, email__isnull=False).values_list('email', flat=True)
+                
+                if recipients:
+                    # Send emails
+                    success_count, fail_count = send_bulk_email(
+                        template=campaign.template,
+                        recipients=list(recipients),
+                        context={},
+                        campaign=campaign
+                    )
+                    
+                    campaign.emails_sent = success_count
+                    campaign.emails_failed = fail_count
+                    campaign.status = 'completed'
+                    campaign.sent_at = timezone.now()
+                    campaign.save()
+                    
+                    messages.success(request, f'Campaign "{campaign.name}" sent! {success_count} sent, {fail_count} failed.')
+                else:
+                    messages.warning(request, f'Campaign "{campaign.name}" created but no recipients found.')
+            else:
+                messages.success(request, f'Campaign "{campaign.name}" created successfully!')
+            
+            return redirect('conference:email_campaign_list')
+        except Exception as e:
+            messages.error(request, f'Error creating campaign: {str(e)}')
+    
+    templates = EmailTemplate.objects.all()
+    
+    context = {
+        'templates': templates,
+    }
+    return render(request, 'admin/email_campaign_form.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def email_campaign_send(request, pk):
+    """Send an existing email campaign"""
+    from .models import EmailCampaign
+    from .email_utils import send_bulk_email
+    
+    campaign = get_object_or_404(EmailCampaign, pk=pk)
+    
+    if request.method == 'POST':
+        # Get recipients based on filter
+        recipients = []
+        if campaign.recipient_filter == 'all':
+            recipients = User.objects.filter(email__isnull=False).values_list('email', flat=True)
+        elif campaign.recipient_filter == 'admins':
+            recipients = User.objects.filter(is_staff=True, email__isnull=False).values_list('email', flat=True)
+        elif campaign.recipient_filter == 'superusers':
+            recipients = User.objects.filter(is_superuser=True, email__isnull=False).values_list('email', flat=True)
+        
+        if recipients:
+            # Send emails
+            success_count, fail_count = send_bulk_email(
+                template=campaign.template,
+                recipients=list(recipients),
+                context={},
+                campaign=campaign
+            )
+            
+            campaign.emails_sent = success_count
+            campaign.emails_failed = fail_count
+            campaign.status = 'completed'
+            campaign.sent_at = timezone.now()
+            campaign.save()
+            
+            messages.success(request, f'Campaign sent! {success_count} emails sent, {fail_count} failed.')
+        else:
+            messages.warning(request, 'No recipients found for this campaign.')
+        
+        return redirect('conference:email_campaign_list')
+    
+    # Count recipients for confirmation
+    recipient_count = 0
+    if campaign.recipient_filter == 'all':
+        recipient_count = User.objects.filter(email__isnull=False).count()
+    elif campaign.recipient_filter == 'admins':
+        recipient_count = User.objects.filter(is_staff=True, email__isnull=False).count()
+    elif campaign.recipient_filter == 'superusers':
+        recipient_count = User.objects.filter(is_superuser=True, email__isnull=False).count()
+    
+    context = {
+        'campaign': campaign,
+        'recipient_count': recipient_count,
+    }
+    return render(request, 'admin/email_campaign_confirm_send.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def security_event_list(request):
+    """List all security events"""
+    from .models import SecurityEvent
+    
+    events = SecurityEvent.objects.all().select_related('user').order_by('-created_at')
+    
+    # Filter by event type
+    event_type = request.GET.get('type')
+    if event_type:
+        events = events.filter(event_type=event_type)
+    
+    # Filter by user
+    user_id = request.GET.get('user')
+    if user_id:
+        events = events.filter(user_id=user_id)
+    
+    # Filter by date range
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    if date_from:
+        events = events.filter(created_at__gte=date_from)
+    if date_to:
+        events = events.filter(created_at__lte=date_to)
+    
+    # Pagination
+    paginator = Paginator(events, 50)
+    page = request.GET.get('page', 1)
+    events_page = paginator.get_page(page)
+    
+    # Get users for filter dropdown
+    users = User.objects.filter(id__in=SecurityEvent.objects.values_list('user_id', flat=True).distinct())
+    
+    context = {
+        'events': events_page,
+        'event_types': SecurityEvent.EVENT_TYPES,
+        'users': users,
+        'current_type': event_type,
+        'current_user': user_id,
+        'date_from': date_from,
+        'date_to': date_to,
+    }
+    return render(request, 'admin/security_event_list.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def send_email(request):
+    """Send email directly from admin panel"""
+    from .models import EmailTemplate, ScheduledEmail
+    from .email_utils import send_bulk_email
+    from django.contrib.auth.models import User
+    
+    templates = EmailTemplate.objects.filter(is_active=True)
+    
+    # Calculate stats
+    stats = {
+        'total_users': User.objects.count(),
+        'staff_count': User.objects.filter(is_staff=True).count(),
+        'emails_today': EmailLog.objects.filter(
+            created_at__date=timezone.now().date()
+        ).count(),
+        'scheduled_count': ScheduledEmail.objects.filter(status='pending').count(),
+    }
+    
+    if request.method == 'POST':
+        template_id = request.POST.get('template')
+        recipient_type = request.POST.get('recipient_type')
+        send_type = request.POST.get('send_type')
+        
+        try:
+            template = EmailTemplate.objects.get(id=template_id)
+            
+            # Get recipients based on type
+            recipients = []
+            recipient_count = 0
+            
+            if recipient_type == 'all_users':
+                recipients = list(User.objects.filter(email__isnull=False).exclude(email='').values_list('email', flat=True))
+            elif recipient_type == 'all_staff':
+                recipients = list(User.objects.filter(is_staff=True, email__isnull=False).exclude(email='').values_list('email', flat=True))
+            elif recipient_type == 'all_reviewers':
+                recipients = list(User.objects.filter(groups__name='Reviewers', email__isnull=False).exclude(email='').values_list('email', flat=True))
+            elif recipient_type == 'all_authors':
+                recipients = list(User.objects.filter(groups__name='Authors', email__isnull=False).exclude(email='').values_list('email', flat=True))
+            elif recipient_type == 'specific':
+                specific_emails = request.POST.get('specific_emails', '')
+                recipients = [email.strip() for email in specific_emails.split(',') if email.strip()]
+            
+            if not recipients:
+                messages.warning(request, 'No recipients found for the selected type.')
+                return redirect('conference:send_email')
+            
+            recipient_count = len(recipients)
+            
+            if send_type == 'scheduled':
+                # Create scheduled email
+                scheduled_time = request.POST.get('scheduled_time')
+                if not scheduled_time:
+                    messages.error(request, 'Please provide a scheduled time.')
+                    return redirect('conference:send_email')
+                
+                scheduled_email = ScheduledEmail.objects.create(
+                    template=template,
+                    recipient_type=recipient_type,
+                    recipient_emails=','.join(recipients) if recipient_type == 'specific' else '',
+                    recipient_count=recipient_count,
+                    scheduled_time=scheduled_time,
+                    created_by=request.user
+                )
+                
+                messages.success(request, f'✓ Email scheduled successfully for {scheduled_time}. {recipient_count} recipients will receive this email.')
+                return redirect('conference:scheduled_emails')
+            else:
+                # Send immediately - render template with context
+                context = {
+                    'conference_name': 'ICEIMS 2026',
+                    'site_url': request.build_absolute_uri('/'),
+                    'year': timezone.now().year,
+                }
+                
+                # Render subject and body
+                subject = template.subject
+                for key, value in context.items():
+                    subject = subject.replace(f'{{{{{key}}}}}', str(value))
+                
+                html_message = template.body_html
+                for key, value in context.items():
+                    html_message = html_message.replace(f'{{{{{key}}}}}', str(value))
+                
+                text_message = template.body_text or html_message
+                
+                # Send emails using correct function signature
+                email_logs = send_bulk_email(
+                    subject=subject,
+                    message=text_message,
+                    recipient_list=recipients,
+                    html_message=html_message
+                )
+                
+                # Count results
+                success_count = sum(1 for log in email_logs if log.status == 'sent')
+                fail_count = len(email_logs) - success_count
+                
+                if fail_count == 0:
+                    messages.success(request, f'✓ Email sent successfully to {success_count} recipients!')
+                else:
+                    messages.warning(request, f'Email sent to {success_count} recipients. {fail_count} failed.')
+                
+                return redirect('conference:email_log_list')
+                
+        except EmailTemplate.DoesNotExist:
+            messages.error(request, 'Template not found. Please select a valid template.')
+        except Exception as e:
+            messages.error(request, f'Error sending email: {str(e)}')
+    
+    context = {
+        'templates': templates,
+        'stats': stats,
+    }
+    return render(request, 'admin/send_email.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def scheduled_emails(request):
+    """List all scheduled emails"""
+    from .models import ScheduledEmail
+    
+    emails = ScheduledEmail.objects.all().select_related('template', 'created_by').order_by('scheduled_time')
+    
+    # Filter by status
+    status = request.GET.get('status')
+    if status:
+        emails = emails.filter(status=status)
+    
+    # Filter by date range
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    if date_from:
+        emails = emails.filter(scheduled_time__gte=date_from)
+    if date_to:
+        emails = emails.filter(scheduled_time__lte=date_to)
+    
+    # Pagination
+    paginator = Paginator(emails, 20)
+    page = request.GET.get('page', 1)
+    emails_page = paginator.get_page(page)
+    
+    context = {
+        'scheduled_emails': emails_page,
+    }
+    return render(request, 'admin/scheduled_emails.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def send_scheduled_email_now(request, pk):
+    """Send a scheduled email immediately"""
+    from .models import ScheduledEmail
+    from .email_utils import send_bulk_email
+    
+    scheduled_email = get_object_or_404(ScheduledEmail, pk=pk)
+    
+    if scheduled_email.status != 'pending':
+        messages.warning(request, 'This email has already been processed.')
+        return redirect('conference:scheduled_emails')
+    
+    try:
+        # Get recipients
+        recipients = []
+        if scheduled_email.recipient_type == 'specific':
+            recipients = [email.strip() for email in scheduled_email.recipient_emails.split(',') if email.strip()]
+        elif scheduled_email.recipient_type == 'all_users':
+            recipients = list(User.objects.filter(email__isnull=False).values_list('email', flat=True))
+        elif scheduled_email.recipient_type == 'all_staff':
+            recipients = list(User.objects.filter(is_staff=True, email__isnull=False).values_list('email', flat=True))
+        
+        # Send emails
+        success_count, fail_count = send_bulk_email(
+            template=scheduled_email.template,
+            recipients=recipients,
+            context={'conference_name': 'ICEIMS 2026'},
+            campaign=None
+        )
+        
+        # Update scheduled email
+        scheduled_email.status = 'sent'
+        scheduled_email.sent_time = timezone.now()
+        scheduled_email.emails_sent = success_count
+        scheduled_email.emails_failed = fail_count
+        scheduled_email.save()
+        
+        messages.success(request, f'Email sent! {success_count} successful, {fail_count} failed.')
+    except Exception as e:
+        scheduled_email.status = 'failed'
+        scheduled_email.error_message = str(e)
+        scheduled_email.save()
+        messages.error(request, f'Error sending email: {str(e)}')
+    
+    return redirect('conference:scheduled_emails')
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def cancel_scheduled_email(request, pk):
+    """Cancel a scheduled email"""
+    from .models import ScheduledEmail
+    
+    scheduled_email = get_object_or_404(ScheduledEmail, pk=pk)
+    
+    if scheduled_email.status != 'pending':
+        messages.warning(request, 'This email cannot be cancelled.')
+    else:
+        scheduled_email.status = 'cancelled'
+        scheduled_email.save()
+        messages.success(request, 'Scheduled email cancelled successfully.')
+    
+    return redirect('conference:scheduled_emails')
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def email_settings(request):
+    """Display email configuration settings"""
+    from django.conf import settings
+    
+    # Check if email is properly configured
+    is_configured = (
+        settings.EMAIL_HOST_USER != 'your-email@gmail.com' and
+        settings.EMAIL_HOST_PASSWORD != 'your-app-password'
+    )
+    
+    context = {
+        'email_backend': settings.EMAIL_BACKEND,
+        'email_host': settings.EMAIL_HOST,
+        'email_port': settings.EMAIL_PORT,
+        'email_use_tls': settings.EMAIL_USE_TLS,
+        'email_host_user': settings.EMAIL_HOST_USER,
+        'is_configured': is_configured,
+    }
+    
+    return render(request, 'admin/email_settings.html', context)
+
+
+# Sponsor Management Views
+@login_required
+@user_passes_test(has_content_permission)
+def sponsor_list(request):
+    """List all sponsors"""
+    sponsors_list = Sponsor.objects.all().order_by('order')
+    
+    context = {
+        'sponsors': sponsors_list,
+        'total_sponsors': sponsors_list.count(),
+    }
+    return render(request, 'admin/sponsor_list.html', context)
+
+
+@login_required
+@user_passes_test(has_content_permission)
+def sponsor_create(request):
+    """Create new sponsor"""
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        website = request.POST.get('website', '')
+        partnership_type = request.POST.get('partnership_type', 'sponsorship')
+        sponsorship_tier = request.POST.get('sponsorship_tier', '')
+        partner_type = request.POST.get('partner_type', '')
+        description = request.POST.get('description', '')
+        order = request.POST.get('order', 0)
+        is_active = request.POST.get('is_active') == 'on'
+        
+        sponsor = Sponsor.objects.create(
+            name=name,
+            website=website,
+            partnership_type=partnership_type,
+            sponsorship_tier=sponsorship_tier,
+            partner_type=partner_type,
+            description=description,
+            order=order,
+            is_active=is_active
+        )
+        
+        # Handle logo upload
+        if 'logo' in request.FILES:
+            sponsor.logo = request.FILES['logo']
+            sponsor.save()
+        
+        messages.success(request, f'Sponsor/Partner "{name}" created successfully!')
+        
+        # Clear cache to update homepage
+        from django.core.cache import cache
+        cache.delete('homepage_data_v2')
+        
+        return redirect('conference:sponsor_list')
+    
+    return render(request, 'admin/sponsor_create.html')
+
+
+@login_required
+@user_passes_test(has_content_permission)
+def sponsor_edit(request, pk):
+    """Edit sponsor"""
+    sponsor = get_object_or_404(Sponsor, pk=pk)
+    
+    if request.method == 'POST':
+        sponsor.name = request.POST.get('name')
+        sponsor.website = request.POST.get('website', '')
+        sponsor.partnership_type = request.POST.get('partnership_type', 'sponsorship')
+        sponsor.sponsorship_tier = request.POST.get('sponsorship_tier', '')
+        sponsor.partner_type = request.POST.get('partner_type', '')
+        sponsor.description = request.POST.get('description', '')
+        sponsor.order = request.POST.get('order', 0)
+        sponsor.is_active = request.POST.get('is_active') == 'on'
+        
+        # Handle logo upload
+        if 'logo' in request.FILES:
+            # Delete old logo if exists
+            if sponsor.logo:
+                try:
+                    sponsor.logo.delete()
+                except:
+                    pass
+            sponsor.logo = request.FILES['logo']
+        
+        sponsor.save()
+        messages.success(request, f'Sponsor/Partner "{sponsor.name}" updated successfully!')
+        
+        # Clear cache to update homepage
+        from django.core.cache import cache
+        cache.delete('homepage_data_v2')
+        
+        return redirect('conference:sponsor_list')
+    
+    context = {
+        'sponsor': sponsor,
+    }
+    return render(request, 'admin/sponsor_edit.html', context)
+
+
+@login_required
+@user_passes_test(is_admin_or_staff)
+@require_POST
+def sponsor_delete(request, pk):
+    """Delete sponsor"""
+    sponsor = get_object_or_404(Sponsor, pk=pk)
+    name = sponsor.name
+    
+    # Delete logo file if exists
+    if sponsor.logo:
+        try:
+            sponsor.logo.delete()
+        except:
+            pass
+    
+    sponsor.delete()
+    messages.success(request, f'Sponsor "{name}" deleted successfully!')
+    
+    # Clear cache to update homepage
+    from django.core.cache import cache
+    cache.delete('homepage_data_v2')
+    
+    return redirect('conference:sponsor_list')
+
+
+@login_required
+@user_passes_test(is_admin_or_staff)
+@require_POST
+def sponsor_bulk_action(request):
+    """Handle bulk actions on sponsors"""
+    action = request.POST.get('action')
+    selected_ids = request.POST.getlist('selected_sponsors')
+    
+    if not selected_ids:
+        messages.error(request, 'No sponsors selected.')
+        return redirect('conference:sponsor_list')
+    
+    sponsors_qs = Sponsor.objects.filter(id__in=selected_ids)
+    count = sponsors_qs.count()
+    
+    if action == 'delete':
+        # Delete logo files
+        for sponsor in sponsors_qs:
+            if sponsor.logo:
+                try:
+                    sponsor.logo.delete()
+                except:
+                    pass
+        sponsors_qs.delete()
+        messages.success(request, f'{count} sponsor{"s" if count != 1 else ""} deleted successfully.')
+    
+    # Clear cache to update homepage
+    from django.core.cache import cache
+    cache.delete('homepage_data_v2')
+    
+    return redirect('conference:sponsor_list')
+
+
+# =============================================================================
+# FAQ VIEWS WITH AI INTEGRATION
+# =============================================================================
+
+def faq_page(request):
+    """FAQ page with categories and AI chatbot"""
+    from .models import FAQCategory, FAQ
+    
+    # Get all active categories with published FAQs
+    categories = FAQCategory.objects.filter(
+        is_active=True,
+        faqs__is_published=True
+    ).distinct().prefetch_related('faqs')
+    
+    # Get featured FAQs
+    featured_faqs = FAQ.objects.filter(
+        is_published=True,
+        is_featured=True
+    ).select_related('category').order_by('-priority', 'display_order')[:5]
+    
+    # Get all published FAQs grouped by category
+    all_faqs = FAQ.objects.filter(
+        is_published=True
+    ).select_related('category').order_by('category__display_order', '-priority', 'display_order')
+    
+    # Search functionality
+    query = request.GET.get('q', '')
+    if query:
+        all_faqs = all_faqs.filter(
+            Q(question__icontains=query) |
+            Q(answer__icontains=query) |
+            Q(tags__icontains=query) |
+            Q(keywords__icontains=query)
+        )
+    
+    # Category filter
+    category_slug = request.GET.get('category', '')
+    selected_category = None
+    if category_slug:
+        selected_category = FAQCategory.objects.filter(slug=category_slug).first()
+        if selected_category:
+            all_faqs = all_faqs.filter(category=selected_category)
+    
+    context = {
+        'categories': categories,
+        'featured_faqs': featured_faqs,
+        'faqs': all_faqs,
+        'query': query,
+        'selected_category': selected_category,
+        'total_faqs': all_faqs.count(),
+    }
+    
+    return render(request, 'faq.html', context)
+
+
+@require_POST
+@csrf_protect
+def faq_ask_ai(request):
+    """AI-powered FAQ answering using Gemini API"""
+    import json
+    import time
+    import uuid
+    from django.conf import settings
+    from .models import FAQ, AIConversation
+    
+    try:
+        # Get question from request
+        data = json.loads(request.body)
+        user_question = data.get('question', '').strip()
+        session_id = data.get('session_id', str(uuid.uuid4()))
+        
+        if not user_question:
+            return JsonResponse({'error': 'Please provide a question'}, status=400)
+        
+        if len(user_question) < 5:
+            return JsonResponse({'error': 'Question too short. Please be more specific.'}, status=400)
+        
+        # Check if Gemini API is configured
+        api_key = settings.GEMINI_API_KEY
+        if not api_key:
+            return JsonResponse({
+                'error': 'AI service is not configured. Please contact the administrator.'
+            }, status=500)
+        
+        start_time = time.time()
+        
+        # Try to find matching FAQ first
+        matched_faq = FAQ.objects.filter(
+            is_published=True
+        ).filter(
+            Q(question__icontains=user_question) |
+            Q(keywords__icontains=user_question) |
+            Q(tags__icontains=user_question)
+        ).first()
+        
+        # If exact match found, return it
+        if matched_faq:
+            matched_faq.increment_views()
+            response_time = time.time() - start_time
+            
+            # Save conversation
+            conversation = AIConversation.objects.create(
+                session_id=session_id,
+                user_question=user_question,
+                ai_response=matched_faq.answer,
+                matched_faq=matched_faq,
+                response_time=response_time,
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+            
+            return JsonResponse({
+                'answer': matched_faq.answer,
+                'source': 'faq',
+                'faq_id': matched_faq.id,
+                'category': matched_faq.category.name if matched_faq.category else None,
+                'response_time': response_time
+            })
+        
+        # Use Gemini AI to generate answer
+        try:
+            import google.generativeai as genai
+            
+            # Configure Gemini
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel(settings.GEMINI_MODEL)
+            
+            # Get all published FAQs for context
+            faq_context = "\n\n".join([
+                f"Q: {faq.question}\nA: {faq.answer}"
+                for faq in FAQ.objects.filter(is_published=True)[:20]
+            ])
+            
+            # Create prompt
+            prompt = f"""You are a helpful assistant for the ICEIMS 2026 International Conference. 
+Answer the user's question based on the following FAQ database and general conference knowledge.
+
+FAQ Database:
+{faq_context}
+
+User Question: {user_question}
+
+Instructions:
+1. If the question is directly related to FAQs above, provide the relevant answer.
+2. If not found in FAQs, provide a helpful answer based on general conference knowledge.
+3. Keep answers concise, professional, and helpful.
+4. If you don't know, suggest contacting the conference organizers.
+5. Format your answer in clear paragraphs.
+
+Answer:"""
+            
+            # Generate response
+            response = model.generate_content(prompt)
+            ai_answer = response.text.strip()
+            
+            response_time = time.time() - start_time
+            
+            # Save conversation
+            conversation = AIConversation.objects.create(
+                session_id=session_id,
+                user_question=user_question,
+                ai_response=ai_answer,
+                matched_faq=None,
+                response_time=response_time,
+                ip_address=get_client_ip(request),
+                user_agent=request.META.get('HTTP_USER_AGENT', '')
+            )
+            
+            return JsonResponse({
+                'answer': ai_answer,
+                'source': 'ai',
+                'response_time': response_time,
+                'conversation_id': conversation.id
+            })
+            
+        except Exception as ai_error:
+            return JsonResponse({
+                'error': f'AI service error: {str(ai_error)}'
+            }, status=500)
+    
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid request format'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@require_POST
+@csrf_protect
+def faq_mark_helpful(request, faq_id):
+    """Mark FAQ as helpful"""
+    from .models import FAQ
+    
+    try:
+        faq = get_object_or_404(FAQ, id=faq_id, is_published=True)
+        faq.mark_helpful()
+        
+        return JsonResponse({
+            'success': True,
+            'helpful_count': faq.helpful_count,
+            'total_votes': faq.helpful_count + faq.not_helpful_count,
+            'ratio': faq.helpfulness_ratio
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@require_POST
+@csrf_protect
+def faq_mark_not_helpful(request, faq_id):
+    """Mark FAQ as not helpful"""
+    from .models import FAQ
+    
+    try:
+        faq = get_object_or_404(FAQ, id=faq_id, is_published=True)
+        faq.mark_not_helpful()
+        
+        return JsonResponse({
+            'success': True,
+            'not_helpful_count': faq.not_helpful_count,
+            'total_votes': faq.helpful_count + faq.not_helpful_count,
+            'ratio': faq.helpfulness_ratio
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@require_POST
+@csrf_protect
+def faq_conversation_feedback(request, conversation_id):
+    """Submit feedback for AI conversation"""
+    from .models import AIConversation
+    import json
+    
+    try:
+        data = json.loads(request.body)
+        conversation = get_object_or_404(AIConversation, id=conversation_id)
+        
+        conversation.was_helpful = data.get('helpful', None)
+        conversation.feedback_text = data.get('feedback', '')
+        conversation.save()
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def get_client_ip(request):
+    """Get client IP address from request"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip

@@ -1,0 +1,325 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}Email Settings - ICEIMS Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .config-card {
+        border-left: 4px solid #a0352f;
+    }
+    
+    .gradient-primary {
+        background: linear-gradient(135deg, #a0352f 0%, #e56d2d 100%);
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #a0352f 0%, #e56d2d 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .code-block {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+        <div>
+            <h1 class="h2 mb-0">
+                <i class="fas fa-cog text-primary me-2"></i>
+                Email Configuration
+            </h1>
+            <p class="text-muted mb-0 mt-1">Configure email settings to send emails from the admin panel</p>
+        </div>
+        <div>
+            <a href="{% url 'conference:admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Current Configuration -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card shadow-sm border-0 config-card">
+                <div class="card-header gradient-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Current Email Configuration Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-6">Email Backend:</dt>
+                                <dd class="col-sm-6">
+                                    <span class="badge bg-info">{{ email_backend }}</span>
+                                </dd>
+                                
+                                <dt class="col-sm-6">SMTP Host:</dt>
+                                <dd class="col-sm-6">{{ email_host }}</dd>
+                                
+                                <dt class="col-sm-6">SMTP Port:</dt>
+                                <dd class="col-sm-6">{{ email_port }}</dd>
+                                
+                                <dt class="col-sm-6">Use TLS:</dt>
+                                <dd class="col-sm-6">
+                                    {% if email_use_tls %}
+                                        <i class="fas fa-check text-success"></i> Yes
+                                    {% else %}
+                                        <i class="fas fa-times text-danger"></i> No
+                                    {% endif %}
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-6">Host User:</dt>
+                                <dd class="col-sm-6">
+                                    {% if is_configured %}
+                                        <span class="text-success">{{ email_host_user }}</span>
+                                    {% else %}
+                                        <span class="text-danger">
+                                            <i class="fas fa-exclamation-triangle"></i> Not configured
+                                        </span>
+                                    {% endif %}
+                                </dd>
+                                
+                                <dt class="col-sm-6">Host Password:</dt>
+                                <dd class="col-sm-6">
+                                    {% if is_configured %}
+                                        <span class="text-success">
+                                            <i class="fas fa-lock"></i> ••••••••
+                                        </span>
+                                    {% else %}
+                                        <span class="text-danger">
+                                            <i class="fas fa-exclamation-triangle"></i> Not configured
+                                        </span>
+                                    {% endif %}
+                                </dd>
+                                
+                                <dt class="col-sm-6">Configuration Status:</dt>
+                                <dd class="col-sm-6">
+                                    {% if is_configured %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle"></i> Configured
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle"></i> Not Configured
+                                        </span>
+                                    {% endif %}
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    {% if not is_configured %}
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Email service is not configured!</strong> Follow the setup guide below to enable email functionality.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Setup Guide -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book text-primary me-2"></i>
+                        Setup Guide: Gmail SMTP Configuration
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Step 1 -->
+                    <div class="d-flex mb-4">
+                        <div class="step-number me-3">1</div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold">Enable 2-Step Verification (if not already enabled)</h6>
+                            <p class="text-muted mb-2">Gmail requires 2-Step Verification to create App Passwords</p>
+                            <ol class="small">
+                                <li>Go to your Google Account: <a href="https://myaccount.google.com" target="_blank">myaccount.google.com</a></li>
+                                <li>Navigate to <strong>Security</strong> section</li>
+                                <li>Under "Signing in to Google", enable <strong>2-Step Verification</strong></li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="d-flex mb-4">
+                        <div class="step-number me-3">2</div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold">Generate App Password</h6>
+                            <p class="text-muted mb-2">Create a 16-character app password for your application</p>
+                            <ol class="small">
+                                <li>Go to: <a href="https://myaccount.google.com/apppasswords" target="_blank">myaccount.google.com/apppasswords</a></li>
+                                <li>Select <strong>Mail</strong> for the app type</li>
+                                <li>Select <strong>Other (Custom name)</strong> for device</li>
+                                <li>Enter "ICEIMS Conference" as the custom name</li>
+                                <li>Click <strong>Generate</strong></li>
+                                <li>Copy the 16-character password (e.g., <code>abcd efgh ijkl mnop</code>)</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="d-flex mb-4">
+                        <div class="step-number me-3">3</div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold">Set Environment Variables (Windows PowerShell)</h6>
+                            <p class="text-muted mb-2">Configure your email credentials as environment variables</p>
+                            
+                            <p class="small mb-2"><strong>Option A: Temporary (Current Session Only)</strong></p>
+                            <div class="code-block mb-3">
+$env:EMAIL_HOST_USER = "your-email@gmail.com"
+$env:EMAIL_HOST_PASSWORD = "your-16-char-app-password"</div>
+
+                            <p class="small mb-2"><strong>Option B: Permanent (Recommended)</strong></p>
+                            <div class="code-block">
+[System.Environment]::SetEnvironmentVariable("EMAIL_HOST_USER", "your-email@gmail.com", "User")
+[System.Environment]::SetEnvironmentVariable("EMAIL_HOST_PASSWORD", "your-16-char-app-password", "User")</div>
+                            
+                            <div class="alert alert-info mt-3 mb-0 small">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Replace <code>your-email@gmail.com</code> with your actual Gmail address and 
+                                <code>your-16-char-app-password</code> with the password from Step 2
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="d-flex mb-4">
+                        <div class="step-number me-3">4</div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold">Restart Your Django Server</h6>
+                            <p class="text-muted mb-2">Environment variables only load when the server starts</p>
+                            <div class="code-block">
+# Stop the current server (Ctrl+C)
+# Then restart with:
+python manage.py runserver</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="d-flex mb-0">
+                        <div class="step-number me-3">5</div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold">Test Email Configuration</h6>
+                            <p class="text-muted mb-2">Verify your setup with the test command</p>
+                            <div class="code-block mb-3">
+python manage.py test_email --to your-test@email.com</div>
+                            
+                            <div class="alert alert-success mb-0 small">
+                                <i class="fas fa-check-circle me-1"></i>
+                                If configured correctly, you should see "✓ Email sent successfully!" message
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Troubleshooting -->
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-wrench text-primary me-2"></i>
+                        Troubleshooting Common Issues
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="troubleshootingAccordion">
+                        <!-- Error 1 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#error1">
+                                    <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                                    Error: "Username and Password not accepted"
+                                </button>
+                            </h2>
+                            <div id="error1" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                <div class="accordion-body">
+                                    <strong>Solutions:</strong>
+                                    <ul class="mb-0">
+                                        <li>Ensure you're using the 16-character App Password, not your regular Gmail password</li>
+                                        <li>Remove any spaces from the app password when setting the environment variable</li>
+                                        <li>Verify EMAIL_HOST_USER contains your full Gmail address</li>
+                                        <li>Make sure you restarted the Django server after setting environment variables</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Error 2 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#error2">
+                                    <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                                    Error: "SMTPAuthenticationError"
+                                </button>
+                            </h2>
+                            <div id="error2" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                <div class="accordion-body">
+                                    <strong>Solutions:</strong>
+                                    <ul class="mb-0">
+                                        <li>Enable 2-Step Verification in your Google Account</li>
+                                        <li>Generate a new App Password from Google Account settings</li>
+                                        <li>Check if the app password has expired (they don't usually expire but can be revoked)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Error 3 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#error3">
+                                    <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                                    Error: "Connection refused" or "Timeout"
+                                </button>
+                            </h2>
+                            <div id="error3" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                <div class="accordion-body">
+                                    <strong>Solutions:</strong>
+                                    <ul class="mb-0">
+                                        <li>Check your firewall settings (allow outbound connections on port 587)</li>
+                                        <li>Verify your internet connection is active</li>
+                                        <li>Try using port 465 with EMAIL_USE_SSL instead of EMAIL_USE_TLS</li>
+                                        <li>Check if your network blocks SMTP connections</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

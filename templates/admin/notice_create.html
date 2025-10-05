@@ -245,6 +245,25 @@
                             </div>
                         </div>
 
+                        <!-- Link/Button (Optional) -->
+                        <div class="form-section">
+                            <h6><i class="fas fa-link"></i> Link/Button (Optional)</h6>
+                            
+                            <div class="mb-3">
+                                <label for="link_url" class="form-label">Link URL</label>
+                                <input type="url" class="form-control" id="link_url" name="link_url" 
+                                       placeholder="https://example.com/more-info">
+                                <div class="form-text">Add a link for users to get more information or take action</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="link_text" class="form-label">Link Text</label>
+                                <input type="text" class="form-control" id="link_text" name="link_text" 
+                                       placeholder="Read More" value="Read More" maxlength="100">
+                                <div class="form-text">Text displayed on the button (e.g., "Read More", "Learn More", "Register Now")</div>
+                            </div>
+                        </div>
+
                         <!-- Options -->
                         <div class="form-section">
                             <h6><i class="fas fa-cog"></i> Options</h6>
@@ -331,6 +350,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const typeInputs = document.querySelectorAll('input[name="notice_type"]');
     const isUrgentCheckbox = document.getElementById('is_urgent');
     const startDateInput = document.getElementById('start_date');
+    const linkUrlInput = document.getElementById('link_url');
+    const linkTextInput = document.getElementById('link_text');
     
     // Preview elements
     const previewNotice = document.getElementById('previewNotice');
@@ -355,9 +376,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Update content preview
-    contentInput.addEventListener('input', function() {
-        previewContent.innerHTML = this.value.replace(/\n/g, '<br>') || 'Enter your notice message above to see preview';
-    });
+    contentInput.addEventListener('input', updatePreview);
+    
+    function updatePreview() {
+        const content = contentInput.value.replace(/\n/g, '<br>') || 'Enter your notice message above to see preview';
+        const linkUrl = linkUrlInput.value;
+        const linkText = linkTextInput.value || 'Read More';
+        
+        let html = content;
+        
+        if (linkUrl) {
+            html += `<div class="mt-2">
+                <a href="${linkUrl}" class="btn btn-sm btn-outline-info notice-link-btn" target="_blank" rel="noopener" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-arrow-right"></i> ${linkText}
+                </a>
+            </div>`;
+        }
+        
+        previewContent.innerHTML = html;
+    }
+    
+    // Update preview when link fields change
+    linkUrlInput.addEventListener('input', updatePreview);
+    linkTextInput.addEventListener('input', updatePreview);
     
     // Handle notice type changes
     typeInputs.forEach(input => {

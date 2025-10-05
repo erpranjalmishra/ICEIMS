@@ -1,0 +1,86 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+{% block title %}Confirm Send Campaign - ICEIMS Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Confirm Campaign Send</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-send"></i> Confirm Email Campaign</h5>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Are you sure you want to send this email campaign?</p>
+                    
+                    <div class="alert alert-info">
+                        <strong>Note:</strong> Once sent, this action cannot be undone. Emails will be sent to all recipients matching the filter.
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-3">Campaign Name:</dt>
+                        <dd class="col-sm-9">{{ campaign.name }}</dd>
+
+                        <dt class="col-sm-3">Template:</dt>
+                        <dd class="col-sm-9">{{ campaign.template.name }}</dd>
+
+                        <dt class="col-sm-3">Subject:</dt>
+                        <dd class="col-sm-9">{{ campaign.template.subject }}</dd>
+
+                        <dt class="col-sm-3">Recipient Filter:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-primary">{{ campaign.get_recipient_filter_display }}</span>
+                        </dd>
+
+                        <dt class="col-sm-3">Estimated Recipients:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-info">{{ recipient_count }}</span> users
+                        </dd>
+
+                        <dt class="col-sm-3">Status:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-secondary">{{ campaign.get_status_display }}</span>
+                        </dd>
+
+                        {% if campaign.scheduled_for %}
+                        <dt class="col-sm-3">Scheduled For:</dt>
+                        <dd class="col-sm-9">{{ campaign.scheduled_for }}</dd>
+                        {% endif %}
+                    </dl>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-send"></i> Yes, Send Campaign
+                            </button>
+                            <a href="{% url 'conference:email_campaign_list' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Template Preview</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">This is how your email will look:</p>
+                    <div class="border p-3" style="max-height: 400px; overflow-y: auto;">
+                        {{ campaign.template.body_html|safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

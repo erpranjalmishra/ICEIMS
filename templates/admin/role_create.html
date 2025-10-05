@@ -413,6 +413,28 @@
                                     </div>
                                 </div>
                                 
+                                <!-- Track Management -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_manage_tracks" name="can_manage_tracks">
+                                        <label class="form-check-label" for="can_manage_tracks">
+                                            <div class="permission-title">Manage Tracks</div>
+                                            <div class="permission-description">Create and manage conference tracks and topics</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Attraction Management -->
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="can_manage_attractions" name="can_manage_attractions">
+                                        <label class="form-check-label" for="can_manage_attractions">
+                                            <div class="permission-title">Manage Attractions</div>
+                                            <div class="permission-description">Add and manage tourist attractions information</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                
                                 <!-- Data Export -->
                                 <div class="permission-item">
                                     <div class="form-check">
@@ -477,6 +499,8 @@
                         <span class="permission-badge" data-permission="can_manage_committee">Committee Management</span>
                         <span class="permission-badge" data-permission="can_manage_notices">Notice Management</span>
                         <span class="permission-badge" data-permission="can_manage_timeline">Timeline Management</span>
+                        <span class="permission-badge" data-permission="can_manage_tracks">Track Management</span>
+                        <span class="permission-badge" data-permission="can_manage_attractions">Attraction Management</span>
                         <span class="permission-badge" data-permission="can_export_data">Data Export</span>
                         <span class="permission-badge" data-permission="can_view_logs">View Logs</span>
                     </div>
@@ -571,8 +595,8 @@ function applyTemplate(template) {
     
     // Apply template-specific permissions
     const templates = {
-        admin: ['can_access_dashboard', 'can_manage_users', 'can_manage_content', 'can_manage_blog', 'can_manage_events', 'can_manage_schedule', 'can_manage_speakers', 'can_manage_committee', 'can_manage_notices', 'can_manage_timeline', 'can_export_data', 'can_view_logs'],
-        editor: ['can_access_dashboard', 'can_manage_content', 'can_manage_blog', 'can_manage_notices'],
+        admin: ['can_access_dashboard', 'can_manage_users', 'can_manage_content', 'can_manage_blog', 'can_manage_events', 'can_manage_schedule', 'can_manage_speakers', 'can_manage_committee', 'can_manage_notices', 'can_manage_timeline', 'can_manage_tracks', 'can_manage_attractions', 'can_export_data', 'can_view_logs'],
+        editor: ['can_access_dashboard', 'can_manage_content', 'can_manage_blog', 'can_manage_notices', 'can_manage_tracks', 'can_manage_attractions'],
         moderator: ['can_access_dashboard', 'can_manage_blog', 'can_manage_notices', 'can_view_logs'],
         viewer: ['can_access_dashboard', 'can_view_logs']
     };

@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if attraction %}Edit{% else %}Add{% endif %} Tourist Attraction - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        padding: 2rem 0;
+        min-height: 100vh;
+        background: #f8f9fa;
+    }
+    .card {
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'conference:attraction_list' %}">Tourist Attractions</a></li>
+                    <li class="breadcrumb-item active">{% if attraction %}Edit{% else %}Add New{% endif %}</li>
+                </ol>
+            </nav>
+            <h2><i class="fas fa-{% if attraction %}edit{% else %}plus{% endif %} me-2"></i>{% if attraction %}Edit{% else %}Add New{% endif %} Tourist Attraction</h2>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="row">
+            <!-- Main Form -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Basic Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Name -->
+                        <div class="mb-3">
+                            <label class="form-label">Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" value="{{ attraction.name|default:'' }}" required>
+                            <small class="text-muted">The name of the tourist attraction</small>
+                        </div>
+
+                        <!-- Slug -->
+                        <div class="mb-3">
+                            <label class="form-label">Slug</label>
+                            <input type="text" name="slug" class="form-control" value="{{ attraction.slug|default:'' }}" placeholder="Leave empty for auto-generation">
+                            <small class="text-muted">URL-friendly version (auto-generated if left empty)</small>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="mb-3">
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            <select name="category" class="form-select" required>
+                                <option value="">Select Category</option>
+                                {% for value, label in category_choices %}
+                                <option value="{{ value }}" {% if attraction.category == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea name="description" class="form-control" rows="5" required>{{ attraction.description|default:'' }}</textarea>
+                            <small class="text-muted">Brief description of the attraction</small>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" name="location" class="form-control" value="{{ attraction.location|default:'' }}" placeholder="e.g., Chandni Chowk, New Delhi">
+                        </div>
+
+                        <!-- Location URL (Google Maps Link) -->
+                        <div class="mb-3">
+                            <label class="form-label">Location URL (Google Maps Link)</label>
+                            <input type="url" name="location_url" class="form-control" value="{{ attraction.location_url|default:'' }}" placeholder="https://maps.google.com/...">
+                            <small class="text-muted">Direct link to Google Maps location</small>
+                        </div>
+
+                        <!-- Map Embed Code -->
+                        <div class="mb-3">
+                            <label class="form-label">Map Embed Code</label>
+                            <textarea name="map_embed" class="form-control" rows="3" placeholder="Paste Google Maps iframe embed code">{{ attraction.map_embed|default:'' }}</textarea>
+                            <small class="text-muted">Get embed code from Google Maps (Share > Embed a map)</small>
+                        </div>
+
+                        <!-- Guide Link -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-link me-1"></i>Guide Link (Blog/Article URL) 
+                                <span class="badge bg-info">Optional</span>
+                            </label>
+                            <input type="url" name="guide_link" class="form-control" value="{{ attraction.guide_link|default:'' }}" placeholder="https://example.com/guide or leave empty">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Enter a custom URL for the "Read Guide" button. If left empty, it will automatically use the internal blog page based on the attraction's slug.
+                            </small>
+                            {% if attraction.slug %}
+                            <div class="alert alert-light mt-2 mb-0">
+                                <small><strong>Auto-generated URL:</strong> <code>/attractions/{{ attraction.slug }}/</code></small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Details -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Additional Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Distance -->
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Distance from KIET</label>
+                                <input type="text" name="distance" class="form-control" value="{{ attraction.distance|default:'' }}" placeholder="e.g., 45 km">
+                            </div>
+
+                            <!-- Time Required -->
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Time Required</label>
+                                <input type="text" name="time_required" class="form-control" value="{{ attraction.time_required|default:'' }}" placeholder="e.g., 2-3 hours">
+                            </div>
+
+                            <!-- Rating -->
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Rating (0-5)</label>
+                                <input type="number" name="rating" class="form-control" step="0.1" min="0" max="5" value="{{ attraction.rating|default:'4.5' }}">
+                            </div>
+
+                            <!-- Order -->
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Display Order</label>
+                                <input type="number" name="order" class="form-control" value="{{ attraction.order|default:'0' }}" min="0">
+                                <small class="text-muted">Lower numbers appear first</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Image Upload -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-image me-2"></i>Image</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Image Guidelines -->
+                        <div class="alert alert-info mb-3">
+                            <small>
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Image Requirements:</strong><br>
+                                • Aspect Ratio: 4:3 or 16:9 recommended<br>
+                                • Resolution: Minimum 800x600px<br>
+                                • Image will fill the full frame (250px height)<br>
+                                • Landscape orientation works best
+                            </small>
+                        </div>
+                        
+                        <!-- Current Image -->
+                        {% if attraction.image %}
+                        <div class="mb-3">
+                            <img src="{{ attraction.image.url }}" alt="{{ attraction.name }}" class="img-fluid rounded" style="width: 100%; height: 200px; object-fit: cover;">
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" name="remove_image" id="removeImage">
+                                <label class="form-check-label text-danger" for="removeImage">
+                                    Remove current image
+                                </label>
+                            </div>
+                        </div>
+                        {% elif attraction.image_url %}
+                        <div class="mb-3">
+                            <img src="{{ attraction.image_url }}" alt="{{ attraction.name }}" class="img-fluid rounded" style="width: 100%; height: 200px; object-fit: cover;">
+                        </div>
+                        {% endif %}
+
+                        <!-- Upload New Image -->
+                        <div class="mb-3">
+                            <label class="form-label">Upload Image</label>
+                            <input type="file" name="image" class="form-control" accept="image/*">
+                            <small class="text-muted">JPG, PNG, or WebP (Max 5MB, min 800x600px)</small>
+                        </div>
+
+                        <!-- OR External URL -->
+                        <div class="text-center mb-2">
+                            <span class="badge bg-secondary">OR</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">External Image URL</label>
+                            <input type="url" name="image_url" class="form-control" value="{{ attraction.image_url|default:'' }}" placeholder="https://cdn.example.com/image.jpg">
+                            <small class="text-muted">Use external image URL (e.g., from CDN or image hosting)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Options -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Active Status -->
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" name="is_active" id="isActive" {% if attraction.is_active or not attraction %}checked{% endif %}>
+                            <label class="form-check-label" for="isActive">
+                                <strong>Active</strong>
+                                <br><small class="text-muted">Display on website</small>
+                            </label>
+                        </div>
+
+                        <!-- Featured Status -->
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="is_featured" id="isFeatured" {% if attraction.is_featured %}checked{% endif %}>
+                            <label class="form-check-label" for="isFeatured">
+                                <strong>Featured</strong>
+                                <br><small class="text-muted">Highlight this attraction</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <button type="submit" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-save me-2"></i>{% if attraction %}Update{% else %}Create{% endif %} Attraction
+                        </button>
+                        <a href="{% url 'conference:attraction_list' %}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Auto-generate slug from name
+document.querySelector('input[name="name"]').addEventListener('input', function() {
+    const slugInput = document.querySelector('input[name="slug"]');
+    if (!slugInput.value || slugInput.hasAttribute('data-auto')) {
+        const slug = this.value
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '');
+        slugInput.value = slug;
+        slugInput.setAttribute('data-auto', 'true');
+    }
+});
+
+// Remove auto-generation flag if user manually edits slug
+document.querySelector('input[name="slug"]').addEventListener('input', function() {
+    if (this.value) {
+        this.removeAttribute('data-auto');
+    }
+});
+
+// Image preview
+document.querySelector('input[name="image"]').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.createElement('img');
+            preview.src = e.target.result;
+            preview.className = 'img-fluid rounded mt-2';
+            
+            const existing = document.querySelector('.preview-image');
+            if (existing) existing.remove();
+            
+            preview.className += ' preview-image';
+            e.target.parentElement.appendChild(preview);
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+</div>
+{% endblock %}

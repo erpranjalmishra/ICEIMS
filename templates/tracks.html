@@ -3,16 +3,277 @@
 
 {% block title %}Conference Tracks - ICEIMS 2026{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Tracks Page Styles */
+.tracks-hero {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    padding: 80px 0 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.tracks-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v6h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.3;
+}
+
+.tracks-hero h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 1;
+}
+
+.tracks-hero p {
+    color: rgba(255,255,255,0.95);
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 2px;
+}
+
+.track-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.track-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 20px 50px rgba(160, 53, 47, 0.25);
+    border-color: var(--primary-color);
+}
+
+.track-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    padding: 30px 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+.track-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+    animation: shimmer 4s infinite linear;
+}
+
+@keyframes shimmer {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.track-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.track-title-main {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: white;
+    margin: 10px 0 0 0;
+    position: relative;
+    z-index: 1;
+}
+
+.track-body {
+    padding: 30px 25px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.topics-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.topics-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.topics-list li {
+    padding: 10px 0;
+    padding-left: 30px;
+    position: relative;
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.topics-list li:last-child {
+    border-bottom: none;
+}
+
+.topics-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.track-card:hover .topics-list li {
+    padding-left: 35px;
+    color: #333;
+}
+
+.intro-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    padding: 60px 0;
+}
+
+.intro-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border-left: 5px solid var(--primary-color);
+}
+
+.intro-card h3 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.guideline-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.guideline-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.guideline-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+}
+
+.guideline-card h5 {
+    color: var(--dark-color);
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.guideline-card p {
+    color: #666;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .tracks-hero h1 {
+        font-size: 2.5rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Tracks Hero Section -->
-<section class="tracks-hero py-5 bg-primary text-white">
+<section class="tracks-hero">
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center">
-                <h1 class="display-4 fw-bold mb-3">Conference Tracks</h1>
-                <p class="lead">Explore our diverse range of research areas</p>
-                <p class="mb-0">Regular and special tracks covering cutting-edge topics in Energy and Intelligent Manufacturing</p>
+                <h1 class="mb-4">
+                    <i class="fas fa-layer-group me-3"></i>Conference Tracks
+                </h1>
+                <p class="lead mb-3">ICEIMS 2026 Technical Program Areas</p>
+                <p class="mb-0">We welcome submissions for ICEIMS 2026's Technical Program in the following areas and not limited to:</p>
             </div>
+        </div>
+    </div>
+</section>
+
+<!-- Introduction Section -->
+<section class="intro-section">
+    <div class="container">
+        <div class="intro-card">
+            <h3><i class="fas fa-info-circle me-2"></i>About Conference Tracks</h3>
+            <p class="mb-0">The International Conference on Energy and Intelligent Manufacturing Systems (ICEIMS) 2026 features four comprehensive tracks covering cutting-edge research and developments in Energy, Robotics, Manufacturing, and Materials. Each track encompasses a wide range of topics, from alternative fuels and sustainable technologies to advanced manufacturing processes and next-generation materials. Researchers, academicians, and industry professionals are invited to submit their original work in these areas.</p>
         </div>
     </div>
 </section>
@@ -20,108 +281,38 @@
 <!-- Regular Tracks -->
 <section class="py-5">
     <div class="container">
-        <div class="row mb-5">
-            <div class="col-lg-12 text-center">
-                <h2 class="section-title">Regular Tracks</h2>
-                <p class="lead">Core research areas in Energy and Intelligent Manufacturing Systems</p>
-            </div>
+        <div class="text-center mb-5">
+            <h2 class="section-title">Technical Program Tracks</h2>
+            <p class="lead text-muted mt-4">Four comprehensive tracks covering diverse research areas</p>
         </div>
         
         <div class="row g-4">
             {% for track in regular_tracks %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="track-card h-100">
+            <div class="col-lg-6">
+                <div class="track-card">
                     <div class="track-header">
-                        <h5 class="track-number">Track {{ track.track_number }}</h5>
+                        <h3 class="track-number">Track {{ track.track_number }}</h3>
+                        <h4 class="track-title-main">{{ track.title }}</h4>
                     </div>
                     <div class="track-body">
-                        <h6 class="track-title">{{ track.title }}</h6>
-                        {% if track.description %}
-                        <p class="track-description">{{ track.description|truncatewords:20 }}</p>
-                        {% endif %}
-                        {% if track.track_chair %}
-                        <p class="track-chair"><strong>Chair:</strong> {{ track.track_chair }}</p>
-                        {% endif %}
+                        <div class="topics-title">
+                            <i class="fas fa-list-ul"></i>
+                            <span>Research Areas</span>
+                        </div>
+                        <ul class="topics-list">
+                            {% for topic in track.description.splitlines %}
+                                {% if topic.strip %}
+                                <li>{{ topic.strip }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
             </div>
             {% empty %}
-            <!-- Default Regular Tracks -->
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="track-card h-100">
-                    <div class="track-header">
-                        <h5 class="track-number">Track 1</h5>
-                    </div>
-                    <div class="track-body">
-                        <h6 class="track-title">Renewable Energy Systems</h6>
-                        <p class="track-description">Solar, wind, and hybrid energy systems for sustainable power generation.</p>
-                        <p class="track-chair"><strong>Chair:</strong> Dr. Rajesh Kumar, IIT Delhi</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="track-card h-100">
-                    <div class="track-header">
-                        <h5 class="track-number">Track 2</h5>
-                    </div>
-                    <div class="track-body">
-                        <h6 class="track-title">Smart Manufacturing</h6>
-                        <p class="track-description">Industry 4.0, IoT integration, and intelligent manufacturing processes.</p>
-                        <p class="track-chair"><strong>Chair:</strong> Prof. Priya Sharma, BITS Pilani</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="track-card h-100">
-                    <div class="track-header">
-                        <h5 class="track-number">Track 3</h5>
-                    </div>
-                    <div class="track-body">
-                        <h6 class="track-title">Energy Storage Systems</h6>
-                        <p class="track-description">Battery technologies, supercapacitors, and energy storage optimization.</p>
-                        <p class="track-chair"><strong>Chair:</strong> Dr. Amit Singh, NIT Kurukshetra</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="track-card h-100">
-                    <div class="track-header">
-                        <h5 class="track-number">Track 4</h5>
-                    </div>
-                    <div class="track-body">
-                        <h6 class="track-title">Artificial Intelligence in Manufacturing</h6>
-                        <p class="track-description">Machine learning, deep learning, and AI applications in manufacturing.</p>
-                        <p class="track-chair"><strong>Chair:</strong> Dr. Neha Agarwal, IIT Bombay</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="track-card h-100">
-                    <div class="track-header">
-                        <h5 class="track-number">Track 5</h5>
-                    </div>
-                    <div class="track-body">
-                        <h6 class="track-title">Smart Grid Technologies</h6>
-                        <p class="track-description">Grid modernization, smart meters, and distributed energy resources.</p>
-                        <p class="track-chair"><strong>Chair:</strong> Prof. Suresh Patel, IIT Kanpur</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="track-card h-100">
-                    <div class="track-header">
-                        <h5 class="track-number">Track 6</h5>
-                    </div>
-                    <div class="track-body">
-                        <h6 class="track-title">Sustainable Manufacturing</h6>
-                        <p class="track-description">Green manufacturing, circular economy, and environmental sustainability.</p>
-                        <p class="track-chair"><strong>Chair:</strong> Dr. Kavita Gupta, NSIT Delhi</p>
-                    </div>
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>Conference tracks will be announced soon.
                 </div>
             </div>
             {% endfor %}
@@ -129,75 +320,38 @@
     </div>
 </section>
 
-<!-- Special Tracks -->
+<!-- Special Tracks (if any) -->
+{% if special_tracks %}
 <section class="py-5 bg-light">
     <div class="container">
-        <div class="row mb-5">
-            <div class="col-lg-12 text-center">
-                <h2 class="section-title">Special Sessions/Tracks</h2>
-                <p class="lead">Focused sessions on emerging and specialized topics</p>
-            </div>
+        <div class="text-center mb-5">
+            <h2 class="section-title">Special Sessions & Tracks</h2>
+            <p class="lead text-muted mt-4">Focused sessions on emerging and specialized topics</p>
         </div>
         
         <div class="row g-4">
             {% for track in special_tracks %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="track-card special h-100">
+            <div class="col-lg-6">
+                <div class="track-card">
                     <div class="track-header">
-                        <h5 class="track-number">Track {{ track.track_number }}</h5>
-                        <span class="badge bg-success">Special</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="track-number mb-0">Track {{ track.track_number }}</h3>
+                            <span class="badge bg-light text-dark">Special Session</span>
+                        </div>
+                        <h4 class="track-title-main">{{ track.title }}</h4>
                     </div>
                     <div class="track-body">
-                        <h6 class="track-title">{{ track.title }}</h6>
-                        {% if track.description %}
-                        <p class="track-description">{{ track.description|truncatewords:20 }}</p>
-                        {% endif %}
-                        {% if track.track_chair %}
-                        <p class="track-chair"><strong>Chair:</strong> {{ track.track_chair }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <!-- Default Special Tracks -->
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="track-card special h-100">
-                    <div class="track-header">
-                        <h5 class="track-number">Track S1</h5>
-                        <span class="badge bg-success">Special</span>
-                    </div>
-                    <div class="track-body">
-                        <h6 class="track-title">Digital Twins in Manufacturing</h6>
-                        <p class="track-description">Virtual modeling, simulation, and real-time monitoring of manufacturing processes.</p>
-                        <p class="track-chair"><strong>Chair:</strong> Dr. Maria Rodriguez, Siemens</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="track-card special h-100">
-                    <div class="track-header">
-                        <h5 class="track-number">Track S2</h5>
-                        <span class="badge bg-success">Special</span>
-                    </div>
-                    <div class="track-body">
-                        <h6 class="track-title">Blockchain in Energy Systems</h6>
-                        <p class="track-description">Decentralized energy trading, smart contracts, and blockchain applications in energy sector.</p>
-                        <p class="track-chair"><strong>Chair:</strong> Prof. John Wilson, Stanford University</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="track-card special h-100">
-                    <div class="track-header">
-                        <h5 class="track-number">Track S3</h5>
-                        <span class="badge bg-success">Special</span>
-                    </div>
-                    <div class="track-body">
-                        <h6 class="track-title">Cybersecurity in Smart Manufacturing</h6>
-                        <p class="track-description">Industrial cybersecurity, threat detection, and secure manufacturing systems.</p>
-                        <p class="track-chair"><strong>Chair:</strong> Dr. Lisa Chen, MIT</p>
+                        <div class="topics-title">
+                            <i class="fas fa-list-ul"></i>
+                            <span>Research Areas</span>
+                        </div>
+                        <ul class="topics-list">
+                            {% for topic in track.description.splitlines %}
+                                {% if topic.strip %}
+                                <li>{{ topic.strip }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -205,37 +359,52 @@
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- Submission Guidelines -->
 <section class="py-5">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-12 text-center mb-4">
-                <h2 class="section-title">Paper Submission Guidelines</h2>
-            </div>
+        <div class="text-center mb-5">
+            <h2 class="section-title">Paper Submission Guidelines</h2>
+            <p class="lead text-muted mt-4">Follow these steps to submit your research</p>
         </div>
+        
         <div class="row g-4">
             <div class="col-lg-4">
-                <div class="guideline-item text-center">
-                    <i class="fas fa-file-upload text-primary fa-3x mb-3"></i>
-                    <h5>Submit Your Paper</h5>
-                    <p>Submit your research paper to the most relevant track through our online submission system.</p>
+                <div class="guideline-card">
+                    <div class="guideline-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h5>Prepare Your Paper</h5>
+                    <p>Ensure your paper follows the conference template and formatting guidelines. Papers should be original and not submitted elsewhere.</p>
                 </div>
             </div>
+            
             <div class="col-lg-4">
-                <div class="guideline-item text-center">
-                    <i class="fas fa-search text-success fa-3x mb-3"></i>
-                    <h5>Peer Review Process</h5>
-                    <p>All papers undergo rigorous peer review by experts in the respective track areas.</p>
+                <div class="guideline-card">
+                    <div class="guideline-icon">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <h5>Submit Online</h5>
+                    <p>Submit your paper to the most relevant track through our online submission portal. All submissions are handled electronically.</p>
                 </div>
             </div>
+            
             <div class="col-lg-4">
-                <div class="guideline-item text-center">
-                    <i class="fas fa-award text-warning fa-3x mb-3"></i>
-                    <h5>Best Paper Awards</h5>
-                    <p>Outstanding papers from each track are eligible for best paper awards and recognition.</p>
+                <div class="guideline-card">
+                    <div class="guideline-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h5>Peer Review</h5>
+                    <p>All papers undergo rigorous double-blind peer review by experts in the respective track areas for quality assurance.</p>
                 </div>
             </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'conference:guidelines' %}" class="btn btn-lg" style="background: var(--primary-color); color: white; padding: 15px 50px; border-radius: 30px; font-weight: 600; box-shadow: 0 5px 20px rgba(160,53,47,0.3);">
+                <i class="fas fa-book me-2"></i>View Detailed Guidelines
+            </a>
         </div>
     </div>
 </section>

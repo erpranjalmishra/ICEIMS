@@ -385,12 +385,118 @@
                     <span class="stat-number">{{ stats.status_updates }}</span>
                     <div class="stat-label">Status Updates</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.conference_tracks }}</span>
+                    <div class="stat-label">Conference Tracks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.tourist_attractions }}</span>
+                    <div class="stat-label">Tourist Attractions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.schedule_items }}</span>
+                    <div class="stat-label">Schedule Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.total_users }}</span>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.sponsors|default:0 }}</span>
+                    <div class="stat-label">Sponsors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.university_info|default:0 }}</span>
+                    <div class="stat-label">University Info</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.gallery_images|default:0 }}</span>
+                    <div class="stat-label">Gallery Images</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.published_faqs|default:0 }}</span>
+                    <div class="stat-label">Published FAQs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.ai_conversations|default:0 }}</span>
+                    <div class="stat-label">AI Conversations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.published_guidelines|default:0 }}</span>
+                    <div class="stat-label">Published Guidelines</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.total_awards|default:0 }}</span>
+                    <div class="stat-label">Total Awards</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.announced_awards|default:0 }}</span>
+                    <div class="stat-label">Winners Announced</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.hero_slides|default:0 }}</span>
+                    <div class="stat-label">Hero Slides</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <span class="stat-number">{{ stats.active_slides|default:0 }}</span>
+                    <div class="stat-label">Active Slides</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <span class="stat-number">{% if stats.site_settings_configured %}1{% else %}0{% endif %}</span>
+                    <div class="stat-label">Site Settings</div>
+                </div>
             </div>
         </div>
         
         <!-- Management Sections -->
         <div class="management-grid">
             <!-- Blog Management -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_blog" %}
             <div class="management-section">
                 <div class="section-header">
                     <i class="section-icon fas fa-blog"></i>
@@ -423,14 +529,91 @@
                     </li>
                 </ul>
             </div>
+            {% endif %}
+            
+            <!-- Email Management Section -->
+            {% if user.is_superuser %}
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-envelope"></i>
+                    <h5>Email Management</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="{% url 'conference:send_email' %}" class="management-link">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Email
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:scheduled_emails' %}" class="management-link">
+                            <i class="fas fa-calendar-check"></i>
+                            Scheduled Emails
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:email_template_list' %}" class="management-link">
+                            <i class="fas fa-file-alt"></i>
+                            Email Templates
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:email_campaign_list' %}" class="management-link">
+                            <i class="fas fa-bullhorn"></i>
+                            Email Campaigns
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:email_log_list' %}" class="management-link">
+                            <i class="fas fa-list-ul"></i>
+                            Email Logs
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:email_settings' %}" class="management-link">
+                            <i class="fas fa-cog"></i>
+                            Email Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:security_event_list' %}" class="management-link">
+                            <i class="fas fa-shield-alt"></i>
+                            Security Events
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
             
             <!-- Website Control -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_notices" or user|has_user_permission:"can_manage_content" %}
             <div class="management-section">
                 <div class="section-header">
                     <i class="section-icon fas fa-cog"></i>
                     <h5>Website Control</h5>
                 </div>
                 <ul class="management-links">
+                    {% if user.is_superuser %}
+                    <li>
+                        <a href="/admin/conference/sitesettings/1/change/" class="management-link">
+                            <i class="fas fa-sliders-h"></i>
+                            Site Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/heroslide/" class="management-link">
+                            <i class="fas fa-images"></i>
+                            Hero Slider
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/slidersettings/1/change/" class="management-link">
+                            <i class="fas fa-cogs"></i>
+                            Slider Settings
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if user.is_superuser or user|has_user_permission:"can_manage_notices" %}
                     <li>
                         <a href="{% url 'conference:notice_list' %}" class="management-link">
                             <i class="fas fa-bullhorn"></i>
@@ -443,6 +626,8 @@
                             Create Notice
                         </a>
                     </li>
+                    {% endif %}
+                    {% if user.is_superuser or user|has_user_permission:"can_manage_content" %}
                     <li>
                         <a href="{% url 'conference:maintenance_list' %}" class="management-link">
                             <i class="fas fa-tools"></i>
@@ -455,10 +640,13 @@
                             Schedule Maintenance
                         </a>
                     </li>
+                    {% endif %}
                 </ul>
             </div>
+            {% endif %}
             
             <!-- Timeline Management -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_timeline" %}
             <div class="management-section">
                 <div class="section-header">
                     <i class="section-icon fas fa-timeline"></i>
@@ -491,8 +679,10 @@
                     </li>
                 </ul>
             </div>
+            {% endif %}
             
             <!-- Schedule Management -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_schedule" %}
             <div class="management-section">
                 <div class="section-header">
                     <i class="section-icon fas fa-calendar-week"></i>
@@ -513,8 +703,10 @@
                     </li>
                 </ul>
             </div>
+            {% endif %}
             
             <!-- Speaker Management -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_speakers" %}
             <div class="management-section">
                 <div class="section-header">
                     <i class="section-icon fas fa-microphone-alt"></i>
@@ -535,8 +727,10 @@
                     </li>
                 </ul>
             </div>
+            {% endif %}
             
             <!-- Committee Management -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_committee" %}
             <div class="management-section">
                 <div class="section-header">
                     <i class="section-icon fas fa-users-cog"></i>
@@ -557,6 +751,295 @@
                     </li>
                 </ul>
             </div>
+            {% endif %}
+            
+            <!-- Track Management -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_content" or user|has_user_permission:"can_manage_tracks" %}
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-layer-group"></i>
+                    <h5>Track Management</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="{% url 'conference:track_list' %}" class="management-link">
+                            <i class="fas fa-list-ul"></i>
+                            Manage Tracks
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:track_create' %}" class="management-link">
+                            <i class="fas fa-plus"></i>
+                            Add New Track
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:tracks' %}" class="management-link" target="_blank">
+                            <i class="fas fa-eye"></i>
+                            View Public Page
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Tourist Attractions Management -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_content" or user|has_user_permission:"can_manage_attractions" %}
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-map-marked-alt"></i>
+                    <h5>Tourist Attractions</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="{% url 'conference:attraction_list' %}" class="management-link">
+                            <i class="fas fa-list"></i>
+                            Manage Attractions
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:attraction_create' %}" class="management-link">
+                            <i class="fas fa-plus"></i>
+                            Add New Attraction
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:attractions' %}" class="management-link" target="_blank">
+                            <i class="fas fa-eye"></i>
+                            View Public Page
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Sponsor Management -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_content" %}
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-handshake"></i>
+                    <h5>Sponsor Management</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="{% url 'conference:sponsor_list' %}" class="management-link">
+                            <i class="fas fa-list"></i>
+                            Manage Sponsors
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:sponsor_create' %}" class="management-link">
+                            <i class="fas fa-plus"></i>
+                            Add New Sponsor
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:sponsors' %}" class="management-link" target="_blank">
+                            <i class="fas fa-eye"></i>
+                            View Public Page
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- University Management -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_content" %}
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-university"></i>
+                    <h5>University Management</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="/admin/conference/universityinfo/" class="management-link" target="_blank">
+                            <i class="fas fa-info-circle"></i>
+                            University Information
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/universitygallery/" class="management-link" target="_blank">
+                            <i class="fas fa-images"></i>
+                            Gallery Images
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/universitygallery/add/" class="management-link" target="_blank">
+                            <i class="fas fa-plus"></i>
+                            Add Gallery Image
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:university' %}" class="management-link" target="_blank">
+                            <i class="fas fa-eye"></i>
+                            View University Page
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- FAQ Management -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_content" %}
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-question-circle"></i>
+                    <h5>FAQ Management</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="/admin/conference/faqcategory/" class="management-link" target="_blank">
+                            <i class="fas fa-folder"></i>
+                            FAQ Categories
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/faq/" class="management-link" target="_blank">
+                            <i class="fas fa-list"></i>
+                            All FAQs
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/faq/add/" class="management-link" target="_blank">
+                            <i class="fas fa-plus"></i>
+                            Add New FAQ
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/aiconversation/" class="management-link" target="_blank">
+                            <i class="fas fa-robot"></i>
+                            AI Conversations
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:faq' %}" class="management-link" target="_blank">
+                            <i class="fas fa-eye"></i>
+                            View FAQ Page
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Guidelines Management -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_content" %}
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-book"></i>
+                    <h5>Guidelines Management</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="/admin/conference/guidelinecategory/" class="management-link" target="_blank">
+                            <i class="fas fa-folder"></i>
+                            Guideline Categories
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/guideline/" class="management-link" target="_blank">
+                            <i class="fas fa-list"></i>
+                            All Guidelines
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/guideline/add/" class="management-link" target="_blank">
+                            <i class="fas fa-plus"></i>
+                            Add New Guideline
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:guidelines' %}" class="management-link" target="_blank">
+                            <i class="fas fa-eye"></i>
+                            View Guidelines Page
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Awards Management -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_content" %}
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-trophy"></i>
+                    <h5>Awards Management</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="/admin/conference/awardcategory/" class="management-link" target="_blank">
+                            <i class="fas fa-folder"></i>
+                            Award Categories
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/award/" class="management-link" target="_blank">
+                            <i class="fas fa-list"></i>
+                            All Awards
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/award/add/" class="management-link" target="_blank">
+                            <i class="fas fa-plus"></i>
+                            Add New Award
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/pastwinner/" class="management-link" target="_blank">
+                            <i class="fas fa-history"></i>
+                            Past Winners
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:awards' %}" class="management-link" target="_blank">
+                            <i class="fas fa-eye"></i>
+                            View Awards Page
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+            
+            <!-- Website Control -->
+            {% if user.is_superuser or user|has_user_permission:"can_manage_content" %}
+            <div class="management-section">
+                <div class="section-header">
+                    <i class="section-icon fas fa-cog"></i>
+                    <h5>Website Control</h5>
+                </div>
+                <ul class="management-links">
+                    <li>
+                        <a href="/admin/conference/sitesettings/" class="management-link" target="_blank">
+                            <i class="fas fa-palette"></i>
+                            Site Settings & Branding
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/heroslide/" class="management-link" target="_blank">
+                            <i class="fas fa-images"></i>
+                            Hero Slider Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/heroslide/add/" class="management-link" target="_blank">
+                            <i class="fas fa-plus"></i>
+                            Add New Slide
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/conference/slidersettings/" class="management-link" target="_blank">
+                            <i class="fas fa-sliders-h"></i>
+                            Slider Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'conference:home' %}" class="management-link" target="_blank">
+                            <i class="fas fa-eye"></i>
+                            View Homepage
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
             
             <!-- System Administration -->
             <div class="management-section">
@@ -626,10 +1109,14 @@
                 <a href="{% url 'conference:status_update_create' %}" class="action-btn">
                     <i class="fas fa-broadcast-tower me-1"></i> Post Update
                 </a>
+                <a href="{% url 'conference:admin_sitemap' %}" class="action-btn">
+                    <i class="fas fa-sitemap me-1"></i> Admin Site Map
+                </a>
             </div>
         </div>
         
         <!-- Export Data -->
+        {% if user.is_superuser or user|has_user_permission:"can_export_data" %}
         <div class="export-section">
             <h5><i class="fas fa-download"></i> Export Data</h5>
             <div class="row g-3">
@@ -715,6 +1202,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         
         <!-- Recent Activity -->
         <div class="recent-activity">

@@ -49,6 +49,90 @@
     100% { border-left-width: 5px; }
 }
 
+/* Track Card Styles */
+.track-card {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    position: relative;
+}
+
+.track-card:hover {
+    transform: translateY(-15px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(160, 53, 47, 0.25) !important;
+}
+
+.track-card .track-header {
+    position: relative;
+    overflow: hidden;
+}
+
+.track-card .track-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+    animation: shimmer 4s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.track-card .track-topics li {
+    transition: all 0.3s ease;
+}
+
+.track-card:hover .track-topics li {
+    padding-left: 15px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.track-card .btn {
+    transition: all 0.3s ease;
+}
+
+.track-card .btn:hover {
+    transform: translateX(5px) scale(1.05);
+    box-shadow: 0 5px 15px rgba(160, 53, 47, 0.4) !important;
+}
+
+/* Objective Section Animations */
+.objective-card {
+    animation: fadeInUp 0.8s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.highlight-item {
+    transition: all 0.3s ease;
+}
+
+.highlight-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(160, 53, 47, 0.15);
+}
+
+.highlight-item i {
+    transition: all 0.3s ease;
+}
+
+.highlight-item:hover i {
+    transform: scale(1.2) rotate(360deg);
+}
+
 .alert-primary {
     background-color: rgba(160, 53, 47, 0.1);
     border-color: var(--primary-color);
@@ -60,9 +144,11 @@
 {% block content %}
 <!-- Hero Section with Slider -->
 <section id="home" class="hero-section">
-    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" 
+         data-bs-interval="{{ slider_settings.autoplay_speed|default:5000 }}"{% if not slider_settings.autoplay %} data-bs-pause="true"{% endif %}>
+        {% if slider_settings.show_dots %}
         <div class="carousel-indicators">
-            {% for slide in slider_images %}
+            {% for slide in hero_slides %}
             <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ forloop.counter0 }}" 
                     {% if forloop.first %}class="active"{% endif %} aria-current="true" 
                     aria-label="Slide {{ forloop.counter }}"></button>
@@ -75,23 +161,49 @@
                     aria-label="Slide 3"></button>
             {% endfor %}
         </div>
+        {% endif %}
         
         <div class="carousel-inner">
-            {% for slide in slider_images %}
-            <div class="carousel-item {% if forloop.first %}active{% endif %}" data-bs-interval="4000">
-                <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title }}">
+            {% for slide in hero_slides %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}" 
+                 data-bs-interval="{{ slider_settings.autoplay_speed|default:5000 }}">
+                {% if slide.slide_type == 'image' and slide.image %}
+                    <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title }}">
+                {% elif slide.slide_type == 'video' and slide.video_file %}
+                    <video class="d-block w-100" autoplay muted loop playsinline>
+                        <source src="{{ slide.video_file.url }}" type="video/mp4">
+                        {% if slide.video_thumbnail %}
+                        <img src="{{ slide.video_thumbnail.url }}" alt="{{ slide.title }}">
+                        {% endif %}
+                    </video>
+                {% elif slide.slide_type == 'video' and slide.video_url %}
+                    <div class="video-container">
+                        <iframe src="{{ slide.video_url }}" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                {% endif %}
                 <div class="carousel-overlay"></div>
+                {% if slide.title or slide.subtitle %}
+                <div class="carousel-caption text-{{ slide.text_position }} {% if slide.text_color %}text-{{ slide.text_color }}{% endif %}">
+                    {% if slide.title %}<h1 class="display-4 fw-bold">{{ slide.title }}</h1>{% endif %}
+                    {% if slide.subtitle %}<p class="lead">{{ slide.subtitle }}</p>{% endif %}
+                    {% if slide.cta_text and slide.cta_url %}
+                    <a href="{{ slide.cta_url }}" class="btn btn-{{ slide.cta_style|default:'primary' }} btn-lg mt-3">
+                        {{ slide.cta_text }}
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
             {% empty %}
-            <div class="carousel-item active" data-bs-interval="4000">
+            <div class="carousel-item active" data-bs-interval="{{ slider_settings.autoplay_speed|default:5000 }}">
                 <img src="{% static 'images/m1.jpg' %}" class="d-block w-100" alt="ICEIMS 2026 Conference">
                 <div class="carousel-overlay"></div>
             </div>
-            <div class="carousel-item" data-bs-interval="4000">
+            <div class="carousel-item" data-bs-interval="{{ slider_settings.autoplay_speed|default:5000 }}">
                 <img src="{% static 'images/m2.jpg' %}" class="d-block w-100" alt="Welcome to ICEIMS">
                 <div class="carousel-overlay"></div>
             </div>
-            <div class="carousel-item" data-bs-interval="4000">
+            <div class="carousel-item" data-bs-interval="{{ slider_settings.autoplay_speed|default:5000 }}">
                 <img src="{% static 'images/m3.jpeg' %}" class="d-block w-100" alt="Call for Papers">
                 <div class="carousel-overlay"></div>
             </div>
@@ -99,17 +211,19 @@
         </div>
         
         <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
         </button>
         <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
         </button>
     </div>
 </section>
 
 <!-- Notices Section -->
 {% if notices %}
-<section class="notices-section py-4">
+<section class="notices-section pb-4">
     <div class="container">
         {% for notice in notices %}
         <div class="alert alert-{{ notice.notice_type }} alert-dismissible fade show notice-alert {% if notice.is_urgent %}urgent-notice{% endif %}" role="alert">
@@ -137,6 +251,13 @@
                     <div class="notice-text">
                         {{ notice.content|linebreaks }}
                     </div>
+                    {% if notice.link_url %}
+                    <div class="mt-2">
+                        <a href="{{ notice.link_url }}" class="btn btn-sm btn-outline-{{ notice.notice_type }} notice-link-btn" target="_blank" rel="noopener">
+                            <i class="fas fa-arrow-right"></i> {{ notice.link_text|default:"Read More" }}
+                        </a>
+                    </div>
+                    {% endif %}
                     <small class="notice-date text-muted">
                         <i class="fas fa-calendar"></i> {{ notice.start_date|date:"M j, Y" }}
                         {% if notice.end_date %}
@@ -242,13 +363,136 @@
     </div>
 </section>
 
+<!-- Conference Tracks Section -->
+<section id="tracks" class="py-5" style="background: white; position: relative;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title" style="font-size: 2.5rem; font-weight: 700; color: var(--primary-color); margin-bottom: 1rem;">
+                <i class="fas fa-layer-group me-3"></i>Conference Tracks
+            </h2>
+            <div style="width: 80px; height: 4px; background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); margin: 0 auto 1.5rem; border-radius: 2px;"></div>
+            <p class="lead text-muted">Explore our technical program areas</p>
+            <p class="text-secondary">We welcome submissions for ICEIMS 2026's Technical Program in the following areas</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for track in conference_tracks|slice:":4" %}
+            <div class="col-lg-6 col-md-6">
+                <div class="track-card h-100" style="border-radius: 20px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.12); transition: all 0.4s ease; background: white; border: 1px solid #e9ecef; position: relative;">
+                    <!-- Color Strip -->
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, {{ track.color|default:'#a0352f' }}, var(--secondary-color));"></div>
+                    
+                    <div class="track-header" style="background: linear-gradient(135deg, {{ track.color|default:'var(--primary-color)' }} 0%, var(--secondary-color) 100%); padding: 2rem; color: white; position: relative;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="mb-2" style="opacity: 0.9; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Track {{ track.track_number }}</div>
+                                <h3 class="mb-0" style="font-size: 1.6rem; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">
+                                    {{ track.title }}
+                                </h3>
+                            </div>
+                            <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                                <i class="fas fa-cube" style="font-size: 1.8rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="track-body" style="padding: 2rem;">
+                        <div class="mb-3">
+                            <span class="badge" style="background: {{ track.color|default:'var(--primary-color)' }}; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+                                <i class="fas fa-bookmark me-1"></i>{{ track.get_track_type_display }}
+                            </span>
+                            {% if track.track_chair %}
+                            <span class="badge bg-light text-dark ms-2" style="padding: 6px 12px; border-radius: 20px; font-size: 0.85rem;">
+                                <i class="fas fa-user me-1"></i>{{ track.track_chair|truncatewords:3 }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <h6 style="color: #6c757d; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; font-weight: 600;">
+                            <i class="fas fa-list-ul me-2"></i>Key Topics
+                        </h6>
+                        
+                        <ul class="track-topics list-unstyled" style="color: #555; line-height: 1.8; max-height: 200px; overflow: hidden; position: relative;">
+                            {% for topic in track.description.splitlines|slice:":5" %}
+                                {% if topic.strip %}
+                                <li style="padding: 8px 0; border-bottom: 1px solid #f0f0f0; display: flex; align-items: start;">
+                                    <i class="fas fa-arrow-right me-2" style="font-size: 0.7rem; color: {{ track.color|default:'var(--primary-color)' }}; margin-top: 6px; flex-shrink: 0;"></i>
+                                    <span>{{ topic.strip }}</span>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                            {% if track.description.splitlines|length > 5 %}
+                            <li style="padding: 10px 0; color: #6c757d; font-style: italic; font-size: 0.9rem;">
+                                <i class="fas fa-ellipsis-h me-2"></i>and {{ track.description.splitlines|length|add:"-5" }} more topics...
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    
+                    <div class="track-footer" style="padding: 1.5rem 2rem; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border-top: 2px solid #e9ecef;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div style="font-size: 0.85rem; color: #6c757d;">
+                                <i class="fas fa-layer-group me-1"></i>
+                                <strong>{{ track.topic_count }}</strong> total topic{{ track.topic_count|pluralize }}
+                            </div>
+                            <a href="{% url 'conference:tracks' %}" class="btn btn-sm" style="background: {{ track.color|default:'var(--primary-color)' }}; color: white; border: none; padding: 8px 20px; border-radius: 25px; transition: all 0.3s; font-weight: 600; box-shadow: 0 3px 10px rgba(160,53,47,0.2);">
+                                View Details <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: none; border-radius: 15px; padding: 2rem; text-align: center;">
+                    <i class="fas fa-info-circle" style="font-size: 3rem; color: #1976d2; margin-bottom: 1rem;"></i>
+                    <h5 style="color: #1565c0; font-weight: 600;">Conference tracks will be announced soon</h5>
+                    <p style="color: #1976d2; margin: 0;">Stay tuned for updates on our technical program areas</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if conference_tracks|length > 4 %}
+        <div class="text-center mt-5">
+            <div class="alert alert-warning d-inline-block" style="background: linear-gradient(135deg, #fff3cd, #ffe69c); border: none; border-radius: 15px; padding: 1rem 2rem; margin-bottom: 1.5rem;">
+                <i class="fas fa-info-circle me-2"></i>
+                Showing <strong>4</strong> of <strong>{{ conference_tracks|length }}</strong> tracks
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'conference:tracks' %}" class="btn btn-lg" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 15px 50px; border-radius: 50px; font-weight: 700; box-shadow: 0 8px 25px rgba(160,53,47,0.3); border: none; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease;">
+                <i class="fas fa-th-large me-2"></i>View All {{ conference_tracks|length }} Tracks
+            </a>
+        </div>
+    </div>
+</section>
+
 <!-- About Section -->
 <section id="about" class="py-5">
     <div class="container">
         <div class="row">
             <div class="col-lg-6">
-                <h2 class="section-title mb-4">About Galgotias University</h2>
-                <p class="lead">{{ conference_settings.about_text|default:"The university began operations in the 2011-2012 academic session and welcomed its first batch of students in July 2011. Since then, it has grown exponentially to become one of India's premier educational institutions, nurturing more than 30K+ students from across the globe. With a commitment to academic excellence and innovation, Galgotias University has established itself as a leader in providing world-class education across diverse fields of engineering, management, law, and applied sciences." }}</p>
+                <h2 class="section-title mb-4">About {{ university_info.name|default:"Galgotias University" }}</h2>
+                <p class="lead">{{ university_info.about_text|default:"The university began operations in the 2011-2012 academic session and welcomed its first batch of students in July 2011. Since then, it has grown exponentially to become one of India's premier educational institutions, nurturing more than 30K+ students from across the globe. With a commitment to academic excellence and innovation, Galgotias University has established itself as a leader in providing world-class education across diverse fields of engineering, management, law, and applied sciences." }}</p>
+                {% if university_info and university_info.show_stats %}
+                <div class="university-stats row mt-4">
+                    <div class="col-4 text-center">
+                        <h3 class="text-primary fw-bold">{{ university_info.student_count }}</h3>
+                        <p class="small">Students</p>
+                    </div>
+                    <div class="col-4 text-center">
+                        <h3 class="text-primary fw-bold">{{ university_info.school_count }}</h3>
+                        <p class="small">Schools</p>
+                    </div>
+                    <div class="col-4 text-center">
+                        <h3 class="text-primary fw-bold">{{ university_info.program_count }}</h3>
+                        <p class="small">Programs</p>
+                    </div>
+                </div>
+                {% else %}
                 <div class="university-stats row mt-4">
                     <div class="col-4 text-center">
                         <h3 class="text-primary fw-bold">30K+</h3>
@@ -263,64 +507,91 @@
                         <p class="small">Programs</p>
                     </div>
                 </div>
+                {% endif %}
+                <div class="mt-4">
+                    <a href="{% url 'conference:university' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-university me-2"></i>Learn More About Our University
+                    </a>
+                </div>
             </div>
             <div class="col-lg-6">
                 <div class="morphing-gallery-container">
                     <div class="gallery-morphing-frame">
                         <div class="morphing-image-wrapper">
-                            <div class="morphing-image-container active" data-index="0">
-                                <img src="{% static 'images/g1.webp' %}" alt="Galgotias University Campus">
-                                <div class="image-overlay">
-                                    <div class="overlay-content">
-                                        <h4>Modern Campus</h4>
-                                        <p>State-of-the-art facilities</p>
+                            {% if university_gallery %}
+                                {% for image in university_gallery %}
+                                <div class="morphing-image-container {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                                    <img src="{{ image.image.url }}" alt="{{ image.title }}">
+                                    <div class="image-overlay">
+                                        <div class="overlay-content">
+                                            <h4>{{ image.title }}</h4>
+                                            <p>{{ image.description|truncatewords:10 }}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="morphing-image-container" data-index="1">
-                                <img src="{% static 'images/g2.webp' %}" alt="University Facilities">
-                                <div class="image-overlay">
-                                    <div class="overlay-content">
-                                        <h4>Advanced Labs</h4>
-                                        <p>Cutting-edge technology</p>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Default fallback images -->
+                                <div class="morphing-image-container active" data-index="0">
+                                    <img src="{% static 'images/g1.webp' %}" alt="Galgotias University Campus">
+                                    <div class="image-overlay">
+                                        <div class="overlay-content">
+                                            <h4>Modern Campus</h4>
+                                            <p>State-of-the-art facilities</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="morphing-image-container" data-index="2">
-                                <img src="{% static 'images/g3.webp' %}" alt="Student Life">
-                                <div class="image-overlay">
-                                    <div class="overlay-content">
-                                        <h4>Student Life</h4>
-                                        <p>Vibrant campus culture</p>
+                                <div class="morphing-image-container" data-index="1">
+                                    <img src="{% static 'images/g2.webp' %}" alt="University Facilities">
+                                    <div class="image-overlay">
+                                        <div class="overlay-content">
+                                            <h4>Advanced Labs</h4>
+                                            <p>Cutting-edge technology</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="morphing-image-container" data-index="3">
-                                <img src="{% static 'images/g4.webp' %}" alt="Technology Hub">
-                                <div class="image-overlay">
-                                    <div class="overlay-content">
-                                        <h4>Innovation Hub</h4>
-                                        <p>Research excellence</p>
+                                <div class="morphing-image-container" data-index="2">
+                                    <img src="{% static 'images/g3.webp' %}" alt="Student Life">
+                                    <div class="image-overlay">
+                                        <div class="overlay-content">
+                                            <h4>Student Life</h4>
+                                            <p>Vibrant campus culture</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="morphing-image-container" data-index="4">
-                                <img src="{% static 'images/g5.jpg' %}" alt="Infrastructure">
-                                <div class="image-overlay">
-                                    <div class="overlay-content">
-                                        <h4>Infrastructure</h4>
-                                        <p>World-class facilities</p>
+                                <div class="morphing-image-container" data-index="3">
+                                    <img src="{% static 'images/g4.webp' %}" alt="Technology Hub">
+                                    <div class="image-overlay">
+                                        <div class="overlay-content">
+                                            <h4>Innovation Hub</h4>
+                                            <p>Research excellence</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                                <div class="morphing-image-container" data-index="4">
+                                    <img src="{% static 'images/g5.jpg' %}" alt="Infrastructure">
+                                    <div class="image-overlay">
+                                        <div class="overlay-content">
+                                            <h4>Infrastructure</h4>
+                                            <p>World-class facilities</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
                         </div>
                         
                         <div class="morphing-nav-dots">
-                            <div class="nav-dot active" data-index="0"></div>
-                            <div class="nav-dot" data-index="1"></div>
-                            <div class="nav-dot" data-index="2"></div>
-                            <div class="nav-dot" data-index="3"></div>
-                            <div class="nav-dot" data-index="4"></div>
+                            {% if university_gallery %}
+                                {% for image in university_gallery %}
+                                <div class="nav-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="nav-dot active" data-index="0"></div>
+                                <div class="nav-dot" data-index="1"></div>
+                                <div class="nav-dot" data-index="2"></div>
+                                <div class="nav-dot" data-index="3"></div>
+                                <div class="nav-dot" data-index="4"></div>
+                            {% endif %}
                         </div>
                         
                         <div class="morphing-progress-ring">
@@ -328,7 +599,7 @@
                                 <circle class="progress-ring-circle" stroke="#c23338" stroke-width="2" fill="transparent" r="28" cx="30" cy="30"/>
                             </svg>
                             <div class="progress-ring-center">
-                                <span class="progress-text">1/5</span>
+                                <span class="progress-text">1/{% if university_gallery %}{{ university_gallery|length }}{% else %}5{% endif %}</span>
                             </div>
                         </div>
                     </div>
@@ -339,175 +610,92 @@
 </section>
 
 <!-- Conference Objective Section -->
-<section class="py-5 conference-objective-bg">
-    <div class="container">
+<section class="py-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); position: relative; overflow: hidden;">
+    <!-- Background Pattern -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.05; background-image: repeating-linear-gradient(45deg, var(--primary-color) 0px, var(--primary-color) 2px, transparent 2px, transparent 10px);"></div>
+    
+    <div class="container position-relative">
         <div class="row">
-            <div class="col-lg-12 text-center mb-5">
-                <h2 class="section-title">Conference Objective</h2>
+            <div class="col-lg-12 text-center mb-4">
+                <h2 class="section-title" style="font-size: 2.5rem; font-weight: 700; color: var(--primary-color); margin-bottom: 1rem;">
+                    <i class="fas fa-bullseye me-3"></i>Conference Objective
+                </h2>
+                <div style="width: 80px; height: 4px; background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)); margin: 0 auto; border-radius: 2px;"></div>
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-8 mx-auto">
-                <div class="objective-content">
-                    <p class="lead text-center">{{ conference_settings.conference_objective|default:"ICCCA is a non-profit conference that provides an opportunity for practicing engineers, academicians, and researchers to meet in a forum to discuss various issues and future directions in the field of Engineering and Technologies." }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Conference Tracks Section -->
-<section id="tracks" class="py-5 tracks-section">
-    <div class="container">
-        <!-- Track Content -->
-        <div class="tab-content" id="trackTabContent">
-            <!-- Regular Tracks -->
-            <div class="tab-pane fade show active" id="regular" role="tabpanel">
-                <div class="row g-3">
-                    {% for track in regular_tracks %}
-                    <div class="col-lg-4 col-md-6 mb-3">
-                        <div class="enhanced-track-card regular h-100">
-                            <div class="track-icon">
-                                <i class="fas fa-microchip"></i>
-                            </div>
-                            <div class="track-header">
-                                <span class="track-number">Track {{ track.track_number }}</span>
-                            </div>
-                            <div class="track-content">
-                                <h5 class="track-title">{{ track.title }}</h5>
-                                {% if track.description %}
-                                <p class="track-description">{{ track.description|truncatewords:15 }}</p>
-                                {% endif %}
-                                {% if track.track_chair %}
-                                <div class="track-chair">
-                                    <i class="fas fa-user me-2"></i>
-                                    <span>{{ track.track_chair }}</span>
-                                </div>
-                                {% endif %}
+            <div class="col-lg-10 mx-auto">
+                <div class="objective-card" style="background: white; border-radius: 20px; padding: 3rem; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-left: 5px solid var(--primary-color);">
+                    <div class="row g-4">
+                        <div class="col-lg-2 text-center d-none d-lg-block">
+                            <div style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; box-shadow: 0 5px 20px rgba(160,53,47,0.3);">
+                                <i class="fas fa-flag-checkered" style="font-size: 2.5rem; color: white;"></i>
                             </div>
                         </div>
-                    </div>
-                    {% empty %}
-                    <!-- Empty state - no content shown -->
-                    {% endfor %}
-                </div>
-            </div>
-            
-            <!-- Special Sessions -->
-            <div class="tab-pane fade" id="special" role="tabpanel">
-                <div class="row g-4">
-                    {% for track in special_tracks %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="enhanced-track-card special h-100">
-                            <div class="special-badge">
-                                <i class="fas fa-star"></i>
-                                <span>Special</span>
-                            </div>
-                            <div class="track-icon">
-                                <i class="fas fa-rocket"></i>
-                            </div>
-                            <div class="track-header">
-                                <span class="track-number">Session {{ track.track_number }}</span>
-                            </div>
-                            <div class="track-content">
-                                <h5 class="track-title">{{ track.title }}</h5>
-                                {% if track.description %}
-                                <p class="track-description">{{ track.description|truncatewords:15 }}</p>
-                                {% endif %}
-                                {% if track.track_chair %}
-                                <div class="track-chair">
-                                    <i class="fas fa-user me-2"></i>
-                                    <span>{{ track.track_chair }}</span>
+                        <div class="col-lg-10">
+                            <div class="objective-points">
+                                <div class="objective-item" style="display: flex; align-items: start; margin-bottom: 1rem; padding: 0.8rem; background: #f8f9fa; border-radius: 8px; border-left: 3px solid var(--primary-color);">
+                                    <div style="min-width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                                        <strong style="color: white; font-size: 0.85rem;">1</strong>
+                                    </div>
+                                    <div>
+                                        <h6 style="font-size: 0.9rem; font-weight: 600; color: #333; margin-bottom: 0.3rem;">Promote Knowledge Exchange</h6>
+                                        <p style="font-size: 0.85rem; color: #666; margin: 0; line-height: 1.5;">Provide a platform for presenting cutting-edge research findings, case studies, and practical applications in sustainable energy and advanced manufacturing systems.</p>
+                                    </div>
                                 </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <!-- Sample Special Sessions -->
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="enhanced-track-card special h-100">
-                            <div class="special-badge">
-                                <i class="fas fa-star"></i>
-                                <span>Special</span>
-                            </div>
-                            <div class="track-icon">
-                                <i class="fas fa-microscope"></i>
-                            </div>
-                            <div class="track-header">
-                                <span class="track-number">Session 1</span>
-                            </div>
-                            <div class="track-content">
-                                <h5 class="track-title">Applications of AI & ML in Sustainable Analytics</h5>
-                                <p class="track-description">Advanced machine learning techniques for Industry 6.0 applications and sustainable manufacturing analytics.</p>
-                                <div class="track-topics">
-                                    <span class="topic-tag">Deep Learning</span>
-                                    <span class="topic-tag">Industry 6.0</span>
+                                
+                                <div class="objective-item" style="display: flex; align-items: start; margin-bottom: 1rem; padding: 0.8rem; background: #f8f9fa; border-radius: 8px; border-left: 3px solid var(--primary-color);">
+                                    <div style="min-width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                                        <strong style="color: white; font-size: 0.85rem;">2</strong>
+                                    </div>
+                                    <div>
+                                        <h6 style="font-size: 0.9rem; font-weight: 600; color: #333; margin-bottom: 0.3rem;">Foster Interdisciplinary Collaboration</h6>
+                                        <p style="font-size: 0.85rem; color: #666; margin: 0; line-height: 1.5;">Encourage interaction between experts from energy, manufacturing, automation, and artificial intelligence domains to address global industrial and environmental challenges.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="objective-item" style="display: flex; align-items: start; margin-bottom: 1rem; padding: 0.8rem; background: #f8f9fa; border-radius: 8px; border-left: 3px solid var(--primary-color);">
+                                    <div style="min-width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                                        <strong style="color: white; font-size: 0.85rem;">3</strong>
+                                    </div>
+                                    <div>
+                                        <h6 style="font-size: 0.9rem; font-weight: 600; color: #333; margin-bottom: 0.3rem;">Highlight Sustainable Practices</h6>
+                                        <p style="font-size: 0.85rem; color: #666; margin: 0; line-height: 1.5;">Explore strategies for clean energy integration, resource optimization, and environmentally responsible manufacturing.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="objective-item" style="display: flex; align-items: start; margin-bottom: 1rem; padding: 0.8rem; background: #f8f9fa; border-radius: 8px; border-left: 3px solid var(--primary-color);">
+                                    <div style="min-width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                                        <strong style="color: white; font-size: 0.85rem;">4</strong>
+                                    </div>
+                                    <div>
+                                        <h6 style="font-size: 0.9rem; font-weight: 600; color: #333; margin-bottom: 0.3rem;">Showcase Technological Innovations</h6>
+                                        <p style="font-size: 0.85rem; color: #666; margin: 0; line-height: 1.5;">Present recent advancements in smart manufacturing, Industry 4.0, robotics, digital twins, and intelligent energy management.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="objective-item" style="display: flex; align-items: start; margin-bottom: 1rem; padding: 0.8rem; background: #f8f9fa; border-radius: 8px; border-left: 3px solid var(--primary-color);">
+                                    <div style="min-width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                                        <strong style="color: white; font-size: 0.85rem;">5</strong>
+                                    </div>
+                                    <div>
+                                        <h6 style="font-size: 0.9rem; font-weight: 600; color: #333; margin-bottom: 0.3rem;">Strengthen Academia–Industry Linkages</h6>
+                                        <p style="font-size: 0.85rem; color: #666; margin: 0; line-height: 1.5;">Facilitate partnerships and collaborations between universities, research institutions, and industries for future projects and innovation.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="objective-item" style="display: flex; align-items: start; margin-bottom: 0; padding: 0.8rem; background: #f8f9fa; border-radius: 8px; border-left: 3px solid var(--primary-color);">
+                                    <div style="min-width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; flex-shrink: 0;">
+                                        <strong style="color: white; font-size: 0.85rem;">6</strong>
+                                    </div>
+                                    <div>
+                                        <h6 style="font-size: 0.9rem; font-weight: 600; color: #333; margin-bottom: 0.3rem;">Inspire Future Research</h6>
+                                        <p style="font-size: 0.85rem; color: #666; margin: 0; line-height: 1.5;">Motivate young researchers and professionals to engage in innovative work that contributes to energy efficiency, smart production systems, and sustainable industrial development.</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="enhanced-track-card special h-100">
-                            <div class="special-badge">
-                                <i class="fas fa-star"></i>
-                                <span>Special</span>
-                            </div>
-                            <div class="track-icon">
-                                <i class="fas fa-leaf"></i>
-                            </div>
-                            <div class="track-header">
-                                <span class="track-number">Session 2</span>
-                            </div>
-                            <div class="track-content">
-                                <h5 class="track-title">Sustainable Manufacturing Technologies</h5>
-                                <p class="track-description">Innovative approaches to eco-friendly manufacturing processes and circular economy principles.</p>
-                                <div class="track-topics">
-                                    <span class="topic-tag">Circular Economy</span>
-                                    <span class="topic-tag">Eco-Manufacturing</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="enhanced-track-card special h-100">
-                            <div class="special-badge">
-                                <i class="fas fa-star"></i>
-                                <span>Special</span>
-                            </div>
-                            <div class="track-icon">
-                                <i class="fas fa-code"></i>
-                            </div>
-                            <div class="track-header">
-                                <span class="track-number">Session 3</span>
-                            </div>
-                            <div class="track-content">
-                                <h5 class="track-title">Digital Transformation in Manufacturing</h5>
-                                <p class="track-description">Digital twins, cloud computing, and blockchain technologies for modern manufacturing systems.</p>
-                                <div class="track-topics">
-                                    <span class="topic-tag">Digital Twins</span>
-                                    <span class="topic-tag">Blockchain</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        
-        <!-- Call to Action -->
-        <div class="row mt-3">
-            <div class="col-12 text-center">
-                <div class="tracks-cta">
-                    <h4 class="text-white mb-3">Ready to Submit Your Research?</h4>
-                    <p class="text-white-50 mb-4">Choose the most suitable track for your research and contribute to advancing the field</p>
-                    <a href="{% url 'conference:guidelines' %}" class="btn btn-light btn-lg me-3">
-                        <i class="fas fa-file-alt me-2"></i>Submission Guidelines
-                    </a>
-                    <a href="{% url 'conference:registration' %}" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-user-plus me-2"></i>Register Now
-                    </a>
                 </div>
             </div>
         </div>
@@ -788,7 +976,7 @@
                         </div>
                         <div class="map-overlay">
                             {% if attraction.location_url %}
-                            <div class="map-placeholder" data-map-src="{{ attraction.location_url }}">
+                            <div class="map-placeholder" data-map-embed="{{ attraction.map_embed|safe }}" data-location-url="{{ attraction.location_url }}">
                                 <div class="loading-map">
                                     <i class="fas fa-map-marked-alt fa-2x mb-2" style="color: #fff; opacity: 0.7;"></i>
                                     <p style="color: #fff; opacity: 0.9; font-size: 0.9rem;">Hover to view map</p>
@@ -927,16 +1115,138 @@
                     <div class="sponsor-card">
                         {% if sponsor.website %}
                         <a href="{{ sponsor.website }}" target="_blank" class="sponsor-link">
-                            <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" class="sponsor-logo">
-                            <div class="sponsor-overlay">
+                            <div class="sponsor-logo-wrapper">
+                                <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" class="sponsor-logo">
+                            </div>
+                            <div class="sponsor-info">
                                 <span class="sponsor-name">{{ sponsor.name }}</span>
+                                {% if sponsor.sponsorship_tier or sponsor.partner_type %}
+                                <span class="sponsor-type-badge">
+                                    {% if sponsor.sponsorship_tier == 'platinum' %}
+                                    <i class="fas fa-crown"></i> Platinum
+                                    {% elif sponsor.sponsorship_tier == 'gold' %}
+                                    <i class="fas fa-medal"></i> Gold
+                                    {% elif sponsor.sponsorship_tier == 'silver' %}
+                                    <i class="fas fa-award"></i> Silver
+                                    {% elif sponsor.sponsorship_tier == 'bronze' %}
+                                    <i class="fas fa-star"></i> Bronze
+                                    {% elif sponsor.partner_type == 'academic' %}
+                                    <i class="fas fa-graduation-cap"></i> Academic
+                                    {% elif sponsor.partner_type == 'technology' %}
+                                    <i class="fas fa-microchip"></i> Technology
+                                    {% elif sponsor.partner_type == 'media' %}
+                                    <i class="fas fa-newspaper"></i> Media
+                                    {% elif sponsor.partner_type == 'industry' %}
+                                    <i class="fas fa-industry"></i> Industry
+                                    {% elif sponsor.partner_type == 'institutional' %}
+                                    <i class="fas fa-building"></i> Institutional
+                                    {% endif %}
+                                </span>
+                                {% endif %}
                             </div>
                         </a>
                         {% else %}
                         <div class="sponsor-link">
-                            <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" class="sponsor-logo">
-                            <div class="sponsor-overlay">
+                            <div class="sponsor-logo-wrapper">
+                                <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" class="sponsor-logo">
+                            </div>
+                            <div class="sponsor-info">
                                 <span class="sponsor-name">{{ sponsor.name }}</span>
+                                {% if sponsor.sponsorship_tier or sponsor.partner_type %}
+                                <span class="sponsor-type-badge">
+                                    {% if sponsor.sponsorship_tier == 'platinum' %}
+                                    <i class="fas fa-crown"></i> Platinum
+                                    {% elif sponsor.sponsorship_tier == 'gold' %}
+                                    <i class="fas fa-medal"></i> Gold
+                                    {% elif sponsor.sponsorship_tier == 'silver' %}
+                                    <i class="fas fa-award"></i> Silver
+                                    {% elif sponsor.sponsorship_tier == 'bronze' %}
+                                    <i class="fas fa-star"></i> Bronze
+                                    {% elif sponsor.partner_type == 'academic' %}
+                                    <i class="fas fa-graduation-cap"></i> Academic
+                                    {% elif sponsor.partner_type == 'technology' %}
+                                    <i class="fas fa-microchip"></i> Technology
+                                    {% elif sponsor.partner_type == 'media' %}
+                                    <i class="fas fa-newspaper"></i> Media
+                                    {% elif sponsor.partner_type == 'industry' %}
+                                    <i class="fas fa-industry"></i> Industry
+                                    {% elif sponsor.partner_type == 'institutional' %}
+                                    <i class="fas fa-building"></i> Institutional
+                                    {% endif %}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                <!-- Duplicate sponsors for seamless infinite scroll -->
+                {% for sponsor in sponsors %}
+                <div class="sponsor-item">
+                    <div class="sponsor-card">
+                        {% if sponsor.website %}
+                        <a href="{{ sponsor.website }}" target="_blank" class="sponsor-link">
+                            <div class="sponsor-logo-wrapper">
+                                <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" class="sponsor-logo">
+                            </div>
+                            <div class="sponsor-info">
+                                <span class="sponsor-name">{{ sponsor.name }}</span>
+                                {% if sponsor.sponsorship_tier or sponsor.partner_type %}
+                                <span class="sponsor-type-badge">
+                                    {% if sponsor.sponsorship_tier == 'platinum' %}
+                                    <i class="fas fa-crown"></i> Platinum
+                                    {% elif sponsor.sponsorship_tier == 'gold' %}
+                                    <i class="fas fa-medal"></i> Gold
+                                    {% elif sponsor.sponsorship_tier == 'silver' %}
+                                    <i class="fas fa-award"></i> Silver
+                                    {% elif sponsor.sponsorship_tier == 'bronze' %}
+                                    <i class="fas fa-star"></i> Bronze
+                                    {% elif sponsor.partner_type == 'academic' %}
+                                    <i class="fas fa-graduation-cap"></i> Academic
+                                    {% elif sponsor.partner_type == 'technology' %}
+                                    <i class="fas fa-microchip"></i> Technology
+                                    {% elif sponsor.partner_type == 'media' %}
+                                    <i class="fas fa-newspaper"></i> Media
+                                    {% elif sponsor.partner_type == 'industry' %}
+                                    <i class="fas fa-industry"></i> Industry
+                                    {% elif sponsor.partner_type == 'institutional' %}
+                                    <i class="fas fa-building"></i> Institutional
+                                    {% endif %}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </a>
+                        {% else %}
+                        <div class="sponsor-link">
+                            <div class="sponsor-logo-wrapper">
+                                <img src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }}" class="sponsor-logo">
+                            </div>
+                            <div class="sponsor-info">
+                                <span class="sponsor-name">{{ sponsor.name }}</span>
+                                {% if sponsor.sponsorship_tier or sponsor.partner_type %}
+                                <span class="sponsor-type-badge">
+                                    {% if sponsor.sponsorship_tier == 'platinum' %}
+                                    <i class="fas fa-crown"></i> Platinum
+                                    {% elif sponsor.sponsorship_tier == 'gold' %}
+                                    <i class="fas fa-medal"></i> Gold
+                                    {% elif sponsor.sponsorship_tier == 'silver' %}
+                                    <i class="fas fa-award"></i> Silver
+                                    {% elif sponsor.sponsorship_tier == 'bronze' %}
+                                    <i class="fas fa-star"></i> Bronze
+                                    {% elif sponsor.partner_type == 'academic' %}
+                                    <i class="fas fa-graduation-cap"></i> Academic
+                                    {% elif sponsor.partner_type == 'technology' %}
+                                    <i class="fas fa-microchip"></i> Technology
+                                    {% elif sponsor.partner_type == 'media' %}
+                                    <i class="fas fa-newspaper"></i> Media
+                                    {% elif sponsor.partner_type == 'industry' %}
+                                    <i class="fas fa-industry"></i> Industry
+                                    {% elif sponsor.partner_type == 'institutional' %}
+                                    <i class="fas fa-building"></i> Institutional
+                                    {% endif %}
+                                </span>
+                                {% endif %}
                             </div>
                         </div>
                         {% endif %}
@@ -1084,4 +1394,93 @@
         </div>
     </div>
 </section>
+
+<script>
+// Lazy load attraction maps on hover for better performance
+document.addEventListener('DOMContentLoaded', function() {
+    const attractionCards = document.querySelectorAll('.attraction-card');
+    
+    attractionCards.forEach(card => {
+        const mapPlaceholder = card.querySelector('.map-placeholder');
+        if (!mapPlaceholder) return;
+        
+        let mapLoaded = false;
+        let loadTimeout = null;
+        
+        // Load map on hover
+        card.addEventListener('mouseenter', function() {
+            if (!mapLoaded) {
+                // Add a slight delay to prevent accidental loads
+                loadTimeout = setTimeout(() => {
+                    const mapEmbed = mapPlaceholder.getAttribute('data-map-embed');
+                    const locationUrl = mapPlaceholder.getAttribute('data-location-url');
+                    
+                    if (mapEmbed && mapEmbed.trim() !== '' && mapEmbed !== 'None') {
+                        // Parse the embed code and extract iframe
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = mapEmbed.trim();
+                        const iframe = tempDiv.querySelector('iframe');
+                        
+                        if (iframe) {
+                            iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
+                            iframe.className = 'map-iframe';
+                            iframe.loading = 'lazy';
+                            iframe.allowFullscreen = true;
+                            
+                            const loadingMap = mapPlaceholder.querySelector('.loading-map');
+                            if (loadingMap) {
+                                loadingMap.style.opacity = '0';
+                                setTimeout(() => loadingMap.remove(), 300);
+                            }
+                            
+                            // Clear placeholder and add iframe
+                            mapPlaceholder.innerHTML = '';
+                            mapPlaceholder.appendChild(iframe);
+                            mapLoaded = true;
+                        }
+                    } else if (locationUrl && locationUrl.trim() !== '' && locationUrl !== 'None') {
+                        // Create iframe from location URL
+                        const iframe = document.createElement('iframe');
+                        
+                        // Check if it's already an embed URL or needs to be converted
+                        let embedUrl = locationUrl;
+                        if (locationUrl.includes('google.com/maps') && !locationUrl.includes('/embed')) {
+                            // Convert Google Maps URL to embed format
+                            const placeMatch = locationUrl.match(/place\/([^/]+)/);
+                            if (placeMatch) {
+                                embedUrl = `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodeURIComponent(placeMatch[1])}`;
+                            } else {
+                                embedUrl = locationUrl.replace('/maps/', '/maps/embed/');
+                            }
+                        }
+                        
+                        iframe.src = embedUrl;
+                        iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
+                        iframe.className = 'map-iframe';
+                        iframe.loading = 'lazy';
+                        iframe.allowFullscreen = true;
+                        
+                        const loadingMap = mapPlaceholder.querySelector('.loading-map');
+                        if (loadingMap) {
+                            loadingMap.remove();
+                        }
+                        
+                        mapPlaceholder.innerHTML = '';
+                        mapPlaceholder.appendChild(iframe);
+                        mapLoaded = true;
+                    }
+                }, 200); // 200ms delay
+            }
+        });
+        
+        // Cancel load if mouse leaves quickly
+        card.addEventListener('mouseleave', function() {
+            if (loadTimeout) {
+                clearTimeout(loadTimeout);
+                loadTimeout = null;
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

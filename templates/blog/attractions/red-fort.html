@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Red Fort (Lal Qila) - Complete Visitor's Guide | {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .blog-hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #c94545 100%);
+        padding: 60px 0;
+        margin-bottom: 2rem;
+    }
+    
+    .blog-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+    
+    .blog-content h2 {
+        color: var(--primary-color);
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .blog-content h3 {
+        color: #555;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .info-box {
+        background: #f8f9fa;
+        border-left: 4px solid var(--primary-color);
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .highlight-box {
+        background: linear-gradient(135deg, rgba(160, 53, 47, 0.1) 0%, rgba(201, 69, 69, 0.1) 100%);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin: 1.5rem 0;
+    }
+    
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    
+    .gallery-grid img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
+    }
+    
+    .gallery-grid img:hover {
+        transform: scale(1.05);
+    }
+    
+    .tips-list {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .tips-list li {
+        margin-bottom: 0.75rem;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+    
+    .tips-list li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: var(--primary-color);
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Blog Hero -->
+<section class="blog-hero text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-3">Red Fort (Lal Qila)</h1>
+                <p class="lead">A Complete Guide to Delhi's Magnificent Mughal Fortress</p>
+                <p><i class="fas fa-map-marker-alt me-2"></i>Netaji Subhash Marg, Chandni Chowk, New Delhi | <i class="fas fa-clock ms-3 me-2"></i>45 km from KIET</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="blog-content">
+                    <!-- Featured Image -->
+                    <img src="https://images.unsplash.com/photo-1597075095644-e09bb704e5df?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                         alt="Red Fort Delhi" class="img-fluid rounded shadow-lg mb-4" style="width: 100%;">
+                    
+                    <!-- Introduction -->
+                    <h2><i class="fas fa-info-circle me-2"></i>About Red Fort</h2>
+                    <p>The Red Fort, or Lal Qila, stands as one of India's most iconic historical monuments and a UNESCO World Heritage Site. Built by Emperor Shah Jahan in 1648, this magnificent fortress served as the main residence of Mughal emperors for nearly 200 years. The fort's massive red sandstone walls stretch over 2 kilometers and rise up to 33 meters, creating an imposing presence that has witnessed centuries of Indian history.</p>
+                    
+                    <div class="info-box">
+                        <h4><i class="fas fa-star me-2" style="color: var(--primary-color);"></i>Quick Facts</h4>
+                        <ul class="mb-0">
+                            <li><strong>Built:</strong> 1638-1648 (10 years)</li>
+                            <li><strong>Built by:</strong> Emperor Shah Jahan</li>
+                            <li><strong>Architecture:</strong> Mughal</li>
+                            <li><strong>UNESCO Status:</strong> World Heritage Site (2007)</li>
+                            <li><strong>Best Time to Visit:</strong> October to March</li>
+                            <li><strong>Entry Fee:</strong> ₹35 for Indians, ₹500 for foreigners</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- History -->
+                    <h2><i class="fas fa-history me-2"></i>Historical Significance</h2>
+                    <p>The Red Fort represents the zenith of Mughal creativity which, under Shah Jahan, was brought to a new level of refinement. The planning and design of the Red Fort represents a culmination of architectural development initiated in 1526 AD. It was the palace for Mughal Emperor Shah Jahan's new capital, Shahjahanabad, the seventh Muslim city in the Delhi site.</p>
+                    
+                    <p>The fort has been the site of several significant events in Indian history. On August 15, 1947, the first Prime Minister of India, Jawaharlal Nehru, raised the Indian national flag above the Lahore Gate. Every year on India's Independence Day (15 August), the Prime Minister hoists the Indian tricolour flag at the fort's main gate and delivers a nationally broadcast speech from its ramparts.</p>
+                    
+                    <!-- Architecture -->
+                    <h2><i class="fas fa-building me-2"></i>Architectural Marvels</h2>
+                    
+                    <h3>Main Structures</h3>
+                    <div class="highlight-box">
+                        <p><strong>1. Lahore Gate:</strong> The main entrance, named after the city of Lahore in Pakistan. This is where the Prime Minister hoists the flag on Independence Day.</p>
+                        
+                        <p><strong>2. Diwan-i-Aam (Hall of Public Audience):</strong> Where the emperor would meet common people and listen to their grievances. Features beautiful white marble throne alcove.</p>
+                        
+                        <p><strong>3. Diwan-i-Khas (Hall of Private Audience):</strong> The most ornate building, featuring the famous Peacock Throne and the inscription "If there is paradise on Earth, it is here, it is here, it is here!"</p>
+                        
+                        <p><strong>4. Rang Mahal (Palace of Colors):</strong> The residence of the emperor's wives and mistresses, featuring a lotus-shaped fountain and intricate mirror work.</p>
+                        
+                        <p><strong>5. Moti Masjid (Pearl Mosque):</strong> A private mosque built by Aurangzeb for his personal use, made entirely of white marble.</p>
+                        
+                        <p><strong>6. Hammam (Royal Baths):</strong> Elegant royal baths with separate apartments for hot and cold baths, featuring intricate marble work.</p>
+                    </div>
+                    
+                    <!-- Photo Gallery -->
+                    <h2><i class="fas fa-images me-2"></i>Photo Gallery</h2>
+                    <div class="gallery-grid">
+                        <img src="https://images.unsplash.com/photo-1587474260584-136574528ed5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Red Fort Architecture">
+                        <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Fort Walls">
+                        <img src="https://images.unsplash.com/photo-1532664189809-02133fee698d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Mughal Gardens">
+                        <img src="https://images.unsplash.com/photo-1596423167039-92f13d39e149?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Interior Details">
+                    </div>
+                    
+                    <!-- Visiting Information -->
+                    <h2><i class="fas fa-clock me-2"></i>Visiting Information</h2>
+                    
+                    <div class="info-box">
+                        <h4>Timings</h4>
+                        <ul class="mb-0">
+                            <li><strong>Summer (April-September):</strong> 9:30 AM - 4:30 PM</li>
+                            <li><strong>Winter (October-March):</strong> 9:00 AM - 4:00 PM</li>
+                            <li><strong>Closed:</strong> Monday</li>
+                            <li><strong>Sound & Light Show:</strong> 7:00 PM - 8:00 PM (English) | 8:30 PM - 9:30 PM (Hindi)</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Tips -->
+                    <h2><i class="fas fa-lightbulb me-2"></i>Visitor Tips</h2>
+                    <div class="tips-list">
+                        <ul>
+                            <li>Visit early morning to avoid crowds and heat, especially in summer months</li>
+                            <li>Hire an audio guide or human guide at the entrance for detailed historical insights</li>
+                            <li>Wear comfortable walking shoes as the fort complex is quite large</li>
+                            <li>Bring water bottle and sunscreen for daytime visits</li>
+                            <li>Photography is allowed but tripods may require special permission</li>
+                            <li>Don't miss the Sound & Light Show in the evening for a magical experience</li>
+                            <li>Allow at least 2-3 hours to explore the fort properly</li>
+                            <li>Security checks are mandatory; avoid carrying large bags</li>
+                            <li>Combine your visit with nearby Chandni Chowk market for food and shopping</li>
+                            <li>Book tickets online to avoid long queues at the counter</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- How to Reach -->
+                    <h2><i class="fas fa-route me-2"></i>How to Reach from KIET</h2>
+                    
+                    <div class="highlight-box">
+                        <h4>By Metro (Recommended)</h4>
+                        <p>1. Take Blue Line metro from Noida Sector 62 to Chandni Chowk station<br>
+                        2. Red Fort is a 10-minute walk from the metro station<br>
+                        3. Total travel time: Approximately 60-70 minutes<br>
+                        4. Cost: Around ₹50-60 per person</p>
+                        
+                        <h4>By Taxi/Cab</h4>
+                        <p>1. Book Ola/Uber from KIET campus<br>
+                        2. Direct route via NH-24 and Ring Road<br>
+                        3. Travel time: 50-70 minutes (depending on traffic)<br>
+                        4. Estimated cost: ₹400-600</p>
+                    </div>
+                    
+                    <!-- Nearby Attractions -->
+                    <h2><i class="fas fa-map-marked-alt me-2"></i>Nearby Attractions</h2>
+                    <p>After visiting Red Fort, explore these nearby attractions:</p>
+                    <ul>
+                        <li><strong>Chandni Chowk:</strong> Historic market street (5 minutes walk)</li>
+                        <li><strong>Jama Masjid:</strong> India's largest mosque (10 minutes walk)</li>
+                        <li><strong>Raj Ghat:</strong> Mahatma Gandhi's memorial (15 minutes by auto)</li>
+                        <li><strong>India Gate:</strong> War memorial (30 minutes by metro)</li>
+                        <li><strong>Humayun's Tomb:</strong> Another UNESCO site (20 minutes by taxi)</li>
+                    </ul>
+                    
+                    <!-- Map -->
+                    <h2><i class="fas fa-map me-2"></i>Location Map</h2>
+                    <div class="ratio ratio-16x9 rounded shadow-lg">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.0676418051303!2d77.23696431508049!3d28.65648398242925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd0f7e30b04d%3A0xd9d7ea888df1e5a9!2sRed%20Fort!5e0!3m2!1sen!2sin!4v1695900000000!5m2!1sen!2sin" 
+                                allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                    
+                    <!-- Back Button -->
+                    <div class="text-center mt-5">
+                        <a href="{% url 'conference:attractions' %}" class="btn btn-lg px-5" style="background: linear-gradient(135deg, var(--primary-color) 0%, #c94545 100%); color: white; border: none;">
+                            <i class="fas fa-arrow-left me-2"></i>Back to All Attractions
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

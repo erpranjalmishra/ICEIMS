@@ -1,0 +1,163 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Add New Sponsor - Admin Panel{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <h1 class="h3 mb-2 text-gray-800">
+                <i class="fas fa-plus-circle me-2"></i>Add New Sponsor
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'conference:admin_dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'conference:sponsor_list' %}">Sponsors</a></li>
+                    <li class="breadcrumb-item active">Add New</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Sponsor Information</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Sponsor/Partner Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <small class="form-text text-muted">Full name of the organization</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="logo" class="form-label">Logo <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="logo" name="logo" accept="image/*" required>
+                            <small class="form-text text-muted">Upload logo (PNG, JPG, or SVG recommended)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="website" class="form-label">Website URL</label>
+                            <input type="url" class="form-control" id="website" name="website" placeholder="https://example.com">
+                            <small class="form-text text-muted">Link to organization's website (optional)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="partnership_type" class="form-label">Partnership Type <span class="text-danger">*</span></label>
+                            <select class="form-select" id="partnership_type" name="partnership_type" required>
+                                <option value="sponsorship" selected>Sponsorship</option>
+                                <option value="partnership">Partnership</option>
+                            </select>
+                            <small class="form-text text-muted">Select whether this is a sponsorship or partnership</small>
+                        </div>
+
+                        <div class="mb-3" id="sponsorship_tier_field">
+                            <label for="sponsorship_tier" class="form-label">Sponsorship Tier</label>
+                            <select class="form-select" id="sponsorship_tier" name="sponsorship_tier">
+                                <option value="">None (Not Applicable)</option>
+                                <option value="platinum">Platinum Sponsor</option>
+                                <option value="gold">Gold Sponsor</option>
+                                <option value="silver">Silver Sponsor</option>
+                                <option value="bronze">Bronze Sponsor</option>
+                            </select>
+                            <small class="form-text text-muted">Select sponsorship tier (only for sponsors)</small>
+                        </div>
+
+                        <div class="mb-3" id="partner_type_field" style="display:none;">
+                            <label for="partner_type" class="form-label">Partner Type</label>
+                            <select class="form-select" id="partner_type" name="partner_type">
+                                <option value="">None (Not Applicable)</option>
+                                <option value="academic">Academic Partner</option>
+                                <option value="technology">Technology Partner</option>
+                                <option value="media">Media Partner</option>
+                                <option value="industry">Industry Partner</option>
+                                <option value="institutional">Institutional Partner</option>
+                            </select>
+                            <small class="form-text text-muted">Select partner type (only for partners)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                            <small class="form-text text-muted">Brief description (optional)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order" class="form-label">Display Order</label>
+                            <input type="number" class="form-control" id="order" name="order" value="0" min="0">
+                            <small class="form-text text-muted">Lower numbers appear first within the same tier/type</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                <label class="form-check-label" for="is_active">
+                                    Display on website
+                                </label>
+                            </div>
+                        </div>
+
+                        <script>
+                        document.getElementById('partnership_type').addEventListener('change', function() {
+                            const sponsorshipTierField = document.getElementById('sponsorship_tier_field');
+                            const partnerTypeField = document.getElementById('partner_type_field');
+                            
+                            if (this.value === 'sponsorship') {
+                                sponsorshipTierField.style.display = 'block';
+                                partnerTypeField.style.display = 'none';
+                                document.getElementById('partner_type').value = '';
+                            } else {
+                                sponsorshipTierField.style.display = 'none';
+                                partnerTypeField.style.display = 'block';
+                                document.getElementById('sponsorship_tier').value = '';
+                            }
+                        });
+                        </script>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'conference:sponsor_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Sponsor
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Tips</h6>
+                </div>
+                <div class="card-body">
+                    <h6><i class="fas fa-lightbulb text-warning me-2"></i>Best Practices</h6>
+                    <ul class="small">
+                        <li>Use high-quality logos (at least 300px wide)</li>
+                        <li>Transparent PNG or SVG files work best</li>
+                        <li>Keep file sizes under 1MB for faster loading</li>
+                        <li>Use descriptive sponsor names</li>
+                        <li>Verify website URLs are correct</li>
+                    </ul>
+
+                    <hr>
+
+                    <h6><i class="fas fa-info-circle text-info me-2"></i>Display Order</h6>
+                    <p class="small">
+                        The display order determines where the sponsor appears on the sponsors page and homepage. 
+                        Lower numbers appear first (0, 1, 2, etc.).
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

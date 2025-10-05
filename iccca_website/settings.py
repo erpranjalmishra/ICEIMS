@@ -12,9 +12,13 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -85,13 +89,15 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
+        'APP_DIRS': True,  # Always use APP_DIRS in development
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
+                'conference.context_processors.site_settings',
+                'conference.context_processors.slider_settings',
             ],
         },
     },
@@ -107,7 +113,34 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            # SQLite performance optimizations
+            'init_command': (
+                'PRAGMA journal_mode=WAL;'  # Write-Ahead Logging for better concurrency
+                'PRAGMA synchronous=NORMAL;'  # Faster writes
+                'PRAGMA cache_size=-64000;'  # 64MB cache
+                'PRAGMA temp_store=MEMORY;'  # Use memory for temp tables
+            ),
+        },
     }
+}
+
+# Caching Configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,
+        },
+    },
+    'template_fragments': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'template-cache',
+        'OPTIONS': {
+            'MAX_ENTRIES': 500,
+        },
+    },
 }
 
 
@@ -168,7 +201,49 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Database connection pooling - keep connections alive
+CONN_MAX_AGE = 600  # 10 minutes
+
+# Session configuration for performance
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_CACHE_ALIAS = 'default'
+
+# Static files caching
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Aggressive caching for static files
+    WHITENOISE_MAX_AGE = 31536000  # 1 year
+
 # Authentication URLs
 LOGIN_URL = '/admin-login/'
 LOGIN_REDIRECT_URL = '/admin-panel/'
 LOGOUT_REDIRECT_URL = '/'
+
+# Gemini AI Configuration
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-1.5-flash')
+
+# Email Configuration for Gmail SMTP
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'your-email@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'your-app-password')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', f'ICEIMS 2026 <{EMAIL_HOST_USER}>')
+SERVER_EMAIL = EMAIL_HOST_USER
+
+# Email settings
+EMAIL_TIMEOUT = 30
+EMAIL_USE_LOCALTIME = True
+
+# OTP Settings
+OTP_EXPIRY_MINUTES = 10  # OTP expires after 10 minutes
+OTP_LENGTH = 6  # 6-digit OTP
+MAX_OTP_ATTEMPTS = 3  # Maximum OTP verification attempts
+OTP_RESEND_COOLDOWN = 60  # Seconds before allowing OTP resend
+
+# Security Email Notifications
+SEND_SECURITY_EMAILS = True  # Send emails on security events
+SEND_WELCOME_EMAILS = True  # Send welcome emails on user creation
+SEND_LOGIN_NOTIFICATIONS = True  # Send notifications on login

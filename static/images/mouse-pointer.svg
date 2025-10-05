@@ -1,12 +1,1 @@
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Lightning bolt shape -->
-  <path d="M18 2L8 14H14L12 30L22 18H16L18 2Z" fill="#FFD700" stroke="#FF6B35" stroke-width="1"/>
-  
-  <!-- Energy rays -->
-  <line x1="6" y1="8" x2="4" y2="6" stroke="#FF6B35" stroke-width="2" stroke-linecap="round"/>
-  <line x1="26" y1="8" x2="28" y2="6" stroke="#FF6B35" stroke-width="2" stroke-linecap="round"/>
-  <line x1="6" y1="24" x2="4" y2="26" stroke="#FF6B35" stroke-width="2" stroke-linecap="round"/>
-  <line x1="26" y1="24" x2="28" y2="26" stroke="#FF6B35" stroke-width="2" stroke-linecap="round"/>
-  <line x1="2" y1="16" x2="4" y2="16" stroke="#FF6B35" stroke-width="2" stroke-linecap="round"/>
-  <line x1="28" y1="16" x2="30" y2="16" stroke="#FF6B35" stroke-width="2" stroke-linecap="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0,0,256,256" width="16px" height="16px" fill-rule="nonzero"><g fill="none" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(16,16)"><path d="M6.807,10.656l-2.307,1.916v-10.388l7.374,7.169l-2.963,0.385l1.546,3.684l-2.103,0.92z" fill="#ffffff"></path><path d="M5,3.367l5.784,5.624l-1.287,0.167l-1.301,0.169l0.508,1.21l1.102,2.625l-1.187,0.519l-1.09,-2.596l-0.522,-1.245l-1.038,0.863l-0.969,0.804v-8.14M4,1v12.638l2.607,-2.166l1.483,3.532l3.019,-1.321l-1.483,-3.533l3.339,-0.434l-8.965,-8.716z" fill="#d0660d"></path></g></g></svg>

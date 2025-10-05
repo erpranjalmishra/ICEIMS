@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Tourist Attractions - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        padding: 2rem 0;
+        min-height: 100vh;
+        background: #f8f9fa;
+    }
+    .card {
+        transition: all 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-2"><i class="fas fa-map-marked-alt me-2"></i>Tourist Attractions</h2>
+                    <p class="text-muted mb-0">Manage tourist attractions displayed on the website</p>
+                </div>
+                <div>
+                    <a href="{% url 'conference:attraction_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add New Attraction
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Attractions</h6>
+                            <h3 class="mb-0">{{ total_attractions }}</h3>
+                        </div>
+                        <div class="text-primary" style="font-size: 2rem;">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Active</h6>
+                            <h3 class="mb-0">{{ active_attractions }}</h3>
+                        </div>
+                        <div class="text-success" style="font-size: 2rem;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Featured</h6>
+                            <h3 class="mb-0">{{ featured_attractions }}</h3>
+                        </div>
+                        <div class="text-warning" style="font-size: 2rem;">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Search</label>
+                            <input type="text" name="search" class="form-control" placeholder="Search attractions..." value="{{ search|default:'' }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Category</label>
+                            <select name="category" class="form-select">
+                                <option value="">All Categories</option>
+                                {% for value, label in category_choices %}
+                                <option value="{{ value }}" {% if category_filter == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter me-2"></i>Filter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="row mb-3">
+        <div class="col-lg-12">
+            <form method="post" action="{% url 'conference:attraction_bulk_action' %}" id="bulkActionForm">
+                {% csrf_token %}
+                <div class="d-flex gap-2 align-items-center">
+                    <select name="action" class="form-select" style="width: auto;">
+                        <option value="">Bulk Actions</option>
+                        <option value="activate">Activate</option>
+                        <option value="deactivate">Deactivate</option>
+                        <option value="feature">Mark as Featured</option>
+                        <option value="unfeature">Unmark as Featured</option>
+                        <option value="delete">Delete</option>
+                    </select>
+                    <button type="submit" class="btn btn-secondary" onclick="return confirm('Are you sure you want to perform this action?')">
+                        Apply
+                    </button>
+                    <span class="text-muted ms-2" id="selectedCount">0 selected</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Attractions Table -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th width="40">
+                                        <input type="checkbox" id="selectAll" class="form-check-input">
+                                    </th>
+                                    <th width="80">Image</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Distance</th>
+                                    <th>Rating</th>
+                                    <th>Order</th>
+                                    <th width="100">Status</th>
+                                    <th width="150">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attraction in attractions %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="attraction_ids" value="{{ attraction.id }}" class="form-check-input attraction-checkbox" form="bulkActionForm">
+                                    </td>
+                                    <td>
+                                        {% if attraction.image %}
+                                        <img src="{{ attraction.image.url }}" alt="{{ attraction.name }}" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                                        {% elif attraction.image_url %}
+                                        <img src="{{ attraction.image_url }}" alt="{{ attraction.name }}" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 5px;">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <strong>{{ attraction.name }}</strong>
+                                        {% if attraction.is_featured %}
+                                        <span class="badge bg-warning text-dark ms-2">
+                                            <i class="fas fa-star"></i> Featured
+                                        </span>
+                                        {% endif %}
+                                        <br>
+                                        <small class="text-muted">{{ attraction.description|truncatewords:15 }}</small>
+                                        {% if attraction.guide_link %}
+                                        <br>
+                                        <small class="badge bg-success mt-1">
+                                            <i class="fas fa-link"></i> Guide Link Set
+                                        </small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ attraction.get_category_display }}</span>
+                                    </td>
+                                    <td>{{ attraction.distance|default:"-" }}</td>
+                                    <td>
+                                        <i class="fas fa-star text-warning"></i> {{ attraction.rating }}
+                                    </td>
+                                    <td>{{ attraction.order }}</td>
+                                    <td>
+                                        {% if attraction.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'conference:attraction_edit' attraction.pk %}" class="btn btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form method="post" action="{% url 'conference:attraction_toggle' attraction.pk %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-secondary" title="Toggle Status">
+                                                    <i class="fas fa-toggle-{% if attraction.is_active %}on{% else %}off{% endif %}"></i>
+                                                </button>
+                                            </form>
+                                            <a href="{% url 'conference:attraction_delete' attraction.pk %}" class="btn btn-outline-danger" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center py-5">
+                                        <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No tourist attractions found.</p>
+                                        <a href="{% url 'conference:attraction_create' %}" class="btn btn-primary">
+                                            <i class="fas fa-plus me-2"></i>Add First Attraction
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Select All Functionality
+document.getElementById('selectAll').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.attraction-checkbox');
+    checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+    updateSelectedCount();
+});
+
+// Update selected count
+function updateSelectedCount() {
+    const selected = document.querySelectorAll('.attraction-checkbox:checked').length;
+    document.getElementById('selectedCount').textContent = `${selected} selected`;
+}
+
+// Add event listeners to individual checkboxes
+document.querySelectorAll('.attraction-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', updateSelectedCount);
+});
+</script>
+</div>
+{% endblock %} 
