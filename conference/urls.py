@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .debug_views import media_debug
 
 app_name = 'conference'
 
@@ -26,6 +27,9 @@ urlpatterns = [
     path('awards/', views.awards, name='awards'),
     path('sponsors/', views.sponsors, name='sponsors'),
     path('faq/', views.faq_page, name='faq'),
+    
+    # Debug URLs (Staff only)
+    path('admin-panel/debug/media/', media_debug, name='media_debug'),
     
     # FAQ AJAX endpoints
     path('faq/ask-ai/', views.faq_ask_ai, name='faq_ask_ai'),

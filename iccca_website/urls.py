@@ -51,7 +51,9 @@ urlpatterns = [
     path('', include('conference.urls')),
 ]
 
-# Serve media files in development
+# Serve media files in development and production (for Azure App Service)
+# Note: For production with high traffic, use Azure Blob Storage instead
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])

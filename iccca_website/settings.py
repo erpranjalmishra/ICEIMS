@@ -28,7 +28,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = 'django-insecure-+-unm#gnt&=mlkdz6q7)-t121-rgosyb^_hb-h6#!cpvpof*v&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'false'
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 # Detect if we're in production
 IS_PRODUCTION = 'iceims.teamvimarsh.me' in os.environ.get('ALLOWED_HOSTS', '')
@@ -73,6 +73,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'conference.media_middleware.AzureMediaMiddleware',  # Serve media files on Azure
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -195,6 +196,21 @@ else:
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Azure Blob Storage for media files (production)
+# Uncomment and configure if using Azure Blob Storage
+# if not DEBUG:
+#     DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+#     AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME', '')
+#     AZURE_ACCOUNT_KEY = os.environ.get('AZURE_ACCOUNT_KEY', '')
+#     AZURE_CONTAINER = os.environ.get('AZURE_CONTAINER', 'media')
+#     AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
+#     MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{AZURE_CONTAINER}/'
+
+# For now, ensure media files work on Azure App Service
+if not DEBUG:
+    # Ensure media URL is absolute for production
+    MEDIA_URL = 'https://iceims.teamvimarsh.me/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
