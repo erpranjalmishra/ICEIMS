@@ -265,7 +265,7 @@ class Command(BaseCommand):
             <div class="logo-section">
                 {logo_svg}
                 <div class="conference-title">ICEIMS 2026</div>
-                <p class="conference-subtitle">International Conference on<br>Emerging & Intelligent Management Systems</p>
+                <p class="conference-subtitle">International Conference on<br>Energy and Intelligent Manufacturing Systems</p>
             </div>
             
             <div class="header">
@@ -305,7 +305,7 @@ class Command(BaseCommand):
             
             <div class="footer">
                 <div class="footer-logo">ICEIMS 2026</div>
-                <p><strong>International Conference on Emerging & Intelligent Management Systems</strong></p>
+                <p><strong>International Conference on Energy and Intelligent Manufacturing Systems</strong></p>
                 
                 <div class="conference-details">
                     <p><strong>📅 Conference:</strong> ICEIMS 2026</p>
@@ -331,7 +331,7 @@ class Command(BaseCommand):
                 ''',
                 'body_text': '''Welcome to ICEIMS 2026!
 
-International Conference on Emerging & Intelligent Management Systems
+International Conference on Energy and Intelligent Manufacturing Systems
 
 Hello {{user_name}},
 
@@ -379,7 +379,7 @@ ICEIMS 2026 Team''',
             <div class="logo-section">
                 {logo_svg}
                 <div class="conference-title">ICEIMS 2026</div>
-                <p class="conference-subtitle">International Conference on<br>Emerging & Intelligent Management Systems</p>
+                <p class="conference-subtitle">International Conference on<br>Energy and Intelligent Manufacturing Systems</p>
             </div>
             
             <div class="header login-header">
@@ -422,7 +422,7 @@ ICEIMS 2026 Team''',
             
             <div class="footer">
                 <div class="footer-logo">ICEIMS 2026</div>
-                <p><strong>International Conference on Emerging & Intelligent Management Systems</strong></p>
+                <p><strong>International Conference on Energy and Intelligent Manufacturing Systems</strong></p>
                 
                 <div class="conference-details">
                     <p><strong>🏛️ Organized By:</strong> Team Vimarsh, India</p>
@@ -490,7 +490,7 @@ ICEIMS 2026 Security Team''',
             <div class="logo-section">
                 {logo_svg}
                 <div class="conference-title">ICEIMS 2026</div>
-                <p class="conference-subtitle">International Conference on<br>Emerging & Intelligent Management Systems</p>
+                <p class="conference-subtitle">International Conference on<br>Energy and Intelligent Manufacturing Systems</p>
             </div>
             
             <div class="header alert-header">
@@ -532,7 +532,7 @@ ICEIMS 2026 Security Team''',
             
             <div class="footer">
                 <div class="footer-logo">ICEIMS 2026</div>
-                <p><strong>International Conference on Emerging & Intelligent Management Systems</strong></p>
+                <p><strong>International Conference on Energy and Intelligent Manufacturing Systems</strong></p>
                 
                 <div class="conference-details">
                     <p><strong>🔒 Security Team</strong></p>
@@ -622,7 +622,7 @@ ICEIMS 2026 Security Team''',
             <div class="logo-section">
                 {logo_svg}
                 <div class="conference-title">ICEIMS 2026</div>
-                <p class="conference-subtitle">International Conference on<br>Emerging & Intelligent Management Systems</p>
+                <p class="conference-subtitle">International Conference on<br>Energy and Intelligent Manufacturing Systems</p>
             </div>
             
             <div class="header">
@@ -659,7 +659,7 @@ ICEIMS 2026 Security Team''',
             
             <div class="footer">
                 <div class="footer-logo">ICEIMS 2026</div>
-                <p><strong>International Conference on Emerging & Intelligent Management Systems</strong></p>
+                <p><strong>International Conference on Energy and Intelligent Manufacturing Systems</strong></p>
                 
                 <div class="conference-details">
                     <p><strong>🔒 Secure Authentication</strong></p>
@@ -684,7 +684,7 @@ ICEIMS 2026 Security Team''',
                 ''',
                 'body_text': '''Your ICEIMS Verification Code
 
-ICEIMS 2026 - International Conference on Emerging & Intelligent Management Systems
+ICEIMS 2026 - International Conference on Energy and Intelligent Manufacturing Systems
 
 Hello {{user_name}},
 
@@ -734,7 +734,7 @@ ICEIMS 2026 Team''',
             <div class="logo-section">
                 {logo_svg}
                 <div class="conference-title">ICEIMS 2026</div>
-                <p class="conference-subtitle">International Conference on<br>Emerging & Intelligent Management Systems</p>
+                <p class="conference-subtitle">International Conference on<br>Energy and Intelligent Manufacturing Systems</p>
             </div>
             
             <div class="header account-header">
@@ -775,7 +775,7 @@ ICEIMS 2026 Team''',
             
             <div class="footer">
                 <div class="footer-logo">ICEIMS 2026</div>
-                <p><strong>International Conference on Emerging & Intelligent Management Systems</strong></p>
+                <p><strong>International Conference on Energy and Intelligent Manufacturing Systems</strong></p>
                 
                 <div class="conference-details">
                     <p><strong>📅 Conference:</strong> ICEIMS 2026</p>
@@ -800,7 +800,7 @@ ICEIMS 2026 Team''',
                 ''',
                 'body_text': '''Your ICEIMS Account Created
 
-ICEIMS 2026 - International Conference on Emerging & Intelligent Management Systems
+ICEIMS 2026 - International Conference on Energy and Intelligent Manufacturing Systems
 
 Hello {{user_name}},
 
@@ -847,7 +847,7 @@ ICEIMS 2026 Team''',
             <div class="logo-section">
                 {logo_svg}
                 <div class="conference-title">ICEIMS 2026</div>
-                <p class="conference-subtitle">International Conference on<br>Emerging & Intelligent Management Systems</p>
+                <p class="conference-subtitle">International Conference on<br>Energy and Intelligent Manufacturing Systems</p>
             </div>
             
             <div class="header role-header">
@@ -877,7 +877,7 @@ ICEIMS 2026 Team''',
             
             <div class="footer">
                 <div class="footer-logo">ICEIMS 2026</div>
-                <p><strong>International Conference on Emerging & Intelligent Management Systems</strong></p>
+                <p><strong>International Conference on Energy and Intelligent Manufacturing Systems</strong></p>
                 
                 <div class="conference-details">
                     <p><strong>🏛️ Organized By:</strong> Team Vimarsh, India</p>
@@ -945,3 +945,4 @@ ICEIMS 2026 Team''',
         self.stdout.write(self.style.SUCCESS('✅ All professional email templates are ready with ICEIMS website branding!'))
         self.stdout.write(self.style.SUCCESS('🎨 Matching website theme colors: #a0352f & #e56d2d'))
         self.stdout.write(self.style.SUCCESS('📍 Contact: iceims.official@gmail.com'))
+

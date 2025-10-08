@@ -12,13 +12,16 @@ urlpatterns = [
     path('sitemap/', views.sitemap, name='sitemap'),
     path('tracks/', views.tracks, name='tracks'),
     path('committee/members/', views.committee, name='committee'),
+    path('committee/members/<slug:slug>/', views.committee_bio, name='committee_bio'),
     path('committee/speakers/', views.keynotes, name='keynotes'),
     path('speakers/', views.keynotes, name='speakers'),
+    path('speakers/<slug:slug>/', views.speaker_bio, name='speaker_bio'),
     path('attractions/', views.attractions, name='attractions'),
     path('attractions/<slug:slug>/', views.attraction_detail, name='attraction_detail'),
     path('contact/', views.contact, name='contact'),
     path('guidelines/', views.guidelines, name='guidelines'),
     path('registration/', views.registration, name='registration'),
+    path('registration/success/<str:reg_id>/', views.registration_success, name='registration_success'),
     path('workshops/', views.workshops, name='workshops'),
     path('panels/', views.panels, name='panels'),
     path('networking/', views.networking, name='networking'),
@@ -27,6 +30,11 @@ urlpatterns = [
     path('awards/', views.awards, name='awards'),
     path('sponsors/', views.sponsors, name='sponsors'),
     path('faq/', views.faq_page, name='faq'),
+    path('downloads/', views.downloads, name='downloads'),
+    path('downloads/<int:resource_id>/download/', views.download_file, name='download_file'),
+    
+    # API endpoints
+    path('api/visitor-count/', views.get_visitor_count, name='get_visitor_count'),
     
     # Debug URLs (Staff only)
     path('admin-panel/debug/media/', media_debug, name='media_debug'),

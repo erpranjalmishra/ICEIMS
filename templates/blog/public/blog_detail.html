@@ -150,8 +150,8 @@
                 <a href="{% url 'conference:blog_category_view' post.category.slug %}" class="blog-category">
                     {{ post.category.name }}
                 </a>
-                <h1 class="display-5 fw-bold mt-3 mb-3">{{ post.title }}</h1>
-                <div class="blog-meta">
+                <h1 class="display-5 fw-bold mt-3 mb-3 text-white">{{ post.title }}</h1>
+                <div class="blog-meta text-white">
                     <i class="fas fa-user"></i> {{ post.author.get_full_name|default:post.author.username }}
                     <span class="mx-3">|</span>
                     <i class="fas fa-calendar"></i> {{ post.published_at|date:"F j, Y" }}

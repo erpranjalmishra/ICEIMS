@@ -2,7 +2,7 @@
 Context processors to make data available in all templates
 """
 
-from .models import SiteSettings, SliderSettings, HeroSlide
+from .models import SiteSettings, SliderSettings, HeroSlide, LoadingPageSettings
 
 def site_settings(request):
     """
@@ -31,4 +31,17 @@ def slider_settings(request):
     return {
         'slider_settings': settings,
         'hero_slides': slides,
+    }
+
+def loading_settings(request):
+    """
+    Add loading page settings to all template contexts
+    """
+    try:
+        settings = LoadingPageSettings.get_settings()
+    except:
+        settings = None
+    
+    return {
+        'loading_settings': settings,
     }

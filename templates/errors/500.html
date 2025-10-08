@@ -1,103 +1,210 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Server Error (500) - {{ block.super }}{% endblock %}
-
-{% block extra_css %}
-<style>
-    .error-container {
-        min-height: 70vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%);
-    }
-    
-    .error-card {
-        background: white;
-        border-radius: 20px;
-        padding: 3rem;
-        box-shadow: 0 15px 35px rgba(220, 53, 69, 0.15);
-        text-align: center;
-        max-width: 600px;
-        position: relative;
-    }
-    
-    .error-icon {
-        color: #dc3545;
-        font-size: 5rem;
-        margin-bottom: 1.5rem;
-        animation: pulse 2s infinite;
-    }
-    
-    .error-code {
-        font-size: 8rem;
-        font-weight: bold;
-        color: #dc3545;
-        opacity: 0.1;
-        position: absolute;
-        top: -20px;
-        right: 20px;
-    }
-    
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-    
-    .info-card {
-        background: #f8f9fa;
-        border-left: 4px solid #dc3545;
-        padding: 1rem;
-        margin: 1rem 0;
-        border-radius: 5px;
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="error-container">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="error-card">
-                    <div class="error-code">500</div>
-                    <i class="fas fa-exclamation-triangle error-icon"></i>
-                    <h1 class="mb-3">Internal Server Error</h1>
-                    <p class="lead mb-4">
-                        We're experiencing some technical difficulties. Our team has been notified and is working on it.
-                    </p>
-                    
-                    <div class="info-card text-start">
-                        <h6><i class="fas fa-info-circle text-info"></i> What happened?</h6>
-                        <p class="mb-0">
-                            The server encountered an unexpected condition that prevented it from completing your request. 
-                            This is usually a temporary issue.
-                        </p>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <a href="{% url 'conference:home' %}" class="btn btn-primary me-3">
-                            <i class="fas fa-home"></i> Go Home
-                        </a>
-                        <button onclick="window.location.reload()" class="btn btn-outline-primary me-3">
-                            <i class="fas fa-sync-alt"></i> Try Again
-                        </button>
-                        <a href="{% url 'conference:contact' %}" class="btn btn-outline-secondary">
-                            <i class="fas fa-envelope"></i> Contact Support
-                        </a>
-                    </div>
-                    
-                    <div class="mt-4 text-muted small">
-                        <p>
-                            <strong>Error Reference:</strong> ERR-500-{{ request.session.session_key|default:"UNKNOWN" }}<br>
-                            If the problem persists, please include this reference in your support request.
-                        </p>
-                    </div>
-                </div>
-            </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Server Error | ICEIMS 2026</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #a0352f;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .error-container {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .error-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-color);
+        }
+        
+        .error-number {
+            font-size: 150px;
+            font-weight: 900;
+            color: var(--primary-color);
+            line-height: 1;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .error-icon {
+            font-size: 80px;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        p.lead {
+            font-size: 1.1rem;
+            color: #718096;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .info-box {
+            background: #fff5f5;
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .info-box h6 {
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #718096;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(160, 53, 47, 0.2);
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(160, 53, 47, 0.3);
+            background: #8a2e28;
+            color: white;
+        }
+        
+        .btn-outline {
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 10px;
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .error-reference {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+        
+        @media (max-width: 768px) {
+            .error-number {
+                font-size: 100px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .error-container {
+                padding: 40px 25px;
+            }
+            
+            .btn-primary, .btn-outline {
+                padding: 12px 25px;
+                font-size: 0.95rem;
+                margin: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-number">500</div>
+        <i class="fas fa-exclamation-triangle error-icon"></i>
+        <h1>Server Error</h1>
+        <p class="lead">
+            Something went wrong on our end.<br>
+            Don't worry, our team has been notified and we're working on it!
+        </p>
+        
+        <div class="info-box">
+            <h6><i class="fas fa-tools me-2"></i>What's happening?</h6>
+            <p>
+                Our server encountered an unexpected error. This is usually temporary and will be resolved shortly. 
+                Please try again in a few moments.
+            </p>
+        </div>
+        
+        <div class="mt-4">
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-home me-2"></i>Back to Home
+            </a>
+            <a href="#" onclick="window.location.reload(); return false;" class="btn-outline">
+                <i class="fas fa-sync-alt me-2"></i>Try Again
+            </a>
+        </div>
+        
+        <div class="error-reference">
+            <i class="fas fa-info-circle me-1"></i>
+            If the problem persists, please <a href="/contact/" style="color: var(--primary-color); font-weight: 600;">contact our support team</a>
         </div>
     </div>
-</div>
-{% endblock %}
+</body>
+</html>

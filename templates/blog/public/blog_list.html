@@ -109,8 +109,8 @@
     <div class="container position-relative">
         <div class="row justify-content-center text-center">
             <div class="col-lg-8">
-                <h1 class="display-4 fw-bold mb-3">Conference Blog</h1>
-                <p class="lead">Stay updated with the latest insights, announcements, and stories from ICEIMS 2026</p>
+                <h1 class="display-4 fw-bold mb-3 text-white">Conference Blog</h1>
+                <p class="lead text-white">Stay updated with the latest insights, announcements, and stories from ICEIMS 2026</p>
             </div>
         </div>
     </div>
@@ -124,20 +124,22 @@
         <div class="row">
             {% for post in featured_posts %}
             <div class="col-md-4 mb-4">
-                <div class="featured-card">
-                    {% if post.featured_image %}
-                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="blog-image">
-                    {% else %}
-                        <div class="blog-image bg-gradient d-flex align-items-center justify-content-center">
-                            <i class="fas fa-newspaper fa-3x text-white opacity-50"></i>
+                <a href="{% url 'conference:blog_public_detail' post.slug %}" class="text-decoration-none">
+                    <div class="featured-card">
+                        {% if post.featured_image %}
+                            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="blog-image">
+                        {% else %}
+                            <div class="blog-image bg-gradient d-flex align-items-center justify-content-center">
+                                <i class="fas fa-newspaper fa-3x text-white opacity-50"></i>
+                            </div>
+                        {% endif %}
+                        <div class="p-3">
+                            <span class="blog-category">{{ post.category.name }}</span>
+                            <h5 class="mt-2 text-dark">{{ post.title }}</h5>
+                            <p class="text-muted small">{{ post.excerpt|truncatewords:15 }}</p>
                         </div>
-                    {% endif %}
-                    <div class="p-3">
-                        <span class="blog-category">{{ post.category.name }}</span>
-                        <h5 class="mt-2"><a href="{% url 'conference:blog_public_detail' post.slug %}" class="text-decoration-none text-dark">{{ post.title }}</a></h5>
-                        <p class="text-muted small">{{ post.excerpt|truncatewords:15 }}</p>
                     </div>
-                </div>
+                </a>
             </div>
             {% endfor %}
         </div>
@@ -297,21 +299,6 @@
                         <li class="text-muted">No categories available</li>
                         {% endfor %}
                     </ul>
-                </div>
-
-                <!-- Newsletter Signup -->
-                <div class="sidebar">
-                    <h5 class="fw-bold mb-3">Stay Updated</h5>
-                    <p class="text-muted small">Subscribe to our newsletter for the latest conference updates.</p>
-                    <form method="POST" action="{% url 'conference:newsletter_signup' %}">
-                        {% csrf_token %}
-                        <div class="input-group">
-                            <input type="email" class="form-control" name="email" placeholder="Your email" required>
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </form>
                 </div>
 
                 <!-- Popular Tags -->

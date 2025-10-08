@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<!-- About Hero Section -->
+<section class="about-hero py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">About ICEIMS 2026</h1>
+                <p class="lead">International Conference on Energy and Intelligent Manufacturing Systems</p>
+                <p class="mb-0">Advancing the future of sustainable manufacturing and energy systems</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Conference Overview -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="about-content">
+                    <h2 class="section-title text-center mb-4">Conference Overview</h2>
+                    <p class="lead text-center mb-4">
+                        ICEIMS 2026 is a premier international conference that brings together researchers, academicians, 
+                        industry professionals, and students to share knowledge and discuss the latest developments in 
+                        Energy and Intelligent Manufacturing Systems.
+                    </p>
+                    <p class="text-center mb-4">
+                        The conference aims to foster collaboration between academia and industry, promoting innovative 
+                        solutions for sustainable manufacturing processes and intelligent energy systems. With a focus 
+                        on cutting-edge research and practical applications, ICEIMS 2026 serves as a platform for 
+                        knowledge exchange and networking among global experts.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Galgotias University -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2 class="section-title mb-4">About Galgotias University</h2>
+                <p class="lead">{{ conference_settings.about_text|default:"The university began operations in the 2011-2012 academic session and welcomed its first batch of students in July 2011. Since then, it has grown to have more than 30K+ students." }}</p>
+                <p>Today, with 20 schools offering over 200 programs, including Diploma, Undergraduate, Postgraduate, and PhD Programs, we rank among India's top universities. We aim to become an internationally recognized institution that excels in multidisciplinary and interdisciplinary education, research, and innovation.</p>
+                <div class="university-stats row mt-4">
+                    <div class="col-4 text-center">
+                        <h3 class="text-primary fw-bold">30K+</h3>
+                        <p class="small">Students</p>
+                    </div>
+                    <div class="col-4 text-center">
+                        <h3 class="text-primary fw-bold">20</h3>
+                        <p class="small">Schools</p>
+                    </div>
+                    <div class="col-4 text-center">
+                        <h3 class="text-primary fw-bold">200+</h3>
+                        <p class="small">Programs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img src="{% static 'images/galgotias-university.svg' %}" class="img-fluid rounded shadow" alt="Galgotias University">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Conference Objectives -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="section-title">Conference Objectives</h2>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="objective-card">
+                    <div class="objective-icon">
+                        <i class="fas fa-lightbulb text-primary fa-3x"></i>
+                    </div>
+                    <h4>Foster Innovation</h4>
+                    <p>Encourage innovative research and development in energy and manufacturing systems through collaborative discussions and knowledge sharing.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="objective-card">
+                    <div class="objective-icon">
+                        <i class="fas fa-users text-success fa-3x"></i>
+                    </div>
+                    <h4>Build Networks</h4>
+                    <p>Create networking opportunities between academia and industry professionals to facilitate partnerships and collaborative research.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="objective-card">
+                    <div class="objective-icon">
+                        <i class="fas fa-leaf text-warning fa-3x"></i>
+                    </div>
+                    <h4>Promote Sustainability</h4>
+                    <p>Advance sustainable manufacturing practices and renewable energy solutions for a greener future.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="objective-card">
+                    <div class="objective-icon">
+                        <i class="fas fa-globe text-info fa-3x"></i>
+                    </div>
+                    <h4>Global Perspective</h4>
+                    <p>Bring together international experts to share diverse perspectives and best practices from around the world.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Conference Statistics -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-12 mb-4">
+                <h2 class="section-title text-white">Conference at a Glance</h2>
+            </div>
+        </div>
+        <div class="row text-center g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <h3 class="stat-number">300+</h3>
+                    <p class="stat-label">Expected Participants</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <h3 class="stat-number">150+</h3>
+                    <p class="stat-label">Research Papers</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <h3 class="stat-number">25+</h3>
+                    <p class="stat-label">Countries</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-item">
+                    <h3 class="stat-number">10+</h3>
+                    <p class="stat-label">Keynote Speakers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Vision and Mission -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="vision-mission-card">
+                    <h3 class="card-title">Our Vision</h3>
+                    <p>To be the leading global platform for advancing research and innovation in energy and intelligent manufacturing systems, fostering sustainable industrial development for a better future.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="vision-mission-card">
+                    <h3 class="card-title">Our Mission</h3>
+                    <p>To facilitate knowledge exchange, promote collaborative research, and bridge the gap between academic research and industrial applications in energy and manufacturing sectors.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

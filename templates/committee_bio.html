@@ -1,0 +1,331 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ meta_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bio-hero {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #c0392b 100%);
+        padding: 60px 0 40px;
+        margin-top: 0;
+    }
+    
+    .bio-profile-img {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .bio-badge {
+        background: rgba(255,255,255,0.2);
+        padding: 8px 20px;
+        border-radius: 25px;
+        color: white;
+        font-size: 0.9rem;
+        display: inline-block;
+        margin: 5px;
+    }
+    
+    .social-link-bio {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        margin: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .social-link-bio:hover {
+        background: #8a2e29;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(160, 53, 47, 0.3);
+    }
+    
+    .share-buttons {
+        position: sticky;
+        top: 90px;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .share-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 12px 20px;
+        margin-bottom: 10px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: white;
+    }
+    
+    .share-btn:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .share-btn.twitter { background: #1DA1F2; }
+    .share-btn.linkedin { background: #0077B5; }
+    .share-btn.facebook { background: #1877F2; }
+    .share-btn.whatsapp { background: #25D366; }
+    .share-btn.email { background: #EA4335; }
+    .share-btn.copy { background: #6c757d; }
+    
+    .share-btn.twitter:hover { background: #1a8cd8; color: white; }
+    .share-btn.linkedin:hover { background: #006399; color: white; }
+    .share-btn.facebook:hover { background: #1565c0; color: white; }
+    .share-btn.whatsapp:hover { background: #1eaa54; color: white; }
+    .share-btn.email:hover { background: #c62828; color: white; }
+    .share-btn.copy:hover { background: #5a6268; color: white; }
+    
+    .bio-section {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+    
+    .bio-section h3 {
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .interest-tag {
+        display: inline-block;
+        background: rgba(160, 53, 47, 0.1);
+        color: var(--primary-color);
+        padding: 8px 16px;
+        border-radius: 20px;
+        margin: 5px;
+        font-size: 0.9rem;
+    }
+    
+    .page-views-badge {
+        background: rgba(255,255,255,0.2);
+        padding: 5px 15px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        color: white;
+    }
+    
+    @media (max-width: 768px) {
+        .bio-hero {
+            padding: 40px 0 30px;
+        }
+        
+        .bio-profile-img {
+            width: 150px;
+            height: 150px;
+        }
+        
+        .share-buttons {
+            position: static;
+            margin-top: 30px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Bio Hero Section -->
+<section class="bio-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center mb-4 mb-md-0">
+                {% if member.image %}
+                <img src="{{ member.image.url }}" alt="{{ member.name }}" class="bio-profile-img">
+                {% else %}
+                <img src="{% static 'images/default-person.svg' %}" alt="{{ member.name }}" class="bio-profile-img">
+                {% endif %}
+            </div>
+            <div class="col-md-9">
+                <h1 class="text-white mb-3">{{ member.name }}</h1>
+                <h4 class="text-white mb-3">{{ member.title }}</h4>
+                <h5 class="text-white mb-3"><i class="fas fa-university"></i> {{ member.organization }}</h5>
+                <div class="mb-3">
+                    <span class="bio-badge">
+                        <i class="fas fa-user-tie"></i> {{ member.get_role_display }}
+                    </span>
+                    <span class="bio-badge">
+                        <i class="fas fa-layer-group"></i> {{ member.get_hierarchy_level_name }}
+                    </span>
+                    {% if member.page_views > 0 %}
+                    <span class="page-views-badge">
+                        <i class="fas fa-eye"></i> {{ member.page_views }} view{{ member.page_views|pluralize }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Bio Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Left Column - Bio Content -->
+            <div class="col-lg-8">
+                <!-- Biography Section -->
+                <div class="bio-section">
+                    <h3><i class="fas fa-user-circle me-2"></i>Biography</h3>
+                    {% if member.detailed_bio %}
+                    <div class="bio-content">
+                        {{ member.detailed_bio|linebreaks }}
+                    </div>
+                    {% else %}
+                    <div class="bio-content">
+                        {{ member.bio|linebreaks }}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Research Interests -->
+                {% if member.get_research_interests_list %}
+                <div class="bio-section">
+                    <h3><i class="fas fa-flask me-2"></i>Research Interests</h3>
+                    <div class="mb-3">
+                        {% for interest in member.get_research_interests_list %}
+                        <span class="interest-tag">{{ interest }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Education -->
+                {% if member.education %}
+                <div class="bio-section">
+                    <h3><i class="fas fa-graduation-cap me-2"></i>Education</h3>
+                    <div>{{ member.education|linebreaks }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Publications -->
+                {% if member.publications %}
+                <div class="bio-section">
+                    <h3><i class="fas fa-book me-2"></i>Selected Publications</h3>
+                    <div>{{ member.publications|linebreaks }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Awards -->
+                {% if member.awards %}
+                <div class="bio-section">
+                    <h3><i class="fas fa-trophy me-2"></i>Awards & Honors</h3>
+                    <div>{{ member.awards|linebreaks }}</div>
+                </div>
+                {% endif %}
+                
+                <!-- Social Links -->
+                {% if member.get_social_links %}
+                <div class="bio-section">
+                    <h3><i class="fas fa-link me-2"></i>Connect</h3>
+                    <div class="d-flex flex-wrap">
+                        {% for key, link in member.get_social_links.items %}
+                        <a href="{{ link.url }}" class="social-link-bio" target="_blank" rel="noopener noreferrer">
+                            <i class="{{ link.icon }}"></i>
+                            <span>{{ link.label }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Contact Information -->
+                {% if member.email or member.phone %}
+                <div class="bio-section">
+                    <h3><i class="fas fa-address-card me-2"></i>Contact Information</h3>
+                    {% if member.email %}
+                    <p><strong><i class="fas fa-envelope"></i> Email:</strong> <a href="mailto:{{ member.email }}">{{ member.email }}</a></p>
+                    {% endif %}
+                    {% if member.phone %}
+                    <p><strong><i class="fas fa-phone"></i> Phone:</strong> {{ member.phone }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Right Column - Share Options -->
+            <div class="col-lg-4">
+                <div class="share-buttons">
+                    <h4 class="mb-4" style="color: var(--primary-color);"><i class="fas fa-share-alt me-2"></i>Share Profile</h4>
+                    
+                    <a href="https://twitter.com/intent/tweet?text={{ meta_title|urlencode }}&url={{ absolute_url|urlencode }}" target="_blank" class="share-btn twitter">
+                        <i class="fab fa-twitter"></i>
+                        <span>Share on Twitter</span>
+                    </a>
+                    
+                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ absolute_url|urlencode }}" target="_blank" class="share-btn linkedin">
+                        <i class="fab fa-linkedin"></i>
+                        <span>Share on LinkedIn</span>
+                    </a>
+                    
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ absolute_url|urlencode }}" target="_blank" class="share-btn facebook">
+                        <i class="fab fa-facebook"></i>
+                        <span>Share on Facebook</span>
+                    </a>
+                    
+                    <a href="https://api.whatsapp.com/send?text={{ meta_title|urlencode }}%20{{ absolute_url|urlencode }}" target="_blank" class="share-btn whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>Share on WhatsApp</span>
+                    </a>
+                    
+                    <a href="mailto:?subject={{ meta_title|urlencode }}&body=Check out this committee member profile: {{ absolute_url|urlencode }}" class="share-btn email">
+                        <i class="fas fa-envelope"></i>
+                        <span>Share via Email</span>
+                    </a>
+                    
+                    <button onclick="copyToClipboard('{{ absolute_url }}')" class="share-btn copy">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy Link</span>
+                    </button>
+                    
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> Sharing this profile helps promote ICEIMS 2026 and our distinguished committee members!
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Success feedback
+        const btn = event.target.closest('.share-btn');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i><span>Link Copied!</span>';
+        btn.style.background = '#28a745';
+        
+        setTimeout(function() {
+            btn.innerHTML = originalHTML;
+            btn.style.background = '';
+        }, 2000);
+    }, function(err) {
+        alert('Failed to copy link. Please copy manually: ' + text);
+    });
+}
+</script>
+{% endblock %}

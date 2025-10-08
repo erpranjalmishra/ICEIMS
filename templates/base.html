@@ -46,12 +46,184 @@
                 max-width: 150px;
             }
         }
+        
+        /* Scrollable Admin Dropdown */
+        .navbar .dropdown-menu {
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        /* Custom scrollbar styling for the dropdown */
+        .navbar .dropdown-menu::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .navbar .dropdown-menu::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .navbar .dropdown-menu::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        
+        .navbar .dropdown-menu::-webkit-scrollbar-thumb:hover {
+            background: #8a2e29;
+        }
     </style>
     
     {% block extra_css %}{% endblock %}
+    
+    <!-- Dynamic Loading Page Styles -->
+    {% if loading_settings and loading_settings.is_active %}
+    <style>
+        .loading-screen {
+            background-color: {{ loading_settings.background_color|default:'#a0352f' }} !important;
+        }
+        .loading-screen .loading-text h3,
+        .loading-screen .loading-text p,
+        .loading-screen .loading-footer p {
+            color: {{ loading_settings.text_color|default:'#ffffff' }} !important;
+        }
+        .loading-screen .progress-fill {
+            background-color: {{ loading_settings.spinner_color|default:'#ffffff' }} !important;
+        }
+        
+        /* Pulse Animation */
+        .pulse-animation {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            animation: pulseGrow 1.5s ease-in-out infinite;
+        }
+        @keyframes pulseGrow {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+        
+        /* Dots Animation */
+        .dots-animation {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+        .dots-animation span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: dotBounce 1.4s infinite ease-in-out both;
+        }
+        .dots-animation span:nth-child(1) { animation-delay: -0.32s; }
+        .dots-animation span:nth-child(2) { animation-delay: -0.16s; }
+        .dots-animation span:nth-child(3) { animation-delay: 0s; }
+        @keyframes dotBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        /* Circular Progress */
+        .circular-progress {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: circularSpin 1s linear infinite;
+        }
+        @keyframes circularSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            animation: progressBar 2s ease-in-out infinite;
+        }
+        @keyframes progressBar {
+            0% { width: 0%; margin-left: 0%; }
+            50% { width: 75%; margin-left: 25%; }
+            100% { width: 0%; margin-left: 100%; }
+        }
+        
+        {{ loading_settings.custom_css|safe }}
+    </style>
+    {% endif %}
 </head>
 <body>
     <!-- Loading Screen -->
+    {% if loading_settings and loading_settings.is_active %}
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            {% if loading_settings.show_logo %}
+            <div class="loading-logo">
+                {% if loading_settings.logo %}
+                <img src="{{ loading_settings.logo.url }}" alt="{{ loading_settings.loading_title }}" class="loading-logo-img">
+                {% else %}
+                <img src="{% static 'images/conference logo.svg' %}" alt="ICEIMS Loading" class="loading-logo-img">
+                {% endif %}
+            </div>
+            {% endif %}
+            <div class="loading-text">
+                <h3>{{ loading_settings.loading_title|default:'ICEIMS 2026' }}</h3>
+                <p>{{ loading_settings.loading_subtitle|default:'International Conference on Energy and Intelligent Manufacturing Systems' }}</p>
+            </div>
+            <div class="loading-progress">
+                {% if loading_settings.animation_type == 'spinner' %}
+                <div class="spinner-border" style="color: {{ loading_settings.spinner_color }};" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                {% elif loading_settings.animation_type == 'pulse' %}
+                <div class="pulse-animation" style="background: {{ loading_settings.spinner_color }};"></div>
+                {% elif loading_settings.animation_type == 'dots' %}
+                <div class="dots-animation">
+                    <span style="background: {{ loading_settings.spinner_color }};"></span>
+                    <span style="background: {{ loading_settings.spinner_color }};"></span>
+                    <span style="background: {{ loading_settings.spinner_color }};"></span>
+                </div>
+                {% elif loading_settings.animation_type == 'circular' %}
+                <div class="circular-progress" style="border-top-color: {{ loading_settings.spinner_color }};"></div>
+                {% else %}
+                <div class="progress-bar">
+                    <div class="progress-fill" style="background: {{ loading_settings.spinner_color }};"></div>
+                </div>
+                {% endif %}
+                {% if loading_settings.show_progress_text %}
+                <p class="mt-3" style="color: {{ loading_settings.text_color }};">{{ loading_settings.loading_message|default:'Preparing your experience...' }}</p>
+                {% endif %}
+            </div>
+            {% if loading_settings.show_tagline %}
+            <div class="loading-tagline mt-3">
+                <p style="color: {{ loading_settings.text_color }};">{{ loading_settings.tagline_text|default:'November 20-22, 2026 | Galgotias University' }}</p>
+            </div>
+            {% endif %}
+            {% if loading_settings.show_footer %}
+            <div class="loading-footer">
+                {% if loading_settings.footer_link %}
+                <p class="text-muted small mb-0" style="color: rgba(255,255,255,0.7) !important;">
+                    <a href="{{ loading_settings.footer_link }}" target="_blank" rel="noopener noreferrer" style="color: rgba(255,255,255,0.7) !important; text-decoration: none;">
+                        {{ loading_settings.footer_text|default:'Site maintained by Novatrail LLP' }}
+                    </a>
+                </p>
+                {% else %}
+                <p class="text-muted small mb-0" style="color: rgba(255,255,255,0.7) !important;">{{ loading_settings.footer_text|default:'Site maintained by Novatrail LLP' }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
     <div id="loading-screen" class="loading-screen">
         <div class="loading-content">
             <div class="loading-logo">
@@ -67,10 +239,11 @@
                 </div>
             </div>
             <div class="loading-footer">
-                <p class="text-muted small mb-0">Site maintained by <strong>Novatrail LLP</strong></p>
+                <p class="text-muted small mb-0">Site maintained by <strong><a href="https://novatrail.in" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">Novatrail LLP</a></strong></p>
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
@@ -97,12 +270,9 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:guidelines' %}"><i class="fas fa-clipboard-list"></i> Guidelines</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:schedule' %}"><i class="fas fa-calendar-alt"></i> Schedule</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:awards' %}"><i class="fas fa-trophy"></i> Awards</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:faq' %}"><i class="fas fa-question-circle"></i> FAQ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conference:downloads' %}"><i class="fas fa-download"></i> Downloads</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:blog_public_list' %}"><i class="fas fa-blog"></i> Blog</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'conference:contact' %}"><i class="fas fa-envelope"></i> Contact</a></li>
-                    <li class="nav-item header-time-container">
-                        <span id="header-time" class="header-time">--:--:--</span>
-                    </li>
                     {% if user.is_authenticated %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
@@ -157,15 +327,21 @@
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'conference:login' %}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
                     {% endif %}
-                    <li class="nav-item submit-paper-priority">
-                        <a class="nav-link submit-paper-btn" href="{% if site_settings and site_settings.submit_paper_url %}{{ site_settings.submit_paper_url }}{% else %}#submit-paper{% endif %}">
-                            {% if site_settings and site_settings.submit_paper_text %}{{ site_settings.submit_paper_text }}{% else %}Submit Paper{% endif %}
-                        </a>
-                    </li>
                 </ul>
             </div>
         </div>
     </nav>
+
+    <!-- Floating Submit Paper Button -->
+    <div class="floating-submit-paper" style="position: fixed !important; left: 0 !important; bottom: 20px !important; z-index: 9999 !important;">
+        <a href="{% if site_settings and site_settings.submit_paper_url %}{{ site_settings.submit_paper_url }}{% else %}#submit-paper{% endif %}" 
+           class="floating-btn" 
+           style="display: flex !important; background: linear-gradient(135deg, #a0352f, #e56d2d) !important; color: white !important; padding: 1rem 1.5rem !important; border-radius: 0 50px 50px 0 !important; text-decoration: none !important; box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important; gap: 0.5rem; align-items: center;"
+           title="{% if site_settings and site_settings.submit_paper_text %}{{ site_settings.submit_paper_text }}{% else %}Submit Paper{% endif %}">
+            <i class="fas fa-file-upload" style="font-size: 1.2rem;"></i>
+            <span class="btn-text" style="white-space: nowrap; font-weight: 600;">{% if site_settings and site_settings.submit_paper_text %}{{ site_settings.submit_paper_text }}{% else %}Submit Paper{% endif %}</span>
+        </a>
+    </div>
 
     <!-- Main Content -->
     {% block content %}{% endblock %}
@@ -183,7 +359,7 @@
                         {% endif %}
                     </div>
                     <p class="footer-website mb-2">
-                        <a href="mailto:Iceims@galgotiasuniversity.edu.in" class="footer-website-link">
+                        <a href="mailto:info@iceims.com" class="footer-website-link">
                             <i class="fas fa-envelope me-2"></i>Iceims@galgotiasuniversity.edu.in
                         </a>
                     </p>
@@ -229,6 +405,8 @@
                         <li><a href="{% url 'conference:guidelines' %}"><i class="fas fa-clipboard-list me-1"></i>Guidelines</a></li>
                         <li><a href="{% url 'conference:registration' %}"><i class="fas fa-user-plus me-1"></i>Registration</a></li>
                         <li><a href="{% url 'conference:schedule' %}"><i class="fas fa-calendar-alt me-1"></i>Schedule</a></li>
+                        <li><a href="{% url 'conference:awards' %}"><i class="fas fa-trophy me-1"></i>Awards</a></li>
+                        <li><a href="{% url 'conference:faq' %}"><i class="fas fa-question-circle me-1"></i>FAQ</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-4 mb-4">
@@ -356,25 +534,28 @@
             }
         }
         
-        // Initialize visitor counter from localStorage
+        // Initialize visitor counter from API
         function initVisitorCounter() {
-            let visitorCount = localStorage.getItem('iceims2026_visitors');
-            
-            if (!visitorCount) {
-                // First time visitor - start with a base count to make it look realistic
-                visitorCount = Math.floor(Math.random() * 1000) + 2500;
-                localStorage.setItem('iceims2026_visitors', visitorCount);
-            } else {
-                // Increment for returning visitors (simulate new visits)
-                visitorCount = parseInt(visitorCount) + Math.floor(Math.random() * 3) + 1;
-                localStorage.setItem('iceims2026_visitors', visitorCount);
-            }
-            
             const visitorCountElement = document.getElementById('visitor-count');
-            if (visitorCountElement) {
-                // Animate the counter
-                animateCounter(visitorCountElement, parseInt(visitorCount));
-            }
+            if (!visitorCountElement) return;
+            
+            // Show loading state
+            visitorCountElement.textContent = 'Loading...';
+            
+            // Fetch real visitor count from server
+            fetch('/api/visitor-count/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.total) {
+                        animateCounter(visitorCountElement, data.total);
+                    } else {
+                        visitorCountElement.textContent = 'N/A';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching visitor count:', error);
+                    visitorCountElement.textContent = 'N/A';
+                });
         }
         
         // Animate counter from 0 to target value
@@ -418,62 +599,32 @@
             }
         }
         
-        // Map hover functionality for attractions
-        function initMapHoverEffect() {
-            const mapPlaceholders = document.querySelectorAll('.map-placeholder');
-            
-            mapPlaceholders.forEach(placeholder => {
-                let mapLoaded = false;
-                
-                placeholder.addEventListener('mouseenter', function() {
-                    if (!mapLoaded) {
-                        const mapSrc = this.getAttribute('data-map-src');
-                        if (mapSrc) {
-                            const iframe = document.createElement('iframe');
-                            iframe.src = mapSrc;
-                            iframe.className = 'map-iframe';
-                            iframe.allowFullscreen = true;
-                            iframe.loading = 'lazy';
-                            iframe.referrerPolicy = 'no-referrer-when-downgrade';
-                            
-                            // Replace placeholder with iframe
-                            this.innerHTML = '';
-                            this.appendChild(iframe);
-                            
-                            // Fade in the iframe once loaded
-                            iframe.onload = function() {
-                                iframe.classList.add('loaded');
-                            };
-                            
-                            mapLoaded = true;
-                        }
-                    }
-                });
-            });
-        }
-        
         // Loading Screen functionality
         function initLoadingScreen() {
             const loadingScreen = document.getElementById('loading-screen');
             
             if (!loadingScreen) return;
             
+            // Get dynamic settings from template
+            const minDuration = {{ loading_settings.minimum_duration|default:1500 }};
+            const fadeOutDuration = {{ loading_settings.fade_out_duration|default:500 }};
+            
             // Hide loading screen after page is fully loaded
             function hideLoadingScreen() {
                 loadingScreen.classList.add('fade-out');
                 setTimeout(() => {
                     loadingScreen.style.display = 'none';
-                }, 500);
+                }, fadeOutDuration);
             }
             
             // Wait for all resources to load
             if (document.readyState === 'complete') {
                 // If already loaded, hide after minimum display time
-                setTimeout(hideLoadingScreen, 1500);
+                setTimeout(hideLoadingScreen, minDuration);
             } else {
                 // Wait for window load event
                 window.addEventListener('load', function() {
-                    setTimeout(hideLoadingScreen, 1500);
+                    setTimeout(hideLoadingScreen, minDuration);
                 });
             }
         }
@@ -490,9 +641,6 @@
             // Setup scroll event listener for back to top buttons
             window.addEventListener('scroll', toggleBackToTopButtons);
             toggleBackToTopButtons(); // Check initial position
-            
-            // Initialize map hover effects
-            initMapHoverEffect();
         });
     </script>
     

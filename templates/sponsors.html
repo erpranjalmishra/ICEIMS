@@ -172,16 +172,18 @@
 
 {% block content %}
 <!-- Hero Section -->
+<!-- Hero Section -->
 <section class="sponsors-hero">
     <div class="container">
-        <div class="hero-content text-center">
-            <h1><i class="fas fa-handshake me-3"></i>Our Sponsors & Partners</h1>
-            <p class="lead">Proudly supported by industry leaders and academic institutions</p>
+        <div class="hero-content text-center" style="color: white;">
+            <h1 style="color: white;"><i class="fas fa-handshake me-3"></i>{{ sponsors_page_settings.hero_title }}</h1>
+            <p class="lead" style="color: white;">{{ sponsors_page_settings.hero_subtitle }}</p>
         </div>
     </div>
 </section>
 
 <!-- Partnership Opportunities -->
+{% if sponsors_page_settings.show_partnership_opportunities %}
 <section class="section-padding">
     <div class="container">
         <div class="row justify-content-center mb-5">
@@ -506,8 +508,10 @@
     </div>
 </section>
 {% endif %}
+{% endif %}
 
 <!-- Why Sponsor -->
+{% if sponsors_page_settings.show_why_sponsor %}
 <section class="section-padding">
     <div class="container">
         <div class="row justify-content-center mb-5">
@@ -580,8 +584,10 @@
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- Sponsorship Contact -->
+{% if sponsors_page_settings.show_contact_section %}
 <section class="section-padding bg-gradient">
     <div class="container">
         <div class="row justify-content-center">
@@ -599,10 +605,10 @@
                                     <i class="fas fa-user-tie"></i>
                                 </div>
                                 <div class="contact-details">
-                                    <h5 class="contact-title">Sponsorship Manager</h5>
-                                    <p class="contact-text">Dr. Sarah Johnson</p>
-                                    <p class="contact-text">sponsorship@iceims2026.org</p>
-                                    <p class="contact-text">+1 (555) 123-4567</p>
+                                    <h5 class="contact-title text-white">Sponsorship Manager</h5>
+                                    <p class="contact-text text-white">{{ sponsors_page_settings.sponsorship_manager_name }}</p>
+                                    <p class="contact-text text-white">{{ sponsors_page_settings.sponsorship_manager_email }}</p>
+                                    <p class="contact-text text-white">{{ sponsors_page_settings.sponsorship_manager_phone }}</p>
                                 </div>
                             </div>
                         </div>
@@ -613,27 +619,30 @@
                                     <i class="fas fa-envelope"></i>
                                 </div>
                                 <div class="contact-details">
-                                    <h5 class="contact-title">General Inquiries</h5>
-                                    <p class="contact-text">partnerships@iceims2026.org</p>
-                                    <p class="contact-text">Response within 24 hours</p>
+                                    <h5 class="contact-title text-white">General Inquiries</h5>
+                                    <p class="contact-text text-white">{{ sponsors_page_settings.general_inquiry_email }}</p>
+                                    <p class="contact-text text-white">Response within {{ sponsors_page_settings.general_inquiry_response_time }}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="text-center mt-4">
-                        <a href="{% url 'conference:contact' %}" class="btn btn-light btn-lg">
+                        <a href="{{ sponsors_page_settings.contact_button_url }}" class="btn btn-light btn-lg">
                             <i class="fas fa-paper-plane me-2"></i>
-                            Contact Us Today
+                            {{ sponsors_page_settings.contact_button_text }}
                         </a>
-                        <a href="#" class="btn btn-light btn-lg ms-3">
+                        {% if sponsors_page_settings.prospectus_file %}
+                        <a href="{{ sponsors_page_settings.prospectus_file.url }}" class="btn btn-light btn-lg ms-3" target="_blank">
                             <i class="fas fa-download me-2"></i>
-                            Download Prospectus
+                            {{ sponsors_page_settings.prospectus_button_text }}
                         </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+{% endif %}
 {% endblock %}

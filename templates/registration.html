@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Registration Rates - ICEIMS 2026{% endblock %}
+{% block title %}Registration - ICEIMS 2026{% endblock %}
 
 {% block content %}
 <!-- Registration Hero Section -->
@@ -9,199 +9,578 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center">
-                <h1 class="display-4 fw-bold mb-3">Registration Rates</h1>
-                <p class="lead">Early Bird and Standard Registration Pricing</p>
-                <p class="mb-0">Secure your spot at ICEIMS 2026 with our competitive rates</p>
+                <h1 class="display-4 fw-bold mb-3">Conference Registration</h1>
+                <p class="lead">Join us at ICEIMS 2026</p>
+                <p class="mb-0">Secure your spot with our competitive registration rates</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Registration Rates Table -->
-<section class="registration-rates py-5">
+<!-- Registration Form Section -->
+<section class="registration-form-section py-5">
     <div class="container">
-        <div class="row">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if settings.form_mode_message %}
+        <div class="row mb-4">
             <div class="col-lg-12">
-                <div class="rates-table-wrapper">
-                    <div class="table-responsive">
-                        <table class="table rates-table">
-                            <thead>
-                                <tr>
-                                    <th rowspan="2" class="category-header">Category</th>
-                                    <th colspan="2" class="early-bird-header">Early Bird Rates (Upto October 15, 2025)</th>
-                                    <th colspan="2" class="standard-rates-header">Standard Rates (After October 15, 2025)</th>
-                                </tr>
-                                <tr>
-                                    <th class="member-header">IEEE Member</th>
-                                    <th class="non-member-header">Non-IEEE Member</th>
-                                    <th class="member-header">IEEE Member</th>
-                                    <th class="non-member-header">Non-IEEE Member</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="category-cell">Indian Author (Academia/Industry)</td>
-                                    <td class="rate-cell">₹9500</td>
-                                    <td class="rate-cell">₹10620</td>
-                                    <td class="rate-cell">₹10620</td>
-                                    <td class="rate-cell">₹11800</td>
-                                </tr>
-                                <tr>
-                                    <td class="category-cell">Indian Student Author</td>
-                                    <td class="rate-cell">₹7080</td>
-                                    <td class="rate-cell">₹8260</td>
-                                    <td class="rate-cell">₹8260</td>
-                                    <td class="rate-cell">₹8850</td>
-                                </tr>
-                                <tr>
-                                    <td class="category-cell">Indian Student Attendee (Non-Author)</td>
-                                    <td class="rate-cell">₹3540</td>
-                                    <td class="rate-cell">₹4130</td>
-                                    <td class="rate-cell">₹4130</td>
-                                    <td class="rate-cell">₹4720</td>
-                                </tr>
-                                <tr>
-                                    <td class="category-cell">Indian Professional Attendee (Non-Author)</td>
-                                    <td class="rate-cell">₹5900</td>
-                                    <td class="rate-cell">₹6490</td>
-                                    <td class="rate-cell">₹6490</td>
-                                    <td class="rate-cell">₹6490</td>
-                                </tr>
-                                <tr>
-                                    <td class="category-cell">Tutorial only (Indian Student)</td>
-                                    <td class="rate-cell">₹590</td>
-                                    <td class="rate-cell">₹750</td>
-                                    <td class="rate-cell">₹750</td>
-                                    <td class="rate-cell">₹1000</td>
-                                </tr>
-                                <tr>
-                                    <td class="category-cell">Foreign Author (Academia/Industry)</td>
-                                    <td class="rate-cell">$300</td>
-                                    <td class="rate-cell">$400</td>
-                                    <td class="rate-cell">$400</td>
-                                    <td class="rate-cell">$450</td>
-                                </tr>
-                                <tr>
-                                    <td class="category-cell">Foreign Student Author</td>
-                                    <td class="rate-cell">$150</td>
-                                    <td class="rate-cell">$200</td>
-                                    <td class="rate-cell">$200</td>
-                                    <td class="rate-cell">$250</td>
-                                </tr>
-                                <tr>
-                                    <td class="category-cell">Foreign Student Attendee (Non-Author)</td>
-                                    <td class="rate-cell">$100</td>
-                                    <td class="rate-cell">$150</td>
-                                    <td class="rate-cell">$150</td>
-                                    <td class="rate-cell">$200</td>
-                                </tr>
-                                <tr>
-                                    <td class="category-cell">Foreign Professional Attendee (Additional Page)</td>
-                                    <td class="rate-cell">$15/Page</td>
-                                    <td class="rate-cell">$15/Page</td>
-                                    <td class="rate-cell">$15/Page</td>
-                                    <td class="rate-cell">$15/Page</td>
-                                </tr>
-                                <tr>
-                                    <td class="category-cell">Indian Professional Attendee (Additional Page)</td>
-                                    <td class="rate-cell">₹1000/Page</td>
-                                    <td class="rate-cell">₹1000/Page</td>
-                                    <td class="rate-cell">₹1000/Page</td>
-                                    <td class="rate-cell">₹1000/Page</td>
-                                </tr>
-                                <tr>
-                                    <td class="category-cell">Foreign Professional Attendee (Non-Author)</td>
-                                    <td class="rate-cell">$150</td>
-                                    <td class="rate-cell">$200</td>
-                                    <td class="rate-cell">$200</td>
-                                    <td class="rate-cell">$250</td>
-                                </tr>
-                                <tr>
-                                    <td class="category-cell">Tutorial only (Foreign Student)</td>
-                                    <td class="rate-cell">$15</td>
-                                    <td class="rate-cell">$30</td>
-                                    <td class="rate-cell">$30</td>
-                                    <td class="rate-cell">$50</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="alert alert-info">
+                    {{ settings.form_mode_message|safe }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if settings.use_google_form and settings.google_form_url %}
+        <!-- Google Form Section -->
+        <div class="row mb-5">
+            <div class="col-lg-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3">
+                        <h3 class="mb-0"><i class="fas fa-wpforms me-2"></i>Online Registration Form</h3>
                     </div>
-                    
-                    <div class="table-notes mt-3">
-                        <p class="text-muted"><small>* All rates are inclusive of GST 18%.</small></p>
+                    <div class="card-body p-0">
+                        <iframe 
+                            src="{{ settings.google_form_url }}" 
+                            width="100%" 
+                            height="{{ settings.google_form_height }}" 
+                            frameborder="0" 
+                            marginheight="0" 
+                            marginwidth="0"
+                            title="Conference Registration Form"
+                            aria-label="Conference Registration Form"
+                            style="border: none;">
+                            Loading…
+                        </iframe>
                     </div>
                 </div>
             </div>
         </div>
+        {% endif %}
+
+        {% if settings.show_default_form %}
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow-sm border-0 mb-5">
+                    <div class="card-header bg-white py-3">
+                        <h3 class="mb-0"><i class="fas fa-user-plus me-2"></i>Registration Form</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="post" enctype="multipart/form-data" id="registrationForm">
+                            {% csrf_token %}
+                            
+                            <!-- Registration Category -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h5 class="text-primary mb-3"><i class="fas fa-tag me-2"></i>Registration Category</h5>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label for="{{ form.category.id_for_label }}" class="form-label">
+                                        Category <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.category }}
+                                    {% if form.category.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.category.errors.0 }}</div>
+                                    {% endif %}
+                                    <small class="text-muted">Select your registration category based on your status</small>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Personal Information -->
+                            <div class="row mb-4">
+                                <div class="col-12 mb-3">
+                                    <h5 class="text-primary"><i class="fas fa-user me-2"></i>Personal Information</h5>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label for="{{ form.title.id_for_label }}" class="form-label">Title <span class="text-danger">*</span></label>
+                                    {{ form.title }}
+                                    {% if form.title.errors %}<div class="invalid-feedback d-block">{{ form.title.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-5 mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name <span class="text-danger">*</span></label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}<div class="invalid-feedback d-block">{{ form.first_name.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-5 mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}<div class="invalid-feedback d-block">{{ form.last_name.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">Email <span class="text-danger">*</span></label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}<div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.phone.id_for_label }}" class="form-label">Phone <span class="text-danger">*</span></label>
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}<div class="invalid-feedback d-block">{{ form.phone.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.alternate_phone.id_for_label }}" class="form-label">Alternate Phone</label>
+                                    {{ form.alternate_phone }}
+                                    {% if form.alternate_phone.errors %}<div class="invalid-feedback d-block">{{ form.alternate_phone.errors.0 }}</div>{% endif %}
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Professional Information -->
+                            <div class="row mb-4">
+                                <div class="col-12 mb-3">
+                                    <h5 class="text-primary"><i class="fas fa-briefcase me-2"></i>Professional Information</h5>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.organization.id_for_label }}" class="form-label">Organization <span class="text-danger">*</span></label>
+                                    {{ form.organization }}
+                                    {% if form.organization.errors %}<div class="invalid-feedback d-block">{{ form.organization.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.designation.id_for_label }}" class="form-label">Designation <span class="text-danger">*</span></label>
+                                    {{ form.designation }}
+                                    {% if form.designation.errors %}<div class="invalid-feedback d-block">{{ form.designation.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+                                    {{ form.department }}
+                                    {% if form.department.errors %}<div class="invalid-feedback d-block">{{ form.department.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.country.id_for_label }}" class="form-label">Country <span class="text-danger">*</span></label>
+                                    {{ form.country }}
+                                    {% if form.country.errors %}<div class="invalid-feedback d-block">{{ form.country.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.state.id_for_label }}" class="form-label">State/Province</label>
+                                    {{ form.state }}
+                                    {% if form.state.errors %}<div class="invalid-feedback d-block">{{ form.state.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.city.id_for_label }}" class="form-label">City <span class="text-danger">*</span></label>
+                                    {{ form.city }}
+                                    {% if form.city.errors %}<div class="invalid-feedback d-block">{{ form.city.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                                    {{ form.address }}
+                                    {% if form.address.errors %}<div class="invalid-feedback d-block">{{ form.address.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.postal_code.id_for_label }}" class="form-label">Postal Code</label>
+                                    {{ form.postal_code }}
+                                    {% if form.postal_code.errors %}<div class="invalid-feedback d-block">{{ form.postal_code.errors.0 }}</div>{% endif %}
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- IEEE Membership -->
+                            <div class="row mb-4">
+                                <div class="col-12 mb-3">
+                                    <h5 class="text-primary"><i class="fas fa-id-card me-2"></i>IEEE Membership</h5>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <div class="form-check">
+                                        {{ form.is_ieee_member }}
+                                        <label class="form-check-label" for="ieeeCheck">
+                                            I am an IEEE member
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3" id="ieeeMembershipDiv" style="display: none;">
+                                    <label for="{{ form.ieee_membership_id.id_for_label }}" class="form-label">
+                                        IEEE Membership ID <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.ieee_membership_id }}
+                                    {% if form.ieee_membership_id.errors %}<div class="invalid-feedback d-block">{{ form.ieee_membership_id.errors.0 }}</div>{% endif %}
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Student Information -->
+                            <div class="row mb-4">
+                                <div class="col-12 mb-3">
+                                    <h5 class="text-primary"><i class="fas fa-user-graduate me-2"></i>Student Information</h5>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <div class="form-check">
+                                        {{ form.is_student }}
+                                        <label class="form-check-label" for="studentCheck">
+                                            I am a student
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="studentInfoDiv" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.student_id.id_for_label }}" class="form-label">
+                                                Student ID <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.student_id }}
+                                            {% if form.student_id.errors %}<div class="invalid-feedback d-block">{{ form.student_id.errors.0 }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.student_id_document.id_for_label }}" class="form-label">
+                                                Student ID Document <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.student_id_document }}
+                                            {% if form.student_id_document.errors %}<div class="invalid-feedback d-block">{{ form.student_id_document.errors.0 }}</div>{% endif %}
+                                            <small class="text-muted d-block">Upload a scan of your student ID card (PDF, JPG, PNG)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Paper Information -->
+                            <div class="row mb-4">
+                                <div class="col-12 mb-3">
+                                    <h5 class="text-primary"><i class="fas fa-file-alt me-2"></i>Paper Information</h5>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <div class="form-check">
+                                        {{ form.has_paper }}
+                                        <label class="form-check-label" for="paperCheck">
+                                            I am submitting a paper
+                                        </label>
+                                    </div>
+                                </div>
+                                <div id="paperInfoDiv" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.paper_id.id_for_label }}" class="form-label">
+                                                Paper ID <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.paper_id }}
+                                            {% if form.paper_id.errors %}<div class="invalid-feedback d-block">{{ form.paper_id.errors.0 }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.additional_pages.id_for_label }}" class="form-label">
+                                                Additional Pages
+                                            </label>
+                                            {{ form.additional_pages }}
+                                            {% if form.additional_pages.errors %}<div class="invalid-feedback d-block">{{ form.additional_pages.errors.0 }}</div>{% endif %}
+                                            <small class="text-muted d-block">Extra page charge: ₹1000/page (Indian) or $15/page (Foreign)</small>
+                                        </div>
+                                        <div class="col-md-12 mb-3">
+                                            <label for="{{ form.paper_title.id_for_label }}" class="form-label">
+                                                Paper Title <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.paper_title }}
+                                            {% if form.paper_title.errors %}<div class="invalid-feedback d-block">{{ form.paper_title.errors.0 }}</div>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Payment Information -->
+                            <div class="row mb-4">
+                                <div class="col-12 mb-3">
+                                    <h5 class="text-primary"><i class="fas fa-credit-card me-2"></i>Payment Information</h5>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <div class="alert alert-info">
+                                        <h6><i class="fas fa-university me-2"></i>Bank Account Details</h6>
+                                        <div class="row">
+                                            <div class="col-md-6"><strong>Account Name:</strong> {{ settings.account_name }}</div>
+                                            <div class="col-md-6"><strong>Account Number:</strong> {{ settings.account_number }}</div>
+                                            <div class="col-md-6"><strong>Bank:</strong> {{ settings.bank_name }}</div>
+                                            <div class="col-md-6"><strong>IFSC Code:</strong> {{ settings.ifsc_code }}</div>
+                                            <div class="col-md-12"><strong>SWIFT Code:</strong> {{ settings.swift_code }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.payment_method.id_for_label }}" class="form-label">Payment Method</label>
+                                    {{ form.payment_method }}
+                                    {% if form.payment_method.errors %}<div class="invalid-feedback d-block">{{ form.payment_method.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.transaction_id.id_for_label }}" class="form-label">Transaction/Reference ID</label>
+                                    {{ form.transaction_id }}
+                                    {% if form.transaction_id.errors %}<div class="invalid-feedback d-block">{{ form.transaction_id.errors.0 }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.payment_receipt.id_for_label }}" class="form-label">Payment Receipt</label>
+                                    {{ form.payment_receipt }}
+                                    {% if form.payment_receipt.errors %}<div class="invalid-feedback d-block">{{ form.payment_receipt.errors.0 }}</div>{% endif %}
+                                    <small class="text-muted d-block">Upload payment screenshot/receipt</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.payment_notes.id_for_label }}" class="form-label">Payment Notes</label>
+                                    {{ form.payment_notes }}
+                                    {% if form.payment_notes.errors %}<div class="invalid-feedback d-block">{{ form.payment_notes.errors.0 }}</div>{% endif %}
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Additional Information -->
+                            <div class="row mb-4">
+                                <div class="col-12 mb-3">
+                                    <h5 class="text-primary"><i class="fas fa-info-circle me-2"></i>Additional Information</h5>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label for="{{ form.special_requirements.id_for_label }}" class="form-label">Special Requirements</label>
+                                    {{ form.special_requirements }}
+                                    {% if form.special_requirements.errors %}<div class="invalid-feedback d-block">{{ form.special_requirements.errors.0 }}</div>{% endif %}
+                                    <small class="text-muted">Dietary restrictions, accessibility needs, etc.</small>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <div class="form-check">
+                                        {{ form.accommodation_required }}
+                                        <label class="form-check-label" for="{{ form.accommodation_required.id_for_label }}">
+                                            I require accommodation assistance
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Terms and Conditions -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        {{ form.accept_terms }}
+                                        <label class="form-check-label" for="{{ form.accept_terms.id_for_label }}">
+                                            I accept the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a> <span class="text-danger">*</span>
+                                        </label>
+                                        {% if form.accept_terms.errors %}<div class="invalid-feedback d-block">{{ form.accept_terms.errors.0 }}</div>{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        <i class="fas fa-paper-plane me-2"></i>Submit Registration
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </section>
 
+<!-- Registration Rates Table -->
+<section class="registration-rates py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4">Registration Rates</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-primary">
+                    <tr>
+                        <th rowspan="2">Category</th>
+                        <th colspan="2" class="text-center">Early Bird Rates</th>
+                        <th colspan="2" class="text-center">Regular Rates</th>
+                    </tr>
+                    <tr>
+                        <th>IEEE Member</th>
+                        <th>Non-IEEE</th>
+                        <th>IEEE Member</th>
+                        <th>Non-IEEE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if fees_table_rows %}
+                        {% for row in fees_table_rows %}
+                        <tr {% if row.is_highlighted %}class="table-warning"{% endif %}>
+                            <td>
+                                {{ row.display_name }}
+                                {% if row.notes %}
+                                <br><small class="text-muted">{{ row.notes }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ row.early_bird_ieee }}</td>
+                            <td>{{ row.early_bird_non_ieee }}</td>
+                            <td>{{ row.regular_ieee }}</td>
+                            <td>{{ row.regular_non_ieee }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        {# Fallback to old category-based table if fees_table_rows is empty #}
+                        {% for category in categories %}
+                        <tr>
+                            <td>{{ category.display_name }}</td>
+                            <td>{% if category.currency == 'INR' %}₹{% else %}${% endif %}{{ category.early_bird_ieee_member }}</td>
+                            <td>{% if category.currency == 'INR' %}₹{% else %}${% endif %}{{ category.early_bird_non_ieee }}</td>
+                            <td>{% if category.currency == 'INR' %}₹{% else %}${% endif %}{{ category.standard_ieee_member }}</td>
+                            <td>{% if category.currency == 'INR' %}₹{% else %}${% endif %}{{ category.standard_non_ieee }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+            {% if settings.early_bird_deadline %}
+            <p class="text-muted mt-3"><small>Early bird deadline: {{ settings.early_bird_deadline|date:"F d, Y" }}</small></p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Registration Terms:</h6>
+                <ul>
+                    <li>All fees are in the currency specified and are inclusive of applicable taxes</li>
+                    <li>Registration fees are non-refundable except under exceptional circumstances</li>
+                    <li>Each author may register for a maximum of {{ settings.max_papers_per_author }} papers</li>
+                    <li>Student registrants must provide valid student ID for verification</li>
+                    <li>IEEE membership will be verified for member rates</li>
+                    <li>Payment must be completed within 7 days of registration</li>
+                    <li>Registration is confirmed only after payment verification</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show/hide IEEE membership field
+document.getElementById('ieeeCheck').addEventListener('change', function() {
+    document.getElementById('ieeeMembershipDiv').style.display = this.checked ? 'block' : 'none';
+});
+
+// Show/hide student information
+document.getElementById('studentCheck').addEventListener('change', function() {
+    document.getElementById('studentInfoDiv').style.display = this.checked ? 'block' : 'none';
+});
+
+// Show/hide paper information
+document.getElementById('paperCheck').addEventListener('change', function() {
+    document.getElementById('paperInfoDiv').style.display = this.checked ? 'block' : 'none';
+});
+
+// Form validation
+document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    let isValid = true;
+    
+    // Validate IEEE membership
+    if (document.getElementById('ieeeCheck').checked) {
+        const ieeeMemberId = document.getElementById('ieeeMembershipId');
+        if (!ieeeMemberId.value.trim()) {
+            isValid = false;
+            alert('Please enter your IEEE Membership ID');
+            ieeeMemberId.focus();
+            e.preventDefault();
+            return;
+        }
+    }
+    
+    // Validate student information
+    if (document.getElementById('studentCheck').checked) {
+        const studentId = document.getElementById('studentId');
+        const studentDoc = document.getElementById('studentIdDoc');
+        if (!studentId.value.trim()) {
+            isValid = false;
+            alert('Please enter your Student ID');
+            studentId.focus();
+            e.preventDefault();
+            return;
+        }
+        if (!studentDoc.files.length) {
+            isValid = false;
+            alert('Please upload your Student ID document');
+            studentDoc.focus();
+            e.preventDefault();
+            return;
+        }
+    }
+    
+    // Validate paper information
+    if (document.getElementById('paperCheck').checked) {
+        const paperId = document.getElementById('paperId');
+        const paperTitle = document.getElementById('paperTitle');
+        if (!paperId.value.trim()) {
+            isValid = false;
+            alert('Please enter your Paper ID');
+            paperId.focus();
+            e.preventDefault();
+            return;
+        }
+        if (!paperTitle.value.trim()) {
+            isValid = false;
+            alert('Please enter your Paper Title');
+            paperTitle.focus();
+            e.preventDefault();
+            return;
+        }
+    }
+});
+</script>
+
 <!-- Registration Information -->
+{% if settings.show_important_info %}
 <section class="registration-info py-5 bg-light">
     <div class="container">
         <div class="row g-4">
             <div class="col-lg-8">
                 <div class="info-card">
-                    <h3 class="info-title">Important Registration Information</h3>
+                    <h3 class="info-title">{{ settings.important_info_title }}</h3>
                     <div class="info-content">
-                        <div class="info-item">
-                            <i class="fas fa-file-alt text-primary me-3"></i>
-                            <div>
-                                <strong>Paper Submission:</strong> An author may register for a maximum of two papers, with the registration fee paid separately for each paper.
-                            </div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <i class="fas fa-money-bill-wave text-success me-3"></i>
-                            <div>
-                                <strong>Extra Page Charge:</strong> ₹1000/- INR per page (Indian author) and $15 per page (International author) will be chargeable to the author's during registration process.
-                            </div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <i class="fas fa-calendar-check text-info me-3"></i>
-                            <div>
-                                <strong>Early Bird Deadline:</strong> Take advantage of early bird rates until <strong>October 15, 2025</strong>.
-                            </div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <i class="fas fa-user-graduate text-warning me-3"></i>
-                            <div>
-                                <strong>Student Registration:</strong> Valid student ID required for student rates. Student presenters must be registered as authors.
-                            </div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <i class="fas fa-users text-secondary me-3"></i>
-                            <div>
-                                <strong>IEEE Membership:</strong> IEEE member rates apply to current IEEE members only. Membership verification required.
-                            </div>
-                        </div>
+                        {{ settings.important_info_content|safe }}
                     </div>
                 </div>
             </div>
             
+            {% if settings.show_payment_buttons %}
             <div class="col-lg-4">
                 <div class="payment-card">
                     <h4 class="payment-title">
-                        <i class="fas fa-credit-card me-2"></i>Pay Now - Indian Authors
+                        <i class="fas fa-credit-card me-2"></i>Payment Options
                     </h4>
                     <div class="payment-button-wrapper">
-                        <button class="btn btn-primary btn-lg w-100 mb-3">
+                        {% if settings.pay_now_indian_link %}
+                        <a href="{{ settings.pay_now_indian_link }}" target="_blank" class="btn btn-primary btn-lg w-100 mb-3">
                             <i class="fas fa-rupee-sign me-2"></i>Pay Now - Indian Authors
-                        </button>
-                        <button class="btn btn-success btn-lg w-100">
+                        </a>
+                        {% endif %}
+                        {% if settings.pay_now_international_link %}
+                        <a href="{{ settings.pay_now_international_link }}" target="_blank" class="btn btn-success btn-lg w-100">
                             <i class="fas fa-dollar-sign me-2"></i>Pay Now - International Authors
-                        </button>
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- Account Details Section -->
+{% if settings.show_account_details %}
 <section class="account-details py-5">
     <div class="container">
         <div class="row justify-content-center">
@@ -213,33 +592,43 @@
                             <div class="col-md-6">
                                 <div class="detail-item">
                                     <strong class="detail-label">Name of Account:</strong>
-                                    <span class="detail-value">GU Conferences</span>
+                                    <span class="detail-value">{{ settings.account_name }}</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="detail-item">
                                     <strong class="detail-label">Account Number:</strong>
-                                    <span class="detail-value">671700010025845</span>
+                                    <span class="detail-value">{{ settings.account_number }}</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="detail-item">
                                     <strong class="detail-label">IFSC Code:</strong>
-                                    <span class="detail-value">PUNB0671700</span>
+                                    <span class="detail-value">{{ settings.ifsc_code }}</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="detail-item">
                                     <strong class="detail-label">Bank Name:</strong>
-                                    <span class="detail-value">Punjab National Bank, Noida</span>
+                                    <span class="detail-value">{{ settings.bank_name }}</span>
                                 </div>
                             </div>
-                            <div class="col-12">
+                            {% if settings.swift_code %}
+                            <div class="col-md-6">
                                 <div class="detail-item">
                                     <strong class="detail-label">SWIFT Code:</strong>
-                                    <span class="detail-value">PUNBINBBMSN</span>
+                                    <span class="detail-value">{{ settings.swift_code }}</span>
                                 </div>
                             </div>
+                            {% endif %}
+                            {% if settings.bank_address %}
+                            <div class="col-12">
+                                <div class="detail-item">
+                                    <strong class="detail-label">Bank Address:</strong>
+                                    <span class="detail-value">{{ settings.bank_address }}</span>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -247,8 +636,10 @@
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- Registration Process -->
+{% if settings.show_registration_process %}
 <section class="registration-process py-5 bg-primary text-white">
     <div class="container">
         <div class="row text-center mb-5">
@@ -290,6 +681,7 @@
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- Contact for Registration -->
 <section class="registration-contact py-5 bg-light">
@@ -301,7 +693,7 @@
                 <div class="contact-info d-flex justify-content-center gap-4 flex-wrap">
                     <div class="contact-item">
                         <i class="fas fa-envelope text-primary me-2"></i>
-                        <a href="mailto:registration@iceims2026.org">registration@iceims2026.org</a>
+                        <a href="mailto:registration@iceims.com">registration@iceims.com</a>
                     </div>
                     <div class="contact-item">
                         <i class="fas fa-phone text-success me-2"></i>

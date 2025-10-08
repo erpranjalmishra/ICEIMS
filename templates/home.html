@@ -3,6 +3,164 @@
 
 {% block extra_css %}
 <style>
+/* Marquee Styles */
+.marquee-section {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    z-index: 10;
+}
+
+.marquee-container {
+    padding: 15px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+}
+
+.marquee-text {
+    display: inline-block;
+    padding-left: 100%;
+    animation: marquee linear infinite;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Pause animation on hover */
+.marquee-text:hover {
+    animation-play-state: paused;
+}
+
+/* Responsive marquee */
+@media (max-width: 768px) {
+    .marquee-text {
+        font-size: 1rem;
+    }
+    .marquee-container {
+        padding: 12px 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .marquee-text {
+        font-size: 0.9rem;
+    }
+    .marquee-container {
+        padding: 10px 0;
+    }
+}
+
+/* Attraction Card Styles */
+.attraction-card {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    background: white;
+    height: 100%;
+}
+
+.attraction-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(160,53,47,0.2);
+}
+
+.attraction-image-container {
+    position: relative;
+    overflow: hidden;
+    height: 250px;
+}
+
+.attraction-image {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.attraction-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.attraction-card:hover .attraction-image img {
+    transform: scale(1.1);
+}
+
+.attraction-content {
+    padding: 1.5rem;
+}
+
+.attraction-title {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.attraction-description {
+    color: #666;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.attraction-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.attraction-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.attraction-actions .btn {
+    width: 100%;
+    text-align: center;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+}
+
+.btn-outline-primary {
+    transition: all 0.3s ease;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    border-width: 2px;
+    font-weight: 500;
+}
+
+.btn-outline-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(160, 53, 47, 0.3);
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
 /* Notice Styles */
 .notices-section {
     background: #f8f9fa;
@@ -221,6 +379,17 @@
     </div>
 </section>
 
+<!-- Marquee Text Section -->
+{% if marquee_text %}
+<section class="marquee-section">
+    <div class="marquee-container" style="background-color: {{ marquee_text.background_color }};">
+        <div class="marquee-text" style="color: {{ marquee_text.text_color }}; animation-duration: {{ marquee_text.animation_speed }}s;">
+            {{ marquee_text.text }}
+        </div>
+    </div>
+</section>
+{% endif %}
+
 <!-- Notices Section -->
 {% if notices %}
 <section class="notices-section pb-4">
@@ -300,14 +469,23 @@
                                     <div class="timeline-date">{{ item.date|date:"jS F, Y" }}</div>
                                     <h5 class="timeline-title">{{ item.title }}</h5>
                                     <p class="timeline-description">{{ item.description|truncatewords:15 }}</p>
-                                    {% if item.days_remaining > 0 and item.status == 'upcoming' %}
-                                        <span class="badge bg-primary">{{ item.days_remaining }} day{{ item.days_remaining|pluralize }} left</span>
-                                    {% elif item.is_overdue %}
-                                        <span class="badge bg-danger">Overdue</span>
-                                    {% elif item.status == 'in_progress' %}
-                                        <span class="badge bg-warning">In Progress</span>
-                                    {% elif item.status == 'completed' %}
-                                        <span class="badge bg-success">Completed</span>
+                                    <div class="timeline-badges mb-2">
+                                        {% if item.days_remaining > 0 and item.status == 'upcoming' %}
+                                            <span class="badge bg-primary">{{ item.days_remaining }} day{{ item.days_remaining|pluralize }} left</span>
+                                        {% elif item.is_overdue %}
+                                            <span class="badge bg-danger">Overdue</span>
+                                        {% elif item.status == 'in_progress' %}
+                                            <span class="badge bg-warning">In Progress</span>
+                                        {% elif item.status == 'completed' %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if item.link_url %}
+                                    <a href="{{ item.link_url }}" 
+                                       class="btn btn-sm btn-outline-primary mt-2" 
+                                       {% if item.open_in_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                                        <i class="fas fa-external-link-alt me-1"></i>{{ item.link_text|default:'Learn More' }}
+                                    </a>
                                     {% endif %}
                                 </div>
                             </div>
@@ -903,11 +1081,29 @@
                 <div class="topics-card h-100">
                     <h2 class="topics-card-title">Conference Topics</h2>
                     <div class="topics-content">
+                        {% if conference_topics %}
+                        <div class="topics-list">
+                            {% for topic in conference_topics %}
+                            <div class="topic-item">
+                                <div class="topic-icon">
+                                    <i class="{{ topic.icon_class }}"></i>
+                                </div>
+                                <div class="topic-text">
+                                    <h5 class="topic-title">{{ topic.title }}</h5>
+                                    {% if topic.description %}
+                                    <p class="topic-description">{{ topic.description }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
                         <div class="topics-placeholder">
                             <div class="placeholder-box">
                                 <p class="placeholder-text">To be listed soon</p>
                             </div>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -974,21 +1170,6 @@
                             <img src="{% static 'images/default-attraction.svg' %}" alt="{{ attraction.name }}" class="img-fluid attraction-img">
                             {% endif %}
                         </div>
-                        <div class="map-overlay">
-                            {% if attraction.location_url %}
-                            <div class="map-placeholder" data-map-embed="{{ attraction.map_embed|safe }}" data-location-url="{{ attraction.location_url }}">
-                                <div class="loading-map">
-                                    <i class="fas fa-map-marked-alt fa-2x mb-2" style="color: #fff; opacity: 0.7;"></i>
-                                    <p style="color: #fff; opacity: 0.9; font-size: 0.9rem;">Hover to view map</p>
-                                </div>
-                            </div>
-                            {% else %}
-                            <div class="loading-map">
-                                <i class="fas fa-map-marked-alt fa-2x mb-2" style="color: #fff; opacity: 0.7;"></i>
-                                <p style="color: #fff; opacity: 0.9; font-size: 0.9rem;">Map unavailable</p>
-                            </div>
-                            {% endif %}
-                        </div>
                     </div>
                     <div class="attraction-content p-4">
                         <h5 class="attraction-title">{{ attraction.name }}</h5>
@@ -1012,12 +1193,6 @@
                             <img src="https://images.unsplash.com/photo-1587135941948-670b381f08ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60" 
                                  alt="Red Fort" class="img-fluid attraction-img" loading="lazy">
                         </div>
-                        <div class="map-overlay">
-                            <div class="loading-map">
-                                <i class="fas fa-map-marked-alt fa-2x mb-2" style="color: #fff; opacity: 0.7;"></i>
-                                <p style="color: #fff; opacity: 0.9; font-size: 0.9rem;">Quick View</p>
-                            </div>
-                        </div>
                     </div>
                     <div class="attraction-content p-4">
                         <h5 class="attraction-title">Red Fort (Lal Qila)</h5>
@@ -1037,12 +1212,6 @@
                         <div class="attraction-image">
                             <img src="https://images.unsplash.com/photo-1587474260584-136574528ed5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60" 
                                  alt="India Gate" class="img-fluid attraction-img" loading="lazy">
-                        </div>
-                        <div class="map-overlay">
-                            <div class="loading-map">
-                                <i class="fas fa-map-marked-alt fa-2x mb-2" style="color: #fff; opacity: 0.7;"></i>
-                                <p style="color: #fff; opacity: 0.9; font-size: 0.9rem;">Quick View</p>
-                            </div>
                         </div>
                     </div>
                     <div class="attraction-content p-4">
@@ -1386,8 +1555,11 @@
                 <div class="sponsor-cta">
                     <h5 class="text-dark mb-2">Want to sponsor ICEIMS 2026?</h5>
                     <p class="text-muted mb-3">Join our prestigious list of sponsors and reach the global research community</p>
-                    <a href="{% url 'conference:contact' %}" class="btn btn-primary btn-lg">
-                        <i class="fas fa-handshake me-2"></i>Become a Sponsor
+                    <a href="{% if site_settings.sponsor_button_url %}{{ site_settings.sponsor_button_url }}{% else %}{% url 'conference:contact' %}{% endif %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-handshake me-2"></i>{{ site_settings.sponsor_button_text|default:"Become a Sponsor" }}
+                    </a>
+                    <a href="{% url 'conference:sponsors' %}" class="btn btn-outline-primary btn-lg ms-3">
+                        <i class="fas fa-eye me-2"></i>View All Sponsors
                     </a>
                 </div>
             </div>
@@ -1396,91 +1568,7 @@
 </section>
 
 <script>
-// Lazy load attraction maps on hover for better performance
-document.addEventListener('DOMContentLoaded', function() {
-    const attractionCards = document.querySelectorAll('.attraction-card');
-    
-    attractionCards.forEach(card => {
-        const mapPlaceholder = card.querySelector('.map-placeholder');
-        if (!mapPlaceholder) return;
-        
-        let mapLoaded = false;
-        let loadTimeout = null;
-        
-        // Load map on hover
-        card.addEventListener('mouseenter', function() {
-            if (!mapLoaded) {
-                // Add a slight delay to prevent accidental loads
-                loadTimeout = setTimeout(() => {
-                    const mapEmbed = mapPlaceholder.getAttribute('data-map-embed');
-                    const locationUrl = mapPlaceholder.getAttribute('data-location-url');
-                    
-                    if (mapEmbed && mapEmbed.trim() !== '' && mapEmbed !== 'None') {
-                        // Parse the embed code and extract iframe
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = mapEmbed.trim();
-                        const iframe = tempDiv.querySelector('iframe');
-                        
-                        if (iframe) {
-                            iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
-                            iframe.className = 'map-iframe';
-                            iframe.loading = 'lazy';
-                            iframe.allowFullscreen = true;
-                            
-                            const loadingMap = mapPlaceholder.querySelector('.loading-map');
-                            if (loadingMap) {
-                                loadingMap.style.opacity = '0';
-                                setTimeout(() => loadingMap.remove(), 300);
-                            }
-                            
-                            // Clear placeholder and add iframe
-                            mapPlaceholder.innerHTML = '';
-                            mapPlaceholder.appendChild(iframe);
-                            mapLoaded = true;
-                        }
-                    } else if (locationUrl && locationUrl.trim() !== '' && locationUrl !== 'None') {
-                        // Create iframe from location URL
-                        const iframe = document.createElement('iframe');
-                        
-                        // Check if it's already an embed URL or needs to be converted
-                        let embedUrl = locationUrl;
-                        if (locationUrl.includes('google.com/maps') && !locationUrl.includes('/embed')) {
-                            // Convert Google Maps URL to embed format
-                            const placeMatch = locationUrl.match(/place\/([^/]+)/);
-                            if (placeMatch) {
-                                embedUrl = `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodeURIComponent(placeMatch[1])}`;
-                            } else {
-                                embedUrl = locationUrl.replace('/maps/', '/maps/embed/');
-                            }
-                        }
-                        
-                        iframe.src = embedUrl;
-                        iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
-                        iframe.className = 'map-iframe';
-                        iframe.loading = 'lazy';
-                        iframe.allowFullscreen = true;
-                        
-                        const loadingMap = mapPlaceholder.querySelector('.loading-map');
-                        if (loadingMap) {
-                            loadingMap.remove();
-                        }
-                        
-                        mapPlaceholder.innerHTML = '';
-                        mapPlaceholder.appendChild(iframe);
-                        mapLoaded = true;
-                    }
-                }, 200); // 200ms delay
-            }
-        });
-        
-        // Cancel load if mouse leaves quickly
-        card.addEventListener('mouseleave', function() {
-            if (loadTimeout) {
-                clearTimeout(loadTimeout);
-                loadTimeout = null;
-            }
-        });
-    });
-});
+// Map loading is now handled by the unified function in base.html
+// No duplicate code needed here
 </script>
 {% endblock %}

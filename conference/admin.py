@@ -9,9 +9,20 @@ from .models import (
     HierarchyLevel, CommitteeMember, ConferenceTrack, TouristAttraction, 
     ImportantDate, Slider, ConferenceSettings, Sponsor, UniversityInfo, UniversityGallery,
     FAQCategory, FAQ, AIConversation, GuidelineCategory, Guideline, GuidelineChecklist,
-    AwardCategory, Award, AwardCriteria, PastWinner,
-    SiteSettings, HeroSlide, SliderSettings
+    AwardCategory, Award, AwardCriteria, PastWinner, AwardGallery,
+    SiteSettings, HeroSlide, SliderSettings, MarqueeText, ConferenceTopic,
+    VisitorCounter, RegistrationCategory, ConferenceRegistration, RegistrationSettings,
+    RegistrationFeesTable, DownloadResource, Speaker, LoadingPageSettings,
+    AboutPage, AboutObjective, SponsorsPageSettings, PageVisitLog, SitemapLink
 )
+
+
+# Admin Action: Manual Cache Clear
+def clear_site_cache(modeladmin, request, queryset):
+    """Admin action to manually clear all caches"""
+    cache.clear()
+    messages.success(request, '🔄 Cache cleared successfully! All changes will now be visible on the website.')
+clear_site_cache.short_description = "🔄 Clear website cache (force refresh)"
 
 # Custom Admin Site Configuration
 class CustomAdminSite(admin.AdminSite):
@@ -90,25 +101,42 @@ class HierarchyLevelAdmin(admin.ModelAdmin):
 @admin.register(CommitteeMember)
 class CommitteeMemberAdmin(admin.ModelAdmin):
     form = CommitteeMemberForm  # Use custom form with dynamic hierarchy choices
-    list_display = ['name', 'title', 'organization', 'get_level_name_display', 'hierarchy_level', 'order', 'is_active']
-    list_editable = ['order', 'is_active']
-    list_filter = ['organization', 'hierarchy_level', 'role', 'is_active']
-    search_fields = ['name', 'title', 'organization']
+    list_display = ['name', 'title', 'organization', 'get_level_name_display', 'hierarchy_level', 'order', 'enable_bio_page', 'page_views', 'is_active']
+    list_editable = ['order', 'enable_bio_page', 'is_active']
+    list_filter = ['organization', 'hierarchy_level', 'role', 'enable_bio_page', 'is_active']
+    search_fields = ['name', 'title', 'organization', 'bio', 'detailed_bio']
     ordering = ['hierarchy_level', 'order']
+    readonly_fields = ['slug', 'page_views', 'last_viewed', 'view_bio_page_link']
+    
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'title', 'organization', 'image')
+            'fields': ('name', 'slug', 'title', 'organization', 'image')
         }),
         ('Hierarchy & Role', {
             'fields': ('hierarchy_level', 'role', 'order'),
             'description': 'Assign a hierarchy level. You can add more levels in the "Hierarchy Levels" section.'
         }),
+        ('Biography', {
+            'fields': ('bio', 'detailed_bio'),
+            'description': 'Bio shows on committee page. Detailed bio shows on dedicated bio page.'
+        }),
+        ('Extended Information', {
+            'fields': ('research_interests', 'education', 'publications', 'awards'),
+            'classes': ('collapse',)
+        }),
         ('Contact Information', {
             'fields': ('email', 'phone'),
             'classes': ('collapse',)
         }),
-        ('Additional Details', {
-            'fields': ('bio', 'is_active'),
+        ('Social Media Links', {
+            'fields': ('website', 'linkedin', 'twitter', 'google_scholar', 'orcid', 'researchgate'),
+            'classes': ('collapse',)
+        }),
+        ('Page Settings', {
+            'fields': ('enable_bio_page', 'view_bio_page_link', 'is_active'),
+        }),
+        ('Analytics', {
+            'fields': ('page_views', 'last_viewed'),
             'classes': ('collapse',)
         }),
     )
@@ -118,6 +146,15 @@ class CommitteeMemberAdmin(admin.ModelAdmin):
         return obj.get_hierarchy_level_name()
     get_level_name_display.short_description = 'Level Name'
     get_level_name_display.admin_order_field = 'hierarchy_level'
+    
+    def view_bio_page_link(self, obj):
+        """Link to view the bio page"""
+        if obj.pk and obj.enable_bio_page:
+            from django.urls import reverse
+            url = reverse('conference:committee_bio', kwargs={'slug': obj.slug})
+            return format_html('<a href="{}" target="_blank" class="button">View Bio Page</a>', url)
+        return "Save to generate bio page"
+    view_bio_page_link.short_description = 'Bio Page'
 
 @admin.register(ConferenceTrack)
 class ConferenceTrackAdmin(admin.ModelAdmin):
@@ -236,24 +273,41 @@ class TouristAttractionAdmin(admin.ModelAdmin):
 
 @admin.register(ImportantDate)
 class ImportantDateAdmin(admin.ModelAdmin):
-    list_display = ['event', 'date', 'order']
+    list_display = ['event', 'date', 'order', 'has_link']
     list_editable = ['order']
     date_hierarchy = 'date'
+    fieldsets = (
+        ('Event Details', {
+            'fields': ('event', 'date', 'description', 'order')
+        }),
+        ('Link Settings', {
+            'fields': ('link_url', 'link_text', 'open_in_new_tab'),
+            'description': 'Add an optional link to this event (e.g., registration page, submission portal)'
+        }),
+    )
+    
+    def has_link(self, obj):
+        return bool(obj.link_url)
+    has_link.boolean = True
+    has_link.short_description = 'Has Link'
 
 @admin.register(Slider)
 class SliderAdmin(admin.ModelAdmin):
     list_display = ['title', 'order', 'is_active']
     list_editable = ['order', 'is_active']
     list_filter = ['is_active']
+    actions = [clear_site_cache]
 
 @admin.register(ConferenceSettings)
 class ConferenceSettingsAdmin(admin.ModelAdmin):
     list_display = ['site_title', 'conference_dates', 'location']
+    actions = [clear_site_cache]
 
 @admin.register(Sponsor)
 class SponsorAdmin(admin.ModelAdmin):
     list_display = ['name', 'order']
     list_editable = ['order']
+    actions = [clear_site_cache]
 
 @admin.register(UniversityInfo)
 class UniversityInfoAdmin(admin.ModelAdmin):
@@ -769,6 +823,14 @@ class AwardCriteriaInline(admin.TabularInline):
     ordering = ('display_order',)
 
 
+class AwardGalleryInline(admin.TabularInline):
+    model = AwardGallery
+    extra = 1
+    fields = ('image', 'title', 'image_type', 'is_active', 'display_order')
+    ordering = ('display_order',)
+    readonly_fields = ()
+
+
 @admin.register(Award, site=custom_admin_site)
 class AwardAdmin(admin.ModelAdmin):
     list_display = ('title_preview', 'category', 'year', 'status_badge', 'prize_amount', 'is_featured', 'created_at')
@@ -778,7 +840,7 @@ class AwardAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
     ordering = ('-year', '-is_featured', 'display_order')
     readonly_fields = ('created_at', 'updated_at')
-    inlines = [AwardCriteriaInline]
+    inlines = [AwardCriteriaInline, AwardGalleryInline]
     
     fieldsets = (
         ('Basic Information', {
@@ -797,6 +859,10 @@ class AwardAdmin(admin.ModelAdmin):
         }),
         ('Timeline', {
             'fields': ('nomination_start', 'nomination_end', 'announcement_date')
+        }),
+        ('Nomination Settings', {
+            'fields': ('nomination_link',),
+            'description': 'Add URL for Submit Nomination button (e.g., Google Form, external submission page)'
         }),
         ('Status & Display', {
             'fields': ('status', 'is_featured', 'display_order')
@@ -863,6 +929,58 @@ class PastWinnerAdmin(admin.ModelAdmin):
 admin.site.register(PastWinner, PastWinnerAdmin)
 
 
+@admin.register(AwardGallery, site=custom_admin_site)
+class AwardGalleryAdmin(admin.ModelAdmin):
+    list_display = ('image_preview', 'title', 'image_type', 'year', 'award', 'is_active', 'show_on_hero', 'display_order', 'uploaded_at')
+    list_filter = ('image_type', 'year', 'is_active', 'show_on_hero', 'uploaded_at')
+    search_fields = ('title', 'description')
+    list_editable = ('is_active', 'show_on_hero', 'display_order')
+    ordering = ('-year', 'display_order', '-uploaded_at')
+    readonly_fields = ('uploaded_at', 'image_preview_large')
+    
+    fieldsets = (
+        ('Image Information', {
+            'fields': ('title', 'image', 'image_preview_large', 'image_type', 'description')
+        }),
+        ('Association', {
+            'fields': ('award', 'year'),
+            'description': 'Optionally link to a specific award'
+        }),
+        ('Display Settings', {
+            'fields': ('is_active', 'show_on_hero', 'display_order')
+        }),
+        ('Metadata', {
+            'fields': ('uploaded_at',),
+            'classes': ('collapse',),
+        }),
+    )
+    
+    def image_preview(self, obj):
+        """Show small image preview in list"""
+        if obj.image:
+            return format_html('<img src="{}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />', 
+                             obj.image.url)
+        return format_html('<span style="color: #999;">No image</span>')
+    image_preview.short_description = 'Preview'
+    
+    def image_preview_large(self, obj):
+        """Show larger image preview in detail view"""
+        if obj.image:
+            return format_html(
+                '<div style="margin: 10px 0;">'
+                '<img src="{}" style="max-width: 400px; max-height: 300px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />'
+                '<p style="margin-top: 10px; color: #666; font-size: 0.9rem;"><strong>File:</strong> {}</p>'
+                '</div>', 
+                obj.image.url,
+                obj.image.name
+            )
+        return format_html('<p style="color: #999;">No image uploaded</p>')
+    image_preview_large.short_description = 'Image Preview'
+
+# Also register with default admin
+admin.site.register(AwardGallery, AwardGalleryAdmin)
+
+
 # =============================================================================
 # SITE SETTINGS ADMIN
 # =============================================================================
@@ -891,6 +1009,34 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         ('Submit Paper Button', {
             'fields': ('submit_paper_text', 'submit_paper_url'),
             'description': 'Customize the Submit Paper button text and link. Leave URL as #submit-paper for same-page anchor.'
+        }),
+        ('Become Sponsor Button', {
+            'fields': ('sponsor_button_text', 'sponsor_button_url'),
+            'description': 'Customize the Become a Sponsor button text and link on the homepage.'
+        }),
+        ('Contact Page - Venue Details', {
+            'fields': ('venue_name', 'venue_address_line1', 'venue_address_line2', 'venue_address_line3'),
+            'description': 'Conference venue information displayed on the contact page.'
+        }),
+        ('Contact Page - Email Addresses', {
+            'fields': ('general_email', 'submissions_email', 'registration_email'),
+            'description': 'Contact email addresses for different purposes.'
+        }),
+        ('Contact Page - Phone Numbers', {
+            'fields': ('main_phone', 'conference_phone'),
+            'description': 'Contact phone numbers displayed on the contact page.'
+        }),
+        ('Contact Page - Office Hours', {
+            'fields': ('office_hours_weekday', 'office_hours_weekend', 'office_hours_timezone'),
+            'description': 'Office hours and timezone information.'
+        }),
+        ('Contact Page - Form Settings', {
+            'fields': ('enable_contact_form', 'use_custom_iframe', 'custom_form_url', 'custom_form_height'),
+            'description': 'To use Google Form: 1) Open your Google Form, 2) Click Send → Embed HTML → Copy the src URL, 3) Paste it in "Custom form URL", 4) Check "Use custom iframe". The form will replace the default contact form.'
+        }),
+        ('Contact Page - Map Settings', {
+            'fields': ('google_maps_embed_url',),
+            'description': 'Google Maps embed URL for venue location. Get it from Google Maps → Share → Embed a map.'
         }),
     )
     
@@ -1015,3 +1161,860 @@ class SliderSettingsAdmin(admin.ModelAdmin):
 
 # Register with default admin
 admin.site.register(SliderSettings, SliderSettingsAdmin)
+
+@admin.register(MarqueeText)
+class MarqueeTextAdmin(admin.ModelAdmin):
+    list_display = ['text_preview', 'is_enabled', 'background_color', 'text_color', 'animation_speed', 'updated_at']
+    list_editable = ['is_enabled']
+    fieldsets = (
+        ('Marquee Content', {
+            'fields': ('text', 'is_enabled')
+        }),
+        ('Styling', {
+            'fields': ('background_color', 'text_color', 'animation_speed'),
+            'description': 'Customize the appearance and animation speed of the marquee'
+        }),
+    )
+    
+    def text_preview(self, obj):
+        return obj.text[:50] + "..." if len(obj.text) > 50 else obj.text
+    text_preview.short_description = 'Marquee Text'
+    
+    def has_add_permission(self, request):
+        # Only allow one marquee text instance
+        if MarqueeText.objects.exists():
+            return False
+        return super().has_add_permission(request)
+    
+    def has_delete_permission(self, request, obj=None):
+        # Prevent deletion - only allow disabling
+        return False
+
+@admin.register(ConferenceTopic)
+class ConferenceTopicAdmin(admin.ModelAdmin):
+    list_display = ['title', 'icon_preview', 'display_order', 'is_active', 'updated_at']
+    list_editable = ['display_order', 'is_active']
+    list_filter = ['is_active']
+    search_fields = ['title', 'description']
+    ordering = ['display_order', 'title']
+    
+    fieldsets = (
+        ('Topic Information', {
+            'fields': ('title', 'description', 'icon_class')
+        }),
+        ('Display Settings', {
+            'fields': ('display_order', 'is_active')
+        }),
+    )
+    
+    def icon_preview(self, obj):
+        return format_html('<i class="{}"></i> {}', obj.icon_class, obj.icon_class)
+    icon_preview.short_description = 'Icon'
+
+
+@admin.register(VisitorCounter)
+class VisitorCounterAdmin(admin.ModelAdmin):
+    list_display = ['ip_address', 'visit_count', 'first_visit', 'last_visit', 'user_agent_preview']
+    list_filter = ['first_visit', 'last_visit']
+    search_fields = ['ip_address', 'session_key']
+    ordering = ['-last_visit']
+    readonly_fields = ['ip_address', 'user_agent', 'session_key', 'first_visit', 'last_visit', 'visit_count']
+    
+    fieldsets = (
+        ('Visitor Information', {
+            'fields': ('ip_address', 'session_key', 'visit_count')
+        }),
+        ('Visit Details', {
+            'fields': ('first_visit', 'last_visit', 'user_agent')
+        }),
+    )
+    
+    def user_agent_preview(self, obj):
+        """Show truncated user agent"""
+        ua = obj.user_agent[:50] + '...' if len(obj.user_agent) > 50 else obj.user_agent
+        return ua
+    user_agent_preview.short_description = 'Browser'
+    
+    def has_add_permission(self, request):
+        """Prevent manual adding of visitors"""
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        """Allow deletion to clean up old records"""
+        return request.user.is_superuser
+    
+    def changelist_view(self, request, extra_context=None):
+        """Add total visitor count to admin page"""
+        extra_context = extra_context or {}
+        extra_context['total_visitors'] = VisitorCounter.get_total_visitors()
+        extra_context['today_visitors'] = VisitorCounter.get_today_visitors()
+        return super().changelist_view(request, extra_context)
+
+
+# =============================================================================
+# REGISTRATION ADMIN
+# =============================================================================
+
+@admin.register(RegistrationCategory)
+class RegistrationCategoryAdmin(admin.ModelAdmin):
+    """Admin for registration categories"""
+    list_display = [
+        'display_name', 'category_type', 'currency', 
+        'early_bird_rates', 'standard_rates', 'early_bird_deadline',
+        'is_active', 'display_order'
+    ]
+    list_filter = ['is_active', 'currency', 'requires_paper', 'requires_student_id']
+    search_fields = ['display_name', 'category_type', 'description']
+    list_editable = ['is_active', 'display_order']
+    ordering = ['display_order', 'category_type']
+    
+    fieldsets = (
+        ('Category Information', {
+            'fields': ('category_type', 'display_name', 'description', 'currency')
+        }),
+        ('Early Bird Pricing', {
+            'fields': ('early_bird_ieee_member', 'early_bird_non_ieee', 'early_bird_deadline'),
+            'description': 'Rates applicable until early bird deadline'
+        }),
+        ('Standard Pricing', {
+            'fields': ('standard_ieee_member', 'standard_non_ieee'),
+            'description': 'Rates applicable after early bird deadline'
+        }),
+        ('Settings', {
+            'fields': ('is_active', 'display_order', 'requires_paper', 'requires_student_id')
+        }),
+    )
+    
+    def early_bird_rates(self, obj):
+        """Display early bird rates"""
+        symbol = '₹' if obj.currency == 'INR' else '$'
+        return format_html(
+            '<strong>IEEE:</strong> {}{} | <strong>Non-IEEE:</strong> {}{}',
+            symbol, obj.early_bird_ieee_member, symbol, obj.early_bird_non_ieee
+        )
+    early_bird_rates.short_description = 'Early Bird Rates'
+    
+    def standard_rates(self, obj):
+        """Display standard rates"""
+        symbol = '₹' if obj.currency == 'INR' else '$'
+        return format_html(
+            '<strong>IEEE:</strong> {}{} | <strong>Non-IEEE:</strong> {}{}',
+            symbol, obj.standard_ieee_member, symbol, obj.standard_non_ieee
+        )
+    standard_rates.short_description = 'Standard Rates'
+    
+    actions = ['activate_categories', 'deactivate_categories', clear_site_cache]
+    
+    def activate_categories(self, request, queryset):
+        """Activate selected categories"""
+        count = queryset.update(is_active=True)
+        self.message_user(request, f'{count} category/categories activated.', messages.SUCCESS)
+    activate_categories.short_description = 'Activate selected categories'
+    
+    def deactivate_categories(self, request, queryset):
+        """Deactivate selected categories"""
+        count = queryset.update(is_active=False)
+        self.message_user(request, f'{count} category/categories deactivated.', messages.SUCCESS)
+    deactivate_categories.short_description = 'Deactivate selected categories'
+
+
+@admin.register(ConferenceRegistration)
+class ConferenceRegistrationAdmin(admin.ModelAdmin):
+    """Admin for conference registrations"""
+    list_display = [
+        'registration_id', 'get_full_name', 'email', 'category',
+        'status_badge', 'payment_amount', 'currency',
+        'is_ieee_member', 'has_paper', 'created_at'
+    ]
+    list_filter = [
+        'status', 'category', 'is_ieee_member', 'is_student',
+        'has_paper', 'payment_method', 'created_at'
+    ]
+    search_fields = [
+        'registration_id', 'first_name', 'last_name', 'email',
+        'organization', 'paper_id', 'transaction_id'
+    ]
+    readonly_fields = [
+        'registration_id', 'created_at', 'updated_at', 'confirmed_by', 'confirmed_at'
+    ]
+    date_hierarchy = 'created_at'
+    
+    fieldsets = (
+        ('Registration Information', {
+            'fields': ('registration_id', 'category', 'status', 'created_at', 'updated_at')
+        }),
+        ('Personal Information', {
+            'fields': (
+                'title', 'first_name', 'last_name', 'email',
+                'phone', 'alternate_phone'
+            )
+        }),
+        ('Professional Information', {
+            'fields': (
+                'organization', 'designation', 'department',
+                'country', 'state', 'city', 'address', 'postal_code'
+            )
+        }),
+        ('IEEE Membership', {
+            'fields': ('is_ieee_member', 'ieee_membership_id'),
+            'classes': ['collapse']
+        }),
+        ('Student Information', {
+            'fields': ('is_student', 'student_id', 'student_id_document'),
+            'classes': ['collapse']
+        }),
+        ('Paper Information', {
+            'fields': ('has_paper', 'paper_id', 'paper_title', 'additional_pages'),
+            'classes': ['collapse']
+        }),
+        ('Payment Information', {
+            'fields': (
+                'payment_method', 'payment_amount', 'currency',
+                'payment_date', 'transaction_id', 'payment_receipt', 'payment_notes'
+            )
+        }),
+        ('Additional Information', {
+            'fields': ('special_requirements', 'accommodation_required'),
+            'classes': ['collapse']
+        }),
+        ('Admin Section', {
+            'fields': ('admin_notes', 'confirmed_by', 'confirmed_at'),
+            'classes': ['collapse']
+        }),
+    )
+    
+    actions = [
+        'mark_as_confirmed', 'mark_as_pending', 'mark_as_cancelled',
+        'export_registrations_csv', 'send_confirmation_email',
+        clear_site_cache
+    ]
+    
+    def status_badge(self, obj):
+        """Display status as colored badge"""
+        badge_class = obj.get_status_badge_class()
+        return format_html(
+            '<span class="badge bg-{}">{}</span>',
+            badge_class, obj.get_status_display()
+        )
+    status_badge.short_description = 'Status'
+    
+    def mark_as_confirmed(self, request, queryset):
+        """Mark registrations as confirmed"""
+        from django.utils import timezone
+        count = queryset.update(
+            status='confirmed',
+            confirmed_by=request.user,
+            confirmed_at=timezone.now()
+        )
+        self.message_user(request, f'{count} registration(s) confirmed.', messages.SUCCESS)
+    mark_as_confirmed.short_description = 'Mark as Confirmed'
+    
+    def mark_as_pending(self, request, queryset):
+        """Mark registrations as pending"""
+        count = queryset.update(status='pending')
+        self.message_user(request, f'{count} registration(s) marked as pending.', messages.INFO)
+    mark_as_pending.short_description = 'Mark as Pending'
+    
+    def mark_as_cancelled(self, request, queryset):
+        """Mark registrations as cancelled"""
+        count = queryset.update(status='cancelled')
+        self.message_user(request, f'{count} registration(s) cancelled.', messages.WARNING)
+    mark_as_cancelled.short_description = 'Mark as Cancelled'
+    
+    def export_registrations_csv(self, request, queryset):
+        """Export registrations to CSV"""
+        import csv
+        from django.http import HttpResponse
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="registrations.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow([
+            'Registration ID', 'Name', 'Email', 'Phone', 'Organization',
+            'Category', 'Status', 'IEEE Member', 'Paper ID', 'Amount',
+            'Payment Method', 'Transaction ID', 'Created At'
+        ])
+        
+        for reg in queryset:
+            writer.writerow([
+                reg.registration_id, reg.get_full_name(), reg.email, reg.phone,
+                reg.organization, reg.category.display_name, reg.get_status_display(),
+                'Yes' if reg.is_ieee_member else 'No', reg.paper_id or '-',
+                f"{reg.payment_amount} {reg.currency}", reg.payment_method or '-',
+                reg.transaction_id or '-', reg.created_at.strftime('%Y-%m-%d %H:%M')
+            ])
+        
+        return response
+    export_registrations_csv.short_description = 'Export to CSV'
+    
+    def send_confirmation_email(self, request, queryset):
+        """Send confirmation email to registrants"""
+        # This would integrate with your email system
+        count = queryset.filter(status='confirmed').count()
+        self.message_user(
+            request,
+            f'Confirmation emails will be sent to {count} registrant(s).',
+            messages.INFO
+        )
+    send_confirmation_email.short_description = 'Send Confirmation Email'
+    
+    def changelist_view(self, request, extra_context=None):
+        """Add statistics to changelist"""
+        extra_context = extra_context or {}
+        extra_context['total_registrations'] = ConferenceRegistration.objects.count()
+        extra_context['confirmed_registrations'] = ConferenceRegistration.objects.filter(status='confirmed').count()
+        extra_context['pending_registrations'] = ConferenceRegistration.objects.filter(status='pending').count()
+        return super().changelist_view(request, extra_context)
+
+
+@admin.register(RegistrationSettings)
+class RegistrationSettingsAdmin(admin.ModelAdmin):
+    """Admin for registration settings"""
+    
+    fieldsets = (
+        ('Registration Status', {
+            'fields': ('registration_open', 'registration_message'),
+            'description': 'Control whether registration is open and display a message to users'
+        }),
+        ('Payment Links', {
+            'fields': ('pay_now_indian_link', 'pay_now_international_link', 'show_payment_buttons'),
+            'description': 'Payment gateway links for Indian and International authors'
+        }),
+        ('Bank Account Details', {
+            'fields': (
+                'bank_name', 'account_name', 'account_number',
+                'ifsc_code', 'swift_code', 'bank_address', 'show_account_details'
+            ),
+            'description': 'Bank account information for manual transfers'
+        }),
+        ('Important Information Section', {
+            'fields': ('important_info_title', 'important_info_content', 'show_important_info'),
+            'description': 'Important registration information displayed on the page (HTML allowed)',
+            'classes': ['collapse']
+        }),
+        ('Contact Information', {
+            'fields': ('registration_email', 'registration_phone')
+        }),
+        ('Limits & Settings', {
+            'fields': (
+                'max_papers_per_author', 'max_additional_pages',
+                'early_bird_deadline', 'show_early_bird_countdown'
+            )
+        }),
+        ('Display Settings', {
+            'fields': ('show_registration_process',),
+            'description': 'Control visibility of various sections'
+        }),
+        ('Form Mode Settings', {
+            'fields': (
+                'use_google_form', 'show_default_form', 'google_form_url',
+                'google_form_height', 'form_mode_message'
+            ),
+            'description': 'Choose between default form and Google Form. You can show both, only one, or switch between them.',
+            'classes': ['collapse']
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ['collapse']
+        }),
+    )
+    
+    readonly_fields = ['created_at', 'updated_at']
+    
+    def has_add_permission(self, request):
+        """Only allow one settings instance"""
+        return not RegistrationSettings.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        """Prevent deletion of settings"""
+        return False
+
+
+@admin.register(RegistrationFeesTable)
+class RegistrationFeesTableAdmin(admin.ModelAdmin):
+    """Admin for registration fees table"""
+    list_display = ['display_name', 'participant_type', 'early_bird_ieee', 'early_bird_non_ieee', 
+                    'regular_ieee', 'regular_non_ieee', 'is_active', 'is_highlighted', 'display_order']
+    list_filter = ['is_active', 'is_highlighted', 'participant_type']
+    search_fields = ['display_name', 'participant_type', 'notes']
+    list_editable = ['is_active', 'is_highlighted', 'display_order']
+    ordering = ['display_order', 'participant_type']
+    
+    fieldsets = (
+        ('Participant Information', {
+            'fields': ('participant_type', 'display_name', 'notes'),
+            'description': 'Define the participant type and display name for the fees table'
+        }),
+        ('Early Bird Fees', {
+            'fields': ('early_bird_ieee', 'early_bird_non_ieee'),
+            'description': 'Early bird registration fees (e.g., ₹6000 or $200)'
+        }),
+        ('Regular Fees', {
+            'fields': ('regular_ieee', 'regular_non_ieee'),
+            'description': 'Regular registration fees after early bird deadline'
+        }),
+        ('Display Settings', {
+            'fields': ('is_active', 'is_highlighted', 'display_order'),
+            'description': 'Control visibility and appearance in the fees table'
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ['collapse']
+        }),
+    )
+    
+    readonly_fields = ['created_at', 'updated_at']
+    
+    actions = ['activate_rows', 'deactivate_rows', 'highlight_rows', 'unhighlight_rows']
+    
+    @admin.action(description='Activate selected rows')
+    def activate_rows(self, request, queryset):
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f'{updated} row(s) activated successfully.')
+    
+    @admin.action(description='Deactivate selected rows')
+    def deactivate_rows(self, request, queryset):
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f'{updated} row(s) deactivated successfully.')
+    
+    @admin.action(description='Highlight selected rows')
+    def highlight_rows(self, request, queryset):
+        updated = queryset.update(is_highlighted=True)
+        self.message_user(request, f'{updated} row(s) highlighted successfully.')
+    
+    @admin.action(description='Remove highlight from selected rows')
+    def unhighlight_rows(self, request, queryset):
+        updated = queryset.update(is_highlighted=False)
+        self.message_user(request, f'{updated} row(s) unhighlighted successfully.')
+
+
+@admin.register(DownloadResource)
+class DownloadResourceAdmin(admin.ModelAdmin):
+    """Admin for download resources"""
+    list_display = ['title', 'category', 'file_type', 'file_size', 'author', 'downloads', 'is_featured', 'is_active', 'created_at']
+    list_filter = ['category', 'is_active', 'is_featured', 'created_at']
+    search_fields = ['title', 'description', 'author', 'category']
+    list_editable = ['is_featured', 'is_active']
+    readonly_fields = ['downloads', 'created_at', 'updated_at']
+    
+    fieldsets = (
+        ('Resource Information', {
+            'fields': ('title', 'description', 'category', 'version', 'author')
+        }),
+        ('File', {
+            'fields': ('file', 'file_type', 'file_size', 'thumbnail')
+        }),
+        ('Additional Details', {
+            'fields': ('related_url',),
+            'classes': ['collapse']
+        }),
+        ('Status & Stats', {
+            'fields': ('is_active', 'is_featured', 'downloads')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ['collapse']
+        })
+    )
+    
+    actions = ['activate_resources', 'deactivate_resources', 'feature_resources', 'unfeature_resources']
+    
+    def activate_resources(self, request, queryset):
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f'{updated} resource(s) activated successfully.')
+    activate_resources.short_description = 'Activate selected resources'
+    
+    def deactivate_resources(self, request, queryset):
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f'{updated} resource(s) deactivated successfully.')
+    deactivate_resources.short_description = 'Deactivate selected resources'
+    
+    def feature_resources(self, request, queryset):
+        updated = queryset.update(is_featured=True)
+        self.message_user(request, f'{updated} resource(s) marked as featured.')
+    feature_resources.short_description = 'Mark as featured'
+    
+    def unfeature_resources(self, request, queryset):
+        updated = queryset.update(is_featured=False)
+        self.message_user(request, f'{updated} resource(s) unmarked as featured.')
+    unfeature_resources.short_description = 'Remove featured status'
+
+
+@admin.register(Speaker)
+class SpeakerAdmin(admin.ModelAdmin):
+    """Admin for conference speakers"""
+    list_display = ['name', 'title', 'organization', 'speaker_type', 'enable_bio_page', 'page_views', 'is_featured', 'is_published', 'display_order']
+    list_editable = ['display_order', 'enable_bio_page', 'is_featured', 'is_published']
+    list_filter = ['speaker_type', 'is_featured', 'is_published', 'enable_bio_page', 'country', 'created_at']
+    search_fields = ['name', 'title', 'organization', 'bio', 'detailed_bio', 'expertise']
+    ordering = ['display_order', 'name']
+    readonly_fields = ['slug', 'page_views', 'last_viewed', 'view_bio_page_link', 'created_at', 'updated_at']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'slug', 'title', 'organization', 'country', 'photo')
+        }),
+        ('Biography', {
+            'fields': ('bio', 'detailed_bio', 'expertise', 'research_interests'),
+            'description': 'Bio shows on speakers page. Detailed bio shows on dedicated bio page.'
+        }),
+        ('Talk Details', {
+            'fields': ('speaker_type', 'talk_title', 'talk_abstract', 'session_time'),
+            'classes': ('collapse',)
+        }),
+        ('Extended Information', {
+            'fields': ('education', 'publications', 'awards'),
+            'classes': ('collapse',)
+        }),
+        ('Contact & Social Media', {
+            'fields': ('email', 'website', 'linkedin', 'twitter', 'google_scholar', 'orcid', 'researchgate'),
+            'classes': ('collapse',)
+        }),
+        ('Display Settings', {
+            'fields': ('enable_bio_page', 'view_bio_page_link', 'is_featured', 'is_published', 'display_order'),
+        }),
+        ('Analytics', {
+            'fields': ('page_views', 'last_viewed'),
+            'classes': ('collapse',)
+        }),
+        ('Administrative', {
+            'fields': ('created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    actions = ['publish_speakers', 'unpublish_speakers', 'feature_speakers', 'unfeature_speakers', 'enable_bio_pages', 'disable_bio_pages']
+    
+    def view_bio_page_link(self, obj):
+        """Link to view the bio page"""
+        if obj.pk and obj.enable_bio_page:
+            from django.urls import reverse
+            url = reverse('conference:speaker_bio', kwargs={'slug': obj.slug})
+            return format_html('<a href="{}" target="_blank" class="button">View Bio Page</a>', url)
+        return "Save to generate bio page"
+    view_bio_page_link.short_description = 'Bio Page'
+    
+    def save_model(self, request, obj, form, change):
+        """Auto-assign created_by on creation"""
+        if not change:  # Only on creation
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+    
+    def publish_speakers(self, request, queryset):
+        updated = queryset.update(is_published=True)
+        self.message_user(request, f'{updated} speaker(s) published successfully.')
+    publish_speakers.short_description = 'Publish selected speakers'
+    
+    def unpublish_speakers(self, request, queryset):
+        updated = queryset.update(is_published=False)
+        self.message_user(request, f'{updated} speaker(s) unpublished successfully.')
+    unpublish_speakers.short_description = 'Unpublish selected speakers'
+    
+    def feature_speakers(self, request, queryset):
+        updated = queryset.update(is_featured=True)
+        self.message_user(request, f'{updated} speaker(s) marked as featured.')
+    feature_speakers.short_description = 'Mark as featured'
+    
+    def unfeature_speakers(self, request, queryset):
+        updated = queryset.update(is_featured=False)
+        self.message_user(request, f'{updated} speaker(s) unmarked as featured.')
+    unfeature_speakers.short_description = 'Remove featured status'
+    
+    def enable_bio_pages(self, request, queryset):
+        updated = queryset.update(enable_bio_page=True)
+        self.message_user(request, f'{updated} speaker(s) bio pages enabled.')
+    enable_bio_pages.short_description = 'Enable bio pages'
+    
+    def disable_bio_pages(self, request, queryset):
+        updated = queryset.update(enable_bio_page=False)
+        self.message_user(request, f'{updated} speaker(s) bio pages disabled.')
+    disable_bio_pages.short_description = 'Disable bio pages'
+
+
+@admin.register(LoadingPageSettings)
+class LoadingPageSettingsAdmin(admin.ModelAdmin):
+    """Admin for loading page customization"""
+    
+    fieldsets = (
+        ('Loading Text Content', {
+            'fields': ('loading_title', 'loading_subtitle', 'loading_message'),
+            'description': 'Customize the text displayed on the loading page'
+        }),
+        ('Tagline & Dates', {
+            'fields': ('show_tagline', 'tagline_text'),
+        }),
+        ('Logo Settings', {
+            'fields': ('show_logo', 'logo'),
+            'description': 'Upload a custom logo or use default conference logo'
+        }),
+        ('Animation Settings', {
+            'fields': ('animation_type', 'show_progress_text'),
+            'description': 'Choose the loading animation style'
+        }),
+        ('Color Scheme', {
+            'fields': ('background_color', 'text_color', 'spinner_color'),
+            'description': 'Customize colors (use hex codes like #a0352f)'
+        }),
+        ('Timing Settings', {
+            'fields': ('minimum_duration', 'fade_out_duration'),
+            'description': 'Control loading page timing (in milliseconds)'
+        }),
+        ('Advanced Styling', {
+            'fields': ('custom_css',),
+            'classes': ('collapse',),
+            'description': 'Add custom CSS for advanced styling (optional)'
+        }),
+        ('Footer Settings', {
+            'fields': ('show_footer', 'footer_text', 'footer_link'),
+            'description': 'Customize the footer text and link on loading page'
+        }),
+        ('Status', {
+            'fields': ('is_active',),
+            'description': 'Enable or disable the loading page globally'
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    readonly_fields = ('created_at', 'updated_at')
+    
+    def has_add_permission(self, request):
+        # Only allow one instance
+        return not LoadingPageSettings.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        # Don't allow deletion of settings
+        return False
+
+
+@admin.register(AboutPage)
+class AboutPageAdmin(admin.ModelAdmin):
+    list_display = ['hero_title', 'is_active', 'updated_at']
+    
+    fieldsets = (
+        ('Hero Section', {
+            'fields': ('hero_title', 'hero_subtitle', 'hero_description', 'hero_image'),
+            'description': 'Customize the hero section at the top of the about page'
+        }),
+        ('Conference Overview', {
+            'fields': ('overview_title', 'overview_lead', 'overview_content'),
+            'description': 'Main overview content about the conference'
+        }),
+        ('Vision', {
+            'fields': ('vision_title', 'vision_content', 'vision_icon'),
+        }),
+        ('Mission', {
+            'fields': ('mission_title', 'mission_content', 'mission_icon'),
+        }),
+        ('Statistics Section', {
+            'fields': (
+                'show_statistics',
+                ('stat_1_number', 'stat_1_label', 'stat_1_icon'),
+                ('stat_2_number', 'stat_2_label', 'stat_2_icon'),
+                ('stat_3_number', 'stat_3_label', 'stat_3_icon'),
+                ('stat_4_number', 'stat_4_label', 'stat_4_icon'),
+            ),
+            'description': 'Conference statistics displayed prominently'
+        }),
+        ('Section Visibility', {
+            'fields': ('show_objectives', 'show_university_info'),
+            'description': 'Control which sections are displayed'
+        }),
+        ('SEO Settings', {
+            'fields': ('meta_description', 'meta_keywords'),
+            'classes': ('collapse',),
+            'description': 'Search engine optimization'
+        }),
+        ('Status', {
+            'fields': ('is_active',),
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    readonly_fields = ('created_at', 'updated_at')
+    actions = [clear_site_cache]
+    
+    def has_add_permission(self, request):
+        return not AboutPage.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(AboutObjective)
+class AboutObjectiveAdmin(admin.ModelAdmin):
+    list_display = ['title', 'order', 'color', 'is_active']
+    list_editable = ['order', 'is_active']
+    list_filter = ['is_active', 'color']
+    search_fields = ['title', 'description']
+    ordering = ['order', 'id']
+    actions = [clear_site_cache]
+    
+    fieldsets = (
+        ('Objective Details', {
+            'fields': ('title', 'description', 'order')
+        }),
+        ('Styling', {
+            'fields': ('icon', 'color'),
+            'description': 'Icon: FontAwesome class (e.g., fas fa-lightbulb). Color: Bootstrap class (primary, success, warning, info, danger)'
+        }),
+        ('Status', {
+            'fields': ('is_active',),
+        }),
+    )
+
+
+@admin.register(SponsorsPageSettings)
+class SponsorsPageSettingsAdmin(admin.ModelAdmin):
+    list_display = ['hero_title', 'is_active', 'updated_at']
+    
+    fieldsets = (
+        ('Hero Section', {
+            'fields': ('hero_title', 'hero_subtitle'),
+            'description': 'Customize the hero section of the sponsors page'
+        }),
+        ('Sponsorship Contact Information', {
+            'fields': (
+                'sponsorship_manager_name',
+                'sponsorship_manager_email',
+                'sponsorship_manager_phone',
+            ),
+            'description': 'Contact details for sponsorship manager'
+        }),
+        ('General Inquiry Contact', {
+            'fields': (
+                'general_inquiry_email',
+                'general_inquiry_response_time',
+            ),
+        }),
+        ('Call-to-Action Buttons', {
+            'fields': (
+                ('contact_button_text', 'contact_button_url'),
+                ('prospectus_button_text', 'prospectus_file'),
+            ),
+            'description': 'Customize CTA buttons and links'
+        }),
+        ('Section Visibility', {
+            'fields': (
+                'show_partnership_opportunities',
+                'show_why_sponsor',
+                'show_contact_section',
+            ),
+            'description': 'Control which sections are displayed'
+        }),
+        ('SEO', {
+            'fields': ('meta_description',),
+            'classes': ('collapse',),
+        }),
+        ('Status', {
+            'fields': ('is_active',),
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    readonly_fields = ('created_at', 'updated_at')
+    actions = [clear_site_cache]
+    
+    def has_add_permission(self, request):
+        return not SponsorsPageSettings.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(PageVisitLog)
+class PageVisitLogAdmin(admin.ModelAdmin):
+    list_display = ['timestamp', 'ip_address', 'url_path_display', 'browser_info_display', 
+                    'device_type', 'location_display', 'is_authenticated', 'username']
+    list_filter = ['timestamp', 'device_type', 'browser', 'os', 'is_authenticated']
+    search_fields = ['ip_address', 'url_path', 'username', 'city', 'country']
+    date_hierarchy = 'timestamp'
+    ordering = ['-timestamp']
+    readonly_fields = ['ip_address', 'user_agent', 'url_path', 'full_url', 'http_method', 
+                       'referrer', 'country', 'city', 'device_type', 'browser', 'os', 
+                       'timestamp', 'response_time', 'session_key', 'is_authenticated', 'username']
+    
+    fieldsets = (
+        ('Visit Information', {
+            'fields': ('timestamp', 'ip_address', 'session_key', 'is_authenticated', 'username')
+        }),
+        ('Request Details', {
+            'fields': ('url_path', 'full_url', 'http_method', 'referrer', 'response_time')
+        }),
+        ('Browser & Device', {
+            'fields': ('user_agent', 'browser', 'os', 'device_type')
+        }),
+        ('Location', {
+            'fields': ('country', 'city'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def url_path_display(self, obj):
+        """Truncate long URLs for display"""
+        path = obj.url_path
+        return path[:50] + '...' if len(path) > 50 else path
+    url_path_display.short_description = 'Page URL'
+    
+    def browser_info_display(self, obj):
+        """Display browser information"""
+        return obj.browser_info
+    browser_info_display.short_description = 'Browser/OS'
+    
+    def location_display(self, obj):
+        """Display location information"""
+        return obj.location_info
+    location_display.short_description = 'Location'
+    
+    def has_add_permission(self, request):
+        """Prevent manual adding of page visit logs"""
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        """Allow deletion to clean up old logs"""
+        return request.user.is_superuser
+    
+    def changelist_view(self, request, extra_context=None):
+        """Add statistics to admin page"""
+        extra_context = extra_context or {}
+        extra_context['total_page_visits'] = PageVisitLog.get_total_visits()
+        extra_context['today_page_visits'] = PageVisitLog.get_today_visits()
+        extra_context['unique_visitors_today'] = PageVisitLog.get_unique_visitors_today()
+        extra_context['popular_pages'] = PageVisitLog.get_popular_pages(limit=5)
+        return super().changelist_view(request, extra_context)
+
+
+
+
+@admin.register(SitemapLink)
+class SitemapLinkAdmin(admin.ModelAdmin):
+    list_display = ['name', 'url', 'icon_preview', 'display_order', 'is_active', 'created_at']
+    list_filter = ['is_active', 'created_at']
+    search_fields = ['name', 'url', 'description']
+    list_editable = ['display_order', 'is_active']
+    ordering = ['display_order', 'name']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'url', 'description')
+        }),
+        ('Visual Settings', {
+            'fields': ('icon',)
+        }),
+        ('Display Settings', {
+            'fields': ('display_order', 'is_active')
+        }),
+    )
+    
+    def icon_preview(self, obj):
+        return format_html('<i class=\"fas {}\"></i> {}', obj.icon, obj.icon)
+    icon_preview.short_description = 'Icon'

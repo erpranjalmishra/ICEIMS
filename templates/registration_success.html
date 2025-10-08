@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registration Successful - ICEIMS 2026{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Success Card -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-5 text-center">
+                        <!-- Success Icon -->
+                        <div class="mb-4">
+                            <i class="fas fa-check-circle text-success" style="font-size: 80px;"></i>
+                        </div>
+                        
+                        <h2 class="text-success mb-3">Registration Submitted Successfully!</h2>
+                        <p class="lead text-muted mb-4">
+                            Thank you for registering for ICEIMS 2026
+                        </p>
+                        
+                        <!-- Registration Details Card -->
+                        <div class="card bg-light border-0 mb-4">
+                            <div class="card-body">
+                                <h5 class="mb-3">Your Registration Details</h5>
+                                <div class="row text-start">
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Registration ID:</strong>
+                                        <p class="mb-0 text-primary fw-bold">{{ registration.registration_id }}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Name:</strong>
+                                        <p class="mb-0">{{ registration.get_full_name }}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Email:</strong>
+                                        <p class="mb-0">{{ registration.email }}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Category:</strong>
+                                        <p class="mb-0">{{ registration.category.display_name }}</p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Amount:</strong>
+                                        <p class="mb-0 fw-bold">
+                                            {% if registration.currency == 'INR' %}₹{% else %}${% endif %}{{ registration.payment_amount }}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <strong>Status:</strong>
+                                        <p class="mb-0">
+                                            <span class="badge bg-{{ registration.get_status_badge_class }}">
+                                                {{ registration.get_status_display }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Next Steps -->
+                        <div class="alert alert-info text-start mb-4">
+                            <h6><i class="fas fa-info-circle me-2"></i>Next Steps:</h6>
+                            <ol class="mb-0 ps-3">
+                                <li>A confirmation email has been sent to <strong>{{ registration.email }}</strong></li>
+                                <li>Complete the payment using the details provided below</li>
+                                <li>Upload your payment receipt through the admin panel or email it to us</li>
+                                <li>Your registration will be confirmed once payment is verified</li>
+                            </ol>
+                        </div>
+                        
+                        <!-- Payment Details -->
+                        <div class="card border-primary mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-university me-2"></i>Payment Details</h5>
+                            </div>
+                            <div class="card-body text-start">
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <strong>Account Name:</strong> GU Conferences
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <strong>Account Number:</strong> 671700010025845
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <strong>Bank Name:</strong> Punjab National Bank, Noida
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <strong>IFSC Code:</strong> PUNB0671700
+                                    </div>
+                                    <div class="col-md-12 mb-2">
+                                        <strong>SWIFT Code:</strong> PUNBINBBMSN (For international transfers)
+                                    </div>
+                                    <div class="col-12 mt-3">
+                                        <div class="alert alert-warning mb-0">
+                                            <small><i class="fas fa-exclamation-triangle me-1"></i> 
+                                            Please mention your <strong>Registration ID: {{ registration.registration_id }}</strong> in the payment reference</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-3 justify-content-center flex-wrap">
+                            <a href="/" class="btn btn-primary">
+                                <i class="fas fa-home me-2"></i>Back to Home
+                            </a>
+                            <button onclick="window.print()" class="btn btn-outline-secondary">
+                                <i class="fas fa-print me-2"></i>Print Details
+                            </button>
+                        </div>
+                        
+                        <!-- Contact Support -->
+                        <div class="mt-4 pt-3 border-top">
+                            <p class="text-muted mb-2"><small>Need help? Contact us:</small></p>
+                            <p class="mb-0">
+                                <a href="mailto:registration@iceims.com"><i class="fas fa-envelope me-2"></i>registration@iceims.com</a>
+                                <span class="mx-2">|</span>
+                                <a href="tel:+911204589501"><i class="fas fa-phone me-2"></i>+91 120 458 9501</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+@media print {
+    .btn, nav, footer {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}

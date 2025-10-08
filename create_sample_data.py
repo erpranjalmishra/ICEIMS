@@ -89,7 +89,7 @@ def create_sample_data():
             'slug': 'welcome-to-iceims-2026',
             'excerpt': 'We\'re excited to launch our official conference blog with the latest updates, insights, and announcements about ICEIMS 2026.',
             'content': '''
-<p>Welcome to the official blog of the International Conference on Engineering, Information Management and Systems (ICEIMS 2026)!</p>
+<p>Welcome to the official blog of the International Conference on Energy and Intelligent Manufacturing Systems (ICEIMS 2026)!</p>
 
 <p>This blog will serve as your go-to source for:</p>
 <ul>

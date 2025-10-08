@@ -493,6 +493,112 @@
             </div>
         </div>
         
+        <!-- Visitor Statistics -->
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h5 class="mb-4" style="color: white;"><i class="fas fa-users"></i> Visitor Analytics</h5>
+            <div class="stats-grid">
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.95);">
+                    <div class="stat-icon" style="color: #667eea;">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <span class="stat-number" style="color: #667eea;">{{ stats.total_page_visits|default:0 }}</span>
+                    <div class="stat-label">Total Page Views</div>
+                </div>
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.95);">
+                    <div class="stat-icon" style="color: #667eea;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span class="stat-number" style="color: #667eea;">{{ stats.today_page_visits|default:0 }}</span>
+                    <div class="stat-label">Page Views Today</div>
+                </div>
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.95);">
+                    <div class="stat-icon" style="color: #667eea;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <span class="stat-number" style="color: #667eea;">{{ stats.total_visitors|default:0 }}</span>
+                    <div class="stat-label">Unique Visitors</div>
+                </div>
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.95);">
+                    <div class="stat-icon" style="color: #667eea;">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <span class="stat-number" style="color: #667eea;">{{ stats.unique_visitors_today|default:0 }}</span>
+                    <div class="stat-label">Unique Visitors Today</div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <a href="/admin/conference/pagevisitlog/" class="btn btn-light">
+                    <i class="fas fa-chart-bar me-2"></i>View Detailed Logs
+                </a>
+            </div>
+        </div>
+        
+        <!-- Popular Pages -->
+        {% if popular_pages %}
+        <div class="dashboard-card">
+            <h5 class="mb-4"><i class="fas fa-fire"></i> Most Popular Pages (Last 7 Days)</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Page URL</th>
+                            <th class="text-end">Visit Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for page in popular_pages %}
+                        <tr>
+                            <td>
+                                <i class="fas fa-link text-muted me-2"></i>
+                                {{ page.url_path }}
+                            </td>
+                            <td class="text-end">
+                                <span class="badge bg-primary">{{ page.visit_count }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Recent Visitors -->
+        {% if recent_visitors %}
+        <div class="dashboard-card">
+            <h5 class="mb-4"><i class="fas fa-history"></i> Recent Visitors</h5>
+            <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>IP Address</th>
+                            <th>Page</th>
+                            <th>Browser</th>
+                            <th>Device</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for visitor in recent_visitors %}
+                        <tr>
+                            <td class="text-muted">{{ visitor.timestamp|date:"M d, H:i" }}</td>
+                            <td><code>{{ visitor.ip_address }}</code></td>
+                            <td>{{ visitor.url_path|truncatechars:30 }}</td>
+                            <td><small>{{ visitor.browser|default:"Unknown" }}</small></td>
+                            <td><span class="badge bg-secondary">{{ visitor.device_type|default:"Desktop" }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-3">
+                <a href="/admin/conference/visitorcounter/" class="btn btn-outline-primary">
+                    <i class="fas fa-users me-2"></i>View All Visitors
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        
         <!-- Management Sections -->
         <div class="management-grid">
             <!-- Blog Management -->

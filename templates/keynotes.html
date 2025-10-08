@@ -30,6 +30,27 @@
         transform: translateY(-2px);
         color: var(--primary-color) !important;
     }
+    
+    .btn-view-profile {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--primary-color);
+        color: white;
+        padding: 10px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-view-profile:hover {
+        background: #8a2e29;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(160, 53, 47, 0.3);
+    }
 </style>
 {% endblock %}
 
@@ -77,6 +98,14 @@
                         <h3 class="speaker-name">{{ speaker.name }}</h3>
                         <p class="speaker-title">{{ speaker.title }}</p>
                         <p class="speaker-university">{{ speaker.organization }}{% if speaker.country %}, {{ speaker.country }}{% endif %}</p>
+                        
+                        {% if speaker.enable_bio_page %}
+                        <div class="mt-3 mb-3">
+                            <a href="{% url 'conference:speaker_bio' speaker.slug %}" class="btn-view-profile">
+                                <i class="fas fa-user-circle"></i> View Full Profile & Bio
+                            </a>
+                        </div>
+                        {% endif %}
                         
                         {% if speaker.talk_title or speaker.session_time %}
                         <div class="keynote-details">
@@ -291,77 +320,6 @@
     </div>
 </section>
 
-<!-- Keynote Schedule Section -->
-<section class="keynote-schedule py-5 bg-light">
-    <div class="container">
-        <div class="row text-center mb-5">
-            <div class="col-lg-12">
-                <h2 class="section-title">Keynote Schedule</h2>
-                <p class="lead">Complete schedule of all keynote presentations</p>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="schedule-timeline">
-                    <!-- Day 1 -->
-                    <div class="schedule-day">
-                        <h4 class="day-title">Day 1 - November 20, 2026</h4>
-                        <div class="schedule-events">
-                            <div class="schedule-event">
-                                <div class="event-time">9:00 - 10:00 AM</div>
-                                <div class="event-details">
-                                    <h5>Opening Keynote</h5>
-                                    <p><strong>Dr. Sarah Johnson</strong> - "Sustainable Energy Solutions for Industry 4.0"</p>
-                                    <span class="event-location">Main Auditorium</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Day 2 -->
-                    <div class="schedule-day">
-                        <h4 class="day-title">Day 2 - November 21, 2026</h4>
-                        <div class="schedule-events">
-                            <div class="schedule-event">
-                                <div class="event-time">11:30 - 12:30 PM</div>
-                                <div class="event-details">
-                                    <h5>Technical Keynote</h5>
-                                    <p><strong>Prof. Hiroshi Tanaka</strong> - "AI-Driven Manufacturing: The Future is Now"</p>
-                                    <span class="event-location">Main Auditorium</span>
-                                </div>
-                            </div>
-                            <div class="schedule-event">
-                                <div class="event-time">2:00 - 3:00 PM</div>
-                                <div class="event-details">
-                                    <h5>Industry Keynote</h5>
-                                    <p><strong>Dr. Maria Rodriguez</strong> - "Digital Twins in Smart Manufacturing"</p>
-                                    <span class="event-location">Conference Hall A</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Day 3 -->
-                    <div class="schedule-day">
-                        <h4 class="day-title">Day 3 - November 22, 2026</h4>
-                        <div class="schedule-events">
-                            <div class="schedule-event">
-                                <div class="event-time">10:00 - 11:00 AM</div>
-                                <div class="event-details">
-                                    <h5>Closing Keynote</h5>
-                                    <p><strong>Prof. David Chen</strong> - "Green Manufacturing: Challenges and Opportunities"</p>
-                                    <span class="event-location">Main Auditorium</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- Call to Action -->
 <section class="cta-section py-5 bg-primary text-white">
     <div class="container">
@@ -369,7 +327,7 @@
             <div class="col-lg-12">
                 <h2 class="mb-4">Don't Miss These Inspiring Sessions</h2>
                 <p class="lead mb-4">Register now to attend these world-class keynote presentations</p>
-                <a href="#registration" class="btn btn-light btn-lg px-5">
+                <a href="{% url 'conference:registration' %}" class="btn btn-light btn-lg px-5">
                     <i class="fas fa-ticket-alt me-2"></i>Register Now
                 </a>
             </div>

@@ -16,16 +16,21 @@ from .models import (
     CommitteeMember, ConferenceTrack, TouristAttraction, 
     ImportantDate, Slider, ConferenceSettings, Sponsor,
     BlogPost, Category, Tag, Comment, Newsletter,
-    MaintenanceMode, Notice, EmailLog, UniversityInfo, UniversityGallery
+    MaintenanceMode, Notice, EmailLog, UniversityInfo, UniversityGallery,
+    SponsorsPageSettings
 )
 
 def home(request):
     """Home page view with all conference information - Optimized"""
     from django.core.cache import cache
-    from .models import HeroSlide
+    from .models import HeroSlide, MarqueeText, ConferenceTopic
     
-    # Try to get cached data first - updated cache key to force refresh
-    cache_key = 'homepage_data_v3'
+    # Get marquee timestamp for cache versioning
+    marquee_obj = MarqueeText.objects.first()
+    marquee_version = marquee_obj.updated_at.timestamp() if marquee_obj else 'none'
+    
+    # Try to get cached data first - cache key includes marquee version for auto-refresh
+    cache_key = f'homepage_data_v5_{marquee_version}'
     context = cache.get(cache_key)
     
     if context is None:
@@ -49,6 +54,17 @@ def home(request):
         # Get hero slides (new website control feature)
         hero_slides = HeroSlide.objects.filter(is_active=True).order_by('display_order')
         
+        # Get marquee text - convert to dict for caching
+        marquee_obj = MarqueeText.get_active()
+        marquee_text = None
+        if marquee_obj:
+            marquee_text = {
+                'text': marquee_obj.text,
+                'background_color': marquee_obj.background_color,
+                'text_color': marquee_obj.text_color,
+                'animation_speed': marquee_obj.animation_speed,
+            }
+        
         # Get all data for the homepage with optimized queries
         context = {
             # Notices
@@ -59,6 +75,14 @@ def home(request):
             
             # Hero Slides (new)
             'hero_slides': list(hero_slides) if hero_slides.exists() else None,
+            
+            # Marquee Text (as dictionary for caching)
+            'marquee_text': marquee_text,
+            
+            # Conference Topics
+            'conference_topics': list(ConferenceTopic.objects.filter(is_active=True).only(
+                'id', 'title', 'description', 'icon_class', 'display_order'
+            ).order_by('display_order', 'title')),
             
             # Slider images (fallback if no hero slides)
             'slider_images': list(Slider.objects.filter(is_active=True).only('id', 'title', 'image', 'order')),
@@ -111,15 +135,27 @@ def home(request):
             ).first(),
         }
         
-        # Cache for 5 minutes (300 seconds)
-        cache.set(cache_key, context, 300)
+        # Cache for 1 minute (60 seconds) - signals auto-clear on admin changes
+        cache.set(cache_key, context, 60)
     
     return render(request, 'home.html', context)
 
 def about(request):
     """About page view"""
+    from .models import AboutPage, AboutObjective, UniversityInfo
+    
     conference_settings = ConferenceSettings.objects.first()
-    return render(request, 'about.html', {'conference_settings': conference_settings})
+    about_page = AboutPage.get_settings()
+    objectives = AboutObjective.objects.filter(is_active=True).order_by('order', 'id')
+    university_info = UniversityInfo.objects.filter(is_active=True).first()
+    
+    context = {
+        'conference_settings': conference_settings,
+        'about_page': about_page,
+        'objectives': objectives,
+        'university_info': university_info,
+    }
+    return render(request, 'about.html', context)
 
 def tracks(request):
     """Conference tracks page"""
@@ -133,6 +169,32 @@ def committee(request):
     """Committee members page"""
     committee_members = CommitteeMember.objects.filter(is_active=True).order_by('hierarchy_level', 'order', 'name')
     return render(request, 'committee.html', {'committee_members': committee_members})
+
+def committee_bio(request, slug):
+    """Individual committee member bio page with share options"""
+    from django.shortcuts import get_object_or_404
+    from django.conf import settings
+    
+    member = get_object_or_404(CommitteeMember, slug=slug, is_active=True, enable_bio_page=True)
+    
+    # Increment page views
+    member.increment_page_views()
+    
+    # Build absolute URL for sharing
+    absolute_url = request.build_absolute_uri(member.get_absolute_url())
+    
+    # Meta tags for social sharing
+    meta_description = member.bio[:160] if member.bio else f"Learn more about {member.name}, {member.title} at {member.organization}"
+    
+    context = {
+        'member': member,
+        'absolute_url': absolute_url,
+        'meta_title': f"{member.name} - {member.get_role_display()} | ICEIMS 2026",
+        'meta_description': meta_description,
+        'page_type': 'committee_bio',
+    }
+    
+    return render(request, 'committee_bio.html', context)
 
 def attractions(request):
     """Tourist attractions page"""
@@ -203,44 +265,25 @@ def university(request):
 
 def sitemap(request):
     """Public sitemap page showing all available pages"""
-    from django.urls import reverse
+    from .models import SitemapLink
     
-    # Organize pages by category
-    sitemap_structure = {
-        'main_pages': [
-            {'name': 'Home', 'url': reverse('conference:home'), 'icon': 'fa-home', 'description': 'Conference homepage with latest updates'},
-            {'name': 'About Conference', 'url': reverse('conference:about'), 'icon': 'fa-info-circle', 'description': 'Learn about ICEIMS 2026'},
-            {'name': 'Galgotias University', 'url': reverse('conference:university'), 'icon': 'fa-university', 'description': 'Explore our world-class campus'},
-            {'name': 'Contact Us', 'url': reverse('conference:contact'), 'icon': 'fa-envelope', 'description': 'Get in touch with us'},
-        ],
-        'conference_info': [
-            {'name': 'Conference Tracks', 'url': reverse('conference:tracks'), 'icon': 'fa-layer-group', 'description': 'Technical program areas'},
-            {'name': 'Important Dates', 'url': reverse('conference:home') + '#timeline', 'icon': 'fa-calendar-alt', 'description': 'Key deadlines and milestones'},
-            {'name': 'Guidelines', 'url': reverse('conference:guidelines'), 'icon': 'fa-file-alt', 'description': 'Submission and presentation guidelines'},
-            {'name': 'Registration', 'url': reverse('conference:registration'), 'icon': 'fa-user-plus', 'description': 'Register for the conference'},
-            {'name': 'Schedule', 'url': reverse('conference:schedule'), 'icon': 'fa-calendar-week', 'description': 'Conference program schedule'},
-        ],
-        'people': [
-            {'name': 'Committee Members', 'url': reverse('conference:committee'), 'icon': 'fa-users', 'description': 'Organizing committee'},
-            {'name': 'Keynote Speakers', 'url': reverse('conference:keynotes'), 'icon': 'fa-microphone', 'description': 'Featured speakers and presentations'},
-        ],
-        'events': [
-            {'name': 'Workshops', 'url': reverse('conference:workshops'), 'icon': 'fa-hands-helping', 'description': 'Pre-conference workshops'},
-            {'name': 'Panel Discussions', 'url': reverse('conference:panels'), 'icon': 'fa-comments', 'description': 'Expert panel sessions'},
-            {'name': 'Networking Events', 'url': reverse('conference:networking'), 'icon': 'fa-handshake', 'description': 'Network with peers'},
-            {'name': 'Awards', 'url': reverse('conference:awards'), 'icon': 'fa-trophy', 'description': 'Conference awards and recognition'},
-        ],
-        'resources': [
-            {'name': 'Blog', 'url': reverse('conference:blog_public_list'), 'icon': 'fa-blog', 'description': 'Latest news and articles'},
-            {'name': 'Tourist Attractions', 'url': reverse('conference:attractions'), 'icon': 'fa-map-marked-alt', 'description': 'Explore NCR region'},
-            {'name': 'Sponsors & Partners', 'url': reverse('conference:sponsors'), 'icon': 'fa-handshake', 'description': 'Our supporters'},
-            {'name': 'Previous Conference', 'url': reverse('conference:previous'), 'icon': 'fa-history', 'description': 'Past conference highlights'},
-        ],
-    }
+    # Get all active links from database
+    sitemap_links = SitemapLink.objects.filter(is_active=True).order_by('display_order', 'name')
+    
+    # Convert to template format
+    all_pages = [
+        {
+            'name': link.name,
+            'url': link.url,
+            'icon': link.icon,
+            'description': link.description
+        }
+        for link in sitemap_links
+    ]
     
     context = {
-        'sitemap_structure': sitemap_structure,
-        'total_pages': sum(len(pages) for pages in sitemap_structure.values()),
+        'all_pages': all_pages,
+        'total_pages': len(all_pages),
     }
     
     return render(request, 'sitemap.html', context)
@@ -399,9 +442,128 @@ def keynotes(request):
     }
     return render(request, 'keynotes.html', context)
 
+def speaker_bio(request, slug):
+    """Individual speaker bio page with share options"""
+    from django.shortcuts import get_object_or_404
+    from .models import Speaker
+    
+    speaker = get_object_or_404(Speaker, slug=slug, is_published=True, enable_bio_page=True)
+    
+    # Increment page views
+    speaker.increment_page_views()
+    
+    # Build absolute URL for sharing
+    absolute_url = request.build_absolute_uri(speaker.get_absolute_url())
+    
+    # Meta tags for social sharing
+    meta_description = speaker.bio[:160] if speaker.bio else f"Learn more about {speaker.name}, {speaker.title} at {speaker.organization}"
+    
+    context = {
+        'speaker': speaker,
+        'absolute_url': absolute_url,
+        'meta_title': f"{speaker.name} - {speaker.get_speaker_type_display()} | ICEIMS 2026",
+        'meta_description': meta_description,
+        'page_type': 'speaker_bio',
+    }
+    
+    return render(request, 'speaker_bio.html', context)
+
 def registration(request):
-    """Registration rates page view"""
-    return render(request, 'registration.html')
+    """Registration page view with dynamic form"""
+    from .models import RegistrationCategory, RegistrationSettings, RegistrationFeesTable
+    from .forms import ConferenceRegistrationForm
+    
+    settings = RegistrationSettings.get_settings()
+    
+    # Check if registration is open
+    if not settings.registration_open:
+        return render(request, 'registration_closed.html', {
+            'message': settings.registration_message
+        })
+    
+    if request.method == 'POST':
+        form = ConferenceRegistrationForm(request.POST, request.FILES)
+        if form.is_valid():
+            registration = form.save()
+            messages.success(
+                request,
+                f'Registration submitted successfully! Your registration ID is: {registration.registration_id}'
+            )
+            return redirect('conference:registration_success', reg_id=registration.registration_id)
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ConferenceRegistrationForm()
+    
+    # Get categories for pricing table (old method - still kept for compatibility)
+    categories = RegistrationCategory.objects.filter(is_active=True).order_by('display_order')
+    
+    # Get fees table rows (new method - for custom fees table)
+    fees_table_rows = RegistrationFeesTable.objects.filter(is_active=True).order_by('display_order')
+    
+    context = {
+        'form': form,
+        'categories': categories,
+        'fees_table_rows': fees_table_rows,
+        'settings': settings,
+    }
+    
+    return render(request, 'registration.html', context)
+
+
+def registration_success(request, reg_id):
+    """Registration success page"""
+    from .models import ConferenceRegistration
+    
+    try:
+        registration = ConferenceRegistration.objects.get(registration_id=reg_id)
+        context = {
+            'registration': registration,
+        }
+        return render(request, 'registration_success.html', context)
+    except ConferenceRegistration.DoesNotExist:
+        messages.error(request, 'Registration not found.')
+        return redirect('conference:registration')
+
+
+def downloads(request):
+    """Downloads page for resources and documents"""
+    from .models import DownloadResource
+    
+    resources = DownloadResource.objects.filter(is_active=True)
+    featured_resources = resources.filter(is_featured=True)
+    
+    # Group by category
+    categories = {}
+    for resource in resources:
+        category_name = resource.get_category_display()
+        if category_name not in categories:
+            categories[category_name] = []
+        categories[category_name].append(resource)
+    
+    context = {
+        'featured_resources': featured_resources,
+        'all_resources': resources,
+        'categories': categories,
+    }
+    return render(request, 'downloads.html', context)
+
+
+def download_file(request, resource_id):
+    """Handle file download"""
+    from .models import DownloadResource
+    from django.http import FileResponse, Http404
+    
+    try:
+        resource = DownloadResource.objects.get(id=resource_id, is_active=True)
+        resource.increment_downloads()
+        
+        # Serve the file
+        response = FileResponse(resource.file.open('rb'), as_attachment=True, filename=resource.file.name.split('/')[-1])
+        return response
+    except DownloadResource.DoesNotExist:
+        raise Http404("Resource not found")
+
 
 def workshops(request):
     """Workshops page view"""
@@ -452,7 +614,7 @@ def schedule(request):
 
 def awards(request):
     """Dynamic Awards page with all categories and awards"""
-    from .models import AwardCategory, Award, PastWinner
+    from .models import AwardCategory, Award, PastWinner, AwardGallery
     
     # Get all active categories with awards
     categories = AwardCategory.objects.filter(
@@ -486,6 +648,18 @@ def awards(request):
         is_featured=True
     ).order_by('-year', 'display_order')[:10]
     
+    # Get gallery images
+    gallery_images = AwardGallery.objects.filter(
+        is_active=True,
+        year=current_year
+    ).order_by('display_order', '-uploaded_at')
+    
+    # Get hero images for banner section
+    hero_images = AwardGallery.objects.filter(
+        is_active=True,
+        show_on_hero=True
+    ).order_by('display_order')[:3]
+    
     # Group all awards by category
     awards_by_category = {}
     for category in categories:
@@ -503,6 +677,8 @@ def awards(request):
         'awards_by_category': awards_by_category,
         'current_year': current_year,
         'total_awards': current_awards.count(),
+        'gallery_images': gallery_images,
+        'hero_images': hero_images,
     }
     return render(request, 'awards.html', context)
 
@@ -525,6 +701,7 @@ def sponsors(request):
     institutional_partners = all_sponsors.filter(partnership_type='partnership', partner_type='institutional')
     
     conference_settings = ConferenceSettings.objects.first()
+    sponsors_page_settings = SponsorsPageSettings.get_settings()
     
     context = {
         'sponsors': all_sponsors,
@@ -539,6 +716,7 @@ def sponsors(request):
         'industry_partners': industry_partners,
         'institutional_partners': institutional_partners,
         'conference_settings': conference_settings,
+        'sponsors_page_settings': sponsors_page_settings,
     }
     return render(request, 'sponsors.html', context)
 
@@ -1537,7 +1715,8 @@ def admin_dashboard(request):
     from django.contrib.contenttypes.models import ContentType
     from .models import (BlogPost, Comment, Notice, MaintenanceMode, Timeline, StatusUpdate, Speaker, CommitteeMember, 
                         Schedule, UserProfile, FAQCategory, FAQ, AIConversation, GuidelineCategory, Guideline, 
-                        AwardCategory, Award, PastWinner, SiteSettings, HeroSlide, SliderSettings)
+                        AwardCategory, Award, PastWinner, SiteSettings, HeroSlide, SliderSettings,
+                        VisitorCounter, PageVisitLog)
     
     # Get or create user profile
     profile, created = UserProfile.objects.get_or_create(user=request.user)
@@ -1582,6 +1761,12 @@ def admin_dashboard(request):
         'hero_slides': HeroSlide.objects.count(),
         'active_slides': HeroSlide.objects.filter(is_active=True).count(),
         'slider_settings_configured': SliderSettings.objects.exists(),
+        # Visitor Statistics
+        'total_visitors': VisitorCounter.get_total_visitors(),
+        'today_visitors': VisitorCounter.get_today_visitors(),
+        'total_page_visits': PageVisitLog.get_total_visits(),
+        'today_page_visits': PageVisitLog.get_today_visits(),
+        'unique_visitors_today': PageVisitLog.get_unique_visitors_today(),
     }
     
     # Get recent activities from Django admin logs
@@ -1599,9 +1784,17 @@ def admin_dashboard(request):
         }
         recent_activities.append(activity)
     
+    # Get popular pages
+    popular_pages = PageVisitLog.get_popular_pages(limit=10, days=7)
+    
+    # Get recent visitors (last 10)
+    recent_visitors = PageVisitLog.objects.select_related().order_by('-timestamp')[:10]
+    
     context = {
         'stats': stats,
         'recent_activities': recent_activities,
+        'popular_pages': popular_pages,
+        'recent_visitors': recent_visitors,
         'current_date': timezone.now(),
         'user_profile': profile,
     }
@@ -4784,7 +4977,7 @@ def faq_ask_ai(request):
             ])
             
             # Create prompt
-            prompt = f"""You are a helpful assistant for the ICEIMS 2026 International Conference. 
+            prompt = f"""You are a helpful assistant for the ICEIMS 2026 (International Conference on Energy and Intelligent Manufacturing Systems). 
 Answer the user's question based on the following FAQ database and general conference knowledge.
 
 FAQ Database:
@@ -4904,3 +5097,22 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+def get_visitor_count(request):
+    """API endpoint to get real-time visitor count"""
+    from .models import VisitorCounter
+    from django.core.cache import cache
+    
+    # Cache the count for 30 seconds to reduce database load
+    cache_key = 'visitor_total_count'
+    visitor_count = cache.get(cache_key)
+    
+    if visitor_count is None:
+        visitor_count = VisitorCounter.get_total_visitors()
+        cache.set(cache_key, visitor_count, 30)  # Cache for 30 seconds
+    
+    return JsonResponse({
+        'total': visitor_count,
+        'success': True
+    })

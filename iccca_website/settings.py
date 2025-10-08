@@ -28,7 +28,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = 'django-insecure-+-unm#gnt&=mlkdz6q7)-t121-rgosyb^_hb-h6#!cpvpof*v&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+DEBUG = False
 
 # Detect if we're in production
 IS_PRODUCTION = 'iceims.teamvimarsh.me' in os.environ.get('ALLOWED_HOSTS', '')
@@ -80,6 +80,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'conference.middleware.VisitorTrackingMiddleware',  # Track unique visitors
     'conference.middleware.MaintenanceMiddleware',
     'conference.middleware.SecurityHeadersMiddleware',
 ]
@@ -99,6 +100,7 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'conference.context_processors.site_settings',
                 'conference.context_processors.slider_settings',
+                'conference.context_processors.loading_settings',
             ],
         },
     },

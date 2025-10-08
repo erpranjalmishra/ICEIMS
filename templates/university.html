@@ -350,14 +350,14 @@
 <section class="university-hero">
     <div class="container content">
         <div class="row align-items-center">
-            <div class="col-lg-12 text-center">
-                <h1>{{ university_info.name }}</h1>
+            <div class="col-lg-12 text-center" style="color: white;">
+                <h1 style="color: white;">{{ university_info.name }}</h1>
                 {% if university_info.tagline %}
-                <p class="tagline">{{ university_info.tagline }}</p>
+                <p class="tagline" style="color: white;">{{ university_info.tagline }}</p>
                 {% endif %}
-                <p class="lead mb-0">{{ university_info.city }}, {{ university_info.state }}, {{ university_info.country }}</p>
+                <p class="lead mb-0" style="color: white;">{{ university_info.city }}, {{ university_info.state }}, {{ university_info.country }}</p>
                 {% if university_info.established_year %}
-                <p class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Established: {{ university_info.established_year }}</p>
+                <p class="mb-0" style="color: white;"><i class="fas fa-calendar-alt me-2"></i>Established: {{ university_info.established_year }}</p>
                 {% endif %}
             </div>
         </div>

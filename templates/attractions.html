@@ -66,55 +66,6 @@
     transform: scale(1.1);
 }
 
-.map-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.85);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-}
-
-.attraction-card:hover .map-overlay {
-    opacity: 1;
-    visibility: visible;
-}
-
-.map-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
-.loading-map {
-    text-align: center;
-    transition: opacity 0.3s ease;
-}
-
-.map-iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    opacity: 1;
-    transition: opacity 0.5s ease;
-}
-
-.map-overlay iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
 .attraction-content {
     flex: 1;
     display: flex;
@@ -149,15 +100,22 @@
 .attraction-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+    gap: 0.75rem;
     width: 100%;
+    margin-top: 1rem;
 }
 
 .attraction-actions .btn {
     width: 100%;
     text-align: center;
-    padding: 0.5rem 0.75rem;
+    padding: 0.625rem 1rem;
     font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
 }
 
 .btn-blog {
@@ -167,7 +125,6 @@
     box-shadow: 0 2px 5px rgba(160, 53, 47, 0.3);
     transition: all 0.3s ease;
     font-weight: 500;
-    flex: 1;
 }
 
 .btn-blog:hover {
@@ -181,7 +138,8 @@
     transition: all 0.3s ease;
     border-color: var(--primary-color);
     color: var(--primary-color);
-    flex: 1;
+    border-width: 2px;
+    font-weight: 500;
 }
 
 .btn-outline-primary:hover {
@@ -299,16 +257,6 @@
                             <img src="{% static 'images/default-attraction.svg' %}" alt="{{ attraction.name }}" class="img-fluid" loading="lazy">
                             {% endif %}
                         </div>
-                        {% if attraction.map_embed or attraction.location_url %}
-                        <div class="map-overlay">
-                            <div class="map-placeholder" data-map-embed="{{ attraction.map_embed|safe }}" data-location-url="{{ attraction.location_url }}">
-                                <div class="loading-map text-center">
-                                    <i class="fas fa-map-marked-alt fa-3x mb-2" style="color: #fff; opacity: 0.7;"></i>
-                                    <p style="color: #fff; opacity: 0.9;">Hover to view map</p>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
                     </div>
                     <div class="attraction-content p-4">
                         <h5 class="attraction-title">{{ attraction.name }}</h5>
@@ -356,95 +304,7 @@
 </section>
 
 <script>
-// Lazy load maps on hover for better performance
-document.addEventListener('DOMContentLoaded', function() {
-    const attractionCards = document.querySelectorAll('.attraction-card');
-    
-    attractionCards.forEach(card => {
-        const mapPlaceholder = card.querySelector('.map-placeholder');
-        if (!mapPlaceholder) return;
-        
-        let mapLoaded = false;
-        let loadTimeout = null;
-        
-        // Load map on hover
-        card.addEventListener('mouseenter', function() {
-            if (!mapLoaded) {
-                // Add a slight delay to prevent accidental loads
-                loadTimeout = setTimeout(() => {
-                    const mapEmbed = mapPlaceholder.getAttribute('data-map-embed');
-                    const locationUrl = mapPlaceholder.getAttribute('data-location-url');
-                    
-                    if (mapEmbed && mapEmbed.trim() !== '' && mapEmbed !== 'None') {
-                        // Parse the embed code and extract iframe
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = mapEmbed.trim();
-                        const iframe = tempDiv.querySelector('iframe');
-                        
-                        if (iframe) {
-                            iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
-                            iframe.className = 'map-iframe';
-                            iframe.loading = 'lazy';
-                            iframe.allowFullscreen = true;
-                            
-                            const loadingMap = mapPlaceholder.querySelector('.loading-map');
-                            if (loadingMap) {
-                                loadingMap.style.opacity = '0';
-                                setTimeout(() => loadingMap.remove(), 300);
-                            }
-                            
-                            // Clear placeholder and add iframe
-                            mapPlaceholder.innerHTML = '';
-                            mapPlaceholder.appendChild(iframe);
-                            mapLoaded = true;
-                        } else {
-                            console.error('No iframe found in embed code');
-                        }
-                    } else if (locationUrl && locationUrl.trim() !== '' && locationUrl !== 'None') {
-                        // Create iframe from location URL
-                        const iframe = document.createElement('iframe');
-                        
-                        // Check if it's already an embed URL or needs to be converted
-                        let embedUrl = locationUrl;
-                        if (locationUrl.includes('google.com/maps') && !locationUrl.includes('/embed')) {
-                            // Convert Google Maps URL to embed format
-                            const placeMatch = locationUrl.match(/place\/([^/]+)/);
-                            if (placeMatch) {
-                                embedUrl = `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodeURIComponent(placeMatch[1])}`;
-                            } else {
-                                embedUrl = locationUrl.replace('/maps/', '/maps/embed/');
-                            }
-                        }
-                        
-                        iframe.src = embedUrl;
-                        iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
-                        iframe.className = 'map-iframe';
-                        iframe.loading = 'lazy';
-                        iframe.allowFullscreen = true;
-                        
-                        const loadingMap = mapPlaceholder.querySelector('.loading-map');
-                        if (loadingMap) {
-                            loadingMap.remove();
-                        }
-                        
-                        mapPlaceholder.innerHTML = '';
-                        mapPlaceholder.appendChild(iframe);
-                        mapLoaded = true;
-                    } else {
-                        console.warn('No valid map data available for this attraction');
-                    }
-                }, 200); // 200ms delay
-            }
-        });
-        
-        // Cancel load if mouse leaves quickly
-        card.addEventListener('mouseleave', function() {
-            if (loadTimeout) {
-                clearTimeout(loadTimeout);
-                loadTimeout = null;
-            }
-        });
-    });
-});
+// Map loading is now handled by the unified function in base.html
+// No duplicate code needed here
 </script>
 {% endblock %}

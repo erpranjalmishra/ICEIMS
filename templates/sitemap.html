@@ -5,10 +5,11 @@
 
 {% block extra_css %}
 <style>
+    /* Sitemap Styles - Updated v2.0 - Force Refresh */
     /* Hero Section */
     .sitemap-hero {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-        color: white;
+        background: linear-gradient(135deg, #a0352f 0%, #8b2e29 100%) !important;
+        color: white !important;
         padding: 80px 0 60px;
         position: relative;
         overflow: hidden;
@@ -36,6 +37,12 @@
         font-weight: 700;
         margin-bottom: 1rem;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        color: white !important;
+    }
+    
+    .sitemap-hero h1 i {
+        color: white !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
 
     .sitemap-hero p {
@@ -43,6 +50,7 @@
         opacity: 0.95;
         max-width: 700px;
         margin: 0 auto;
+        color: white !important;
     }
 
     /* Stats Section */
@@ -64,7 +72,7 @@
     .stat-item .number {
         font-size: 2.5rem;
         font-weight: 700;
-        color: var(--primary-color);
+        color: #a0352f;
         display: block;
         margin-bottom: 0.5rem;
     }
@@ -87,28 +95,35 @@
         align-items: center;
         margin-bottom: 2rem;
         padding-bottom: 1rem;
-        border-bottom: 3px solid var(--primary-color);
+        border-bottom: 3px solid #a0352f;
     }
 
+    /* Category Icon - NO BACKGROUND BOX */
     .category-icon {
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        border-radius: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.8rem;
-        margin-right: 1.5rem;
-        box-shadow: 0 5px 20px rgba(160,53,47,0.3);
+        width: auto !important;
+        height: auto !important;
+        background: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #a0352f !important;
+        font-size: 2rem !important;
+        margin-right: 1rem !important;
+        padding: 0 !important;
+    }
+    
+    .category-icon i {
+        color: #a0352f !important;
+        background: none !important;
     }
 
     .category-title {
-        margin: 0;
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--primary-color);
+        margin: 0 !important;
+        font-size: 1.8rem !important;
+        font-weight: 700 !important;
+        color: #a0352f !important;
     }
 
     /* Page Cards Grid */
@@ -137,7 +152,7 @@
         left: 0;
         width: 5px;
         height: 100%;
-        background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+        background: linear-gradient(180deg, #a0352f, #8b2e29);
         transform: scaleY(0);
         transition: transform 0.3s ease;
     }
@@ -166,14 +181,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--primary-color);
+        color: #a0352f;
         font-size: 1.5rem;
         margin-right: 1rem;
         transition: all 0.3s ease;
     }
 
     .page-card:hover .page-icon {
-        background: var(--primary-color);
+        background: #a0352f;
         color: white;
         transform: scale(1.1);
     }
@@ -196,7 +211,7 @@
         display: inline-flex;
         align-items: center;
         margin-top: 1rem;
-        color: var(--primary-color);
+        color: #a0352f;
         text-decoration: none;
         font-weight: 600;
         font-size: 0.9rem;
@@ -209,7 +224,7 @@
     }
 
     .page-link:hover {
-        color: var(--secondary-color);
+        color: #8b2e29;
     }
 
     .page-link:hover i {
@@ -237,7 +252,7 @@
     }
 
     .search-input:focus {
-        border-color: var(--primary-color);
+        border-color: #a0352f;
         box-shadow: 0 0 0 0.2rem rgba(160,53,47,0.1);
     }
 
@@ -270,7 +285,7 @@
     }
 
     .breadcrumb-custom .breadcrumb-item a {
-        color: var(--primary-color);
+        color: #a0352f;
         text-decoration: none;
     }
 
@@ -302,8 +317,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="stat-item">
-                        <span class="number">{{ sitemap_structure|length }}</span>
-                        <span class="label">Categories</span>
+                        <span class="number"><i class="fas fa-link"></i></span>
+                        <span class="label">Quick Navigation</span>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -342,145 +357,23 @@
 <section class="py-5">
     <div class="container">
         
-        <!-- Main Pages -->
-        {% if sitemap_structure.main_pages %}
-        <div class="category-section">
-            <div class="category-header">
-                <div class="category-icon">
-                    <i class="fas fa-home"></i>
-                </div>
-                <h2 class="category-title">Main Pages</h2>
-            </div>
-            <div class="pages-grid">
-                {% for page in sitemap_structure.main_pages %}
-                <div class="page-card" data-page-name="{{ page.name|lower }}">
-                    <div class="page-card-header">
-                        <div class="page-icon">
-                            <i class="fas {{ page.icon }}"></i>
-                        </div>
-                        <h3 class="page-title">{{ page.name }}</h3>
+        <!-- All Pages in One Grid -->
+        <div class="pages-grid">
+            {% for page in all_pages %}
+            <div class="page-card" data-page-name="{{ page.name|lower }}">
+                <div class="page-card-header">
+                    <div class="page-icon">
+                        <i class="fas {{ page.icon }}"></i>
                     </div>
-                    <p class="page-description">{{ page.description }}</p>
-                    <a href="{{ page.url }}" class="page-link">
-                        Visit Page <i class="fas fa-arrow-right"></i>
-                    </a>
+                    <h3 class="page-title">{{ page.name }}</h3>
                 </div>
-                {% endfor %}
+                <p class="page-description">{{ page.description }}</p>
+                <a href="{{ page.url }}" class="page-link">
+                    Visit Page <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
+            {% endfor %}
         </div>
-        {% endif %}
-        
-        <!-- Conference Information -->
-        {% if sitemap_structure.conference_info %}
-        <div class="category-section">
-            <div class="category-header">
-                <div class="category-icon">
-                    <i class="fas fa-info-circle"></i>
-                </div>
-                <h2 class="category-title">Conference Information</h2>
-            </div>
-            <div class="pages-grid">
-                {% for page in sitemap_structure.conference_info %}
-                <div class="page-card" data-page-name="{{ page.name|lower }}">
-                    <div class="page-card-header">
-                        <div class="page-icon">
-                            <i class="fas {{ page.icon }}"></i>
-                        </div>
-                        <h3 class="page-title">{{ page.name }}</h3>
-                    </div>
-                    <p class="page-description">{{ page.description }}</p>
-                    <a href="{{ page.url }}" class="page-link">
-                        Visit Page <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-        
-        <!-- People -->
-        {% if sitemap_structure.people %}
-        <div class="category-section">
-            <div class="category-header">
-                <div class="category-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h2 class="category-title">People</h2>
-            </div>
-            <div class="pages-grid">
-                {% for page in sitemap_structure.people %}
-                <div class="page-card" data-page-name="{{ page.name|lower }}">
-                    <div class="page-card-header">
-                        <div class="page-icon">
-                            <i class="fas {{ page.icon }}"></i>
-                        </div>
-                        <h3 class="page-title">{{ page.name }}</h3>
-                    </div>
-                    <p class="page-description">{{ page.description }}</p>
-                    <a href="{{ page.url }}" class="page-link">
-                        Visit Page <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-        
-        <!-- Events & Activities -->
-        {% if sitemap_structure.events %}
-        <div class="category-section">
-            <div class="category-header">
-                <div class="category-icon">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <h2 class="category-title">Events & Activities</h2>
-            </div>
-            <div class="pages-grid">
-                {% for page in sitemap_structure.events %}
-                <div class="page-card" data-page-name="{{ page.name|lower }}">
-                    <div class="page-card-header">
-                        <div class="page-icon">
-                            <i class="fas {{ page.icon }}"></i>
-                        </div>
-                        <h3 class="page-title">{{ page.name }}</h3>
-                    </div>
-                    <p class="page-description">{{ page.description }}</p>
-                    <a href="{{ page.url }}" class="page-link">
-                        Visit Page <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-        
-        <!-- Resources -->
-        {% if sitemap_structure.resources %}
-        <div class="category-section">
-            <div class="category-header">
-                <div class="category-icon">
-                    <i class="fas fa-book"></i>
-                </div>
-                <h2 class="category-title">Resources</h2>
-            </div>
-            <div class="pages-grid">
-                {% for page in sitemap_structure.resources %}
-                <div class="page-card" data-page-name="{{ page.name|lower }}">
-                    <div class="page-card-header">
-                        <div class="page-icon">
-                            <i class="fas {{ page.icon }}"></i>
-                        </div>
-                        <h3 class="page-title">{{ page.name }}</h3>
-                    </div>
-                    <p class="page-description">{{ page.description }}</p>
-                    <a href="{{ page.url }}" class="page-link">
-                        Visit Page <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
         
     </div>
 </section>

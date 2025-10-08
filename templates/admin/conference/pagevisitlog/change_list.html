@@ -1,0 +1,54 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block content_title %}
+<h1>Page Visit Logs</h1>
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; padding: 20px; margin: 20px 0; color: white;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+        <div style="text-align: center;">
+            <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 5px;">
+                {{ total_page_visits|default:0 }}
+            </div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Total Page Visits</div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 5px;">
+                {{ today_page_visits|default:0 }}
+            </div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Visits Today</div>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 5px;">
+                {{ unique_visitors_today|default:0 }}
+            </div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Unique Visitors Today</div>
+        </div>
+    </div>
+</div>
+
+{% if popular_pages %}
+<div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin: 20px 0;">
+    <h3 style="margin-top: 0; color: #333;">Most Popular Pages (Last 7 Days)</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #e9ecef;">
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6;">Page URL</th>
+                <th style="padding: 10px; text-align: right; border-bottom: 2px solid #dee2e6;">Visit Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for page in popular_pages %}
+            <tr style="border-bottom: 1px solid #dee2e6;">
+                <td style="padding: 10px;">{{ page.url_path }}</td>
+                <td style="padding: 10px; text-align: right; font-weight: 600; color: #667eea;">{{ page.visit_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+{% endblock %}

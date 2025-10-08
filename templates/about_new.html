@@ -1,0 +1,490 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ about_page.hero_title }} - ICEIMS 2026{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-hero {
+        position: relative;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        padding: 120px 0 80px;
+        overflow: hidden;
+    }
+    
+    {% if about_page.hero_image %}
+    .about-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('{{ about_page.hero_image.url }}') center/cover;
+        opacity: 0.15;
+        z-index: 0;
+    }
+    {% endif %}
+    
+    .about-hero::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100px;
+        background: linear-gradient(to bottom, transparent, white);
+        z-index: 1;
+    }
+    
+    .about-hero .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .about-hero h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .about-hero .subtitle {
+        font-size: 1.3rem;
+        font-weight: 300;
+        margin-bottom: 1rem;
+        opacity: 0.95;
+    }
+    
+    .about-hero .description {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    .overview-section {
+        padding: 80px 0;
+        background: white;
+    }
+    
+    .overview-content {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .overview-lead {
+        font-size: 1.25rem;
+        font-weight: 300;
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 2rem;
+    }
+    
+    .overview-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #666;
+    }
+    
+    .vision-mission-section {
+        padding: 80px 0;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .vision-mission-card {
+        background: white;
+        padding: 3rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        height: 100%;
+        transition: all 0.3s ease;
+        border-top: 5px solid var(--primary-color);
+    }
+    
+    .vision-mission-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    
+    .vision-mission-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-size: 2.5rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(160, 53, 47, 0.3);
+    }
+    
+    .vision-mission-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .vision-mission-text {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #555;
+        text-align: center;
+    }
+    
+    .statistics-section {
+        padding: 80px 0;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .statistics-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+    
+    .statistics-section::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 400px;
+        height: 400px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+    }
+    
+    .stat-card {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        padding: 3rem 2rem;
+        border-radius: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.2);
+        height: 100%;
+    }
+    
+    .stat-card:hover {
+        background: rgba(255,255,255,0.2);
+        transform: translateY(-10px);
+    }
+    
+    .stat-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.9;
+    }
+    
+    .stat-number {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .stat-label {
+        font-size: 1.1rem;
+        font-weight: 300;
+        opacity: 0.95;
+    }
+    
+    .objectives-section {
+        padding: 80px 0;
+        background: white;
+    }
+    
+    .objective-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        height: 100%;
+        border-left: 5px solid;
+    }
+    
+    .objective-card.primary { border-left-color: #0d6efd; }
+    .objective-card.success { border-left-color: #28a745; }
+    .objective-card.warning { border-left-color: #ffc107; }
+    .objective-card.info { border-left-color: #17a2b8; }
+    .objective-card.danger { border-left-color: #dc3545; }
+    
+    .objective-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    }
+    
+    .objective-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        font-size: 2rem;
+    }
+    
+    .objective-icon.primary { background: rgba(13, 110, 253, 0.1); color: #0d6efd; }
+    .objective-icon.success { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+    .objective-icon.warning { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+    .objective-icon.info { background: rgba(23, 162, 184, 0.1); color: #17a2b8; }
+    .objective-icon.danger { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
+    
+    .objective-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #2c3e50;
+    }
+    
+    .objective-description {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: #555;
+    }
+    
+    .university-section {
+        padding: 80px 0;
+        background: linear-gradient(to bottom, #f8f9fa, white);
+    }
+    
+    .university-image-wrapper {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    
+    .university-image-wrapper img {
+        transition: transform 0.3s ease;
+    }
+    
+    .university-image-wrapper:hover img {
+        transform: scale(1.05);
+    }
+    
+    .university-stats {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #e9ecef;
+    }
+    
+    .university-stat-item {
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .university-stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .university-stat-label {
+        font-size: 0.95rem;
+        color: #666;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+        .about-hero h1 {
+            font-size: 2.5rem;
+        }
+        
+        .about-hero .subtitle {
+            font-size: 1.1rem;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+        }
+        
+        .objective-card {
+            margin-bottom: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- About Hero Section -->
+<section class="about-hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center text-white">
+                <h1 class="animate__animated animate__fadeInDown">{{ about_page.hero_title }}</h1>
+                <p class="subtitle animate__animated animate__fadeInUp">{{ about_page.hero_subtitle }}</p>
+                <p class="description animate__animated animate__fadeInUp animate__delay-1s">{{ about_page.hero_description }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Conference Overview Section -->
+<section class="overview-section">
+    <div class="container">
+        <div class="overview-content">
+            <h2 class="section-title text-center mb-5">{{ about_page.overview_title }}</h2>
+            <p class="overview-lead text-center">
+                {{ about_page.overview_lead }}
+            </p>
+            <p class="overview-text text-center">
+                {{ about_page.overview_content }}
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Vision and Mission Section -->
+<section class="vision-mission-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="vision-mission-card">
+                    <div class="vision-mission-icon">
+                        <i class="{{ about_page.vision_icon }}"></i>
+                    </div>
+                    <h3 class="vision-mission-title">{{ about_page.vision_title }}</h3>
+                    <p class="vision-mission-text">{{ about_page.vision_content }}</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="vision-mission-card">
+                    <div class="vision-mission-icon">
+                        <i class="{{ about_page.mission_icon }}"></i>
+                    </div>
+                    <h3 class="vision-mission-title">{{ about_page.mission_title }}</h3>
+                    <p class="vision-mission-text">{{ about_page.mission_content }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+{% if about_page.show_statistics %}
+<section class="statistics-section">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h2 class="section-title text-white mb-3">Conference at a Glance</h2>
+                <div style="width: 100px; height: 4px; background: white; margin: 0 auto; opacity: 0.8;"></div>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="{{ about_page.stat_1_icon }}"></i></div>
+                    <div class="stat-number">{{ about_page.stat_1_number }}</div>
+                    <div class="stat-label">{{ about_page.stat_1_label }}</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="{{ about_page.stat_2_icon }}"></i></div>
+                    <div class="stat-number">{{ about_page.stat_2_number }}</div>
+                    <div class="stat-label">{{ about_page.stat_2_label }}</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="{{ about_page.stat_3_icon }}"></i></div>
+                    <div class="stat-number">{{ about_page.stat_3_number }}</div>
+                    <div class="stat-label">{{ about_page.stat_3_label }}</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="{{ about_page.stat_4_icon }}"></i></div>
+                    <div class="stat-number">{{ about_page.stat_4_number }}</div>
+                    <div class="stat-label">{{ about_page.stat_4_label }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Conference Objectives Section -->
+{% if about_page.show_objectives and objectives %}
+<section class="objectives-section">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h2 class="section-title">Conference Objectives</h2>
+                <p class="text-muted">Key goals driving our conference forward</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            {% for objective in objectives %}
+            <div class="col-lg-6">
+                <div class="objective-card {{ objective.color }}">
+                    <div class="objective-icon {{ objective.color }}">
+                        <i class="{{ objective.icon }}"></i>
+                    </div>
+                    <h4 class="objective-title">{{ objective.title }}</h4>
+                    <p class="objective-description">{{ objective.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- University Information Section -->
+{% if about_page.show_university_info and university_info %}
+<section class="university-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h2 class="section-title mb-4">About Galgotias University</h2>
+                <p class="lead mb-4">{{ university_info.about_text|truncatewords:50 }}</p>
+                <p class="mb-4">{{ university_info.full_description|truncatewords:80|default:"Today, with 20 schools offering over 200 programs, including Diploma, Undergraduate, Postgraduate, and PhD Programs, we rank among India's top universities. We aim to become an internationally recognized institution that excels in multidisciplinary and interdisciplinary education, research, and innovation." }}</p>
+                
+                {% if university_info.show_stats %}
+                <div class="university-stats">
+                    <div class="row">
+                        <div class="col-4 university-stat-item">
+                            <div class="university-stat-number">{{ university_info.total_students|default:"30K+" }}</div>
+                            <div class="university-stat-label">Students</div>
+                        </div>
+                        <div class="col-4 university-stat-item">
+                            <div class="university-stat-number">{{ university_info.total_faculty|default:"20" }}</div>
+                            <div class="university-stat-label">Schools</div>
+                        </div>
+                        <div class="col-4 university-stat-item">
+                            <div class="university-stat-number">{{ university_info.total_programs|default:"200+" }}</div>
+                            <div class="university-stat-label">Programs</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-6">
+                <div class="university-image-wrapper">
+                    {% if university_info.logo %}
+                    <img src="{{ university_info.logo.url }}" class="img-fluid" alt="Galgotias University">
+                    {% else %}
+                    <img src="{% static 'images/galgotias-university.svg' %}" class="img-fluid" alt="Galgotias University">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

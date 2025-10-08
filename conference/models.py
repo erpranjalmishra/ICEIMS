@@ -90,6 +90,7 @@ class CommitteeMember(models.Model):
     ]
     
     name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=250, unique=True, blank=True, help_text="URL-friendly version of name (auto-generated)")
     title = models.CharField(max_length=300)
     organization = models.CharField(max_length=300)
     image = models.ImageField(upload_to='committee/', blank=True, null=True)
@@ -99,13 +100,54 @@ class CommitteeMember(models.Model):
     email = models.EmailField(blank=True, help_text="Contact email")
     phone = models.CharField(max_length=20, blank=True, help_text="Contact phone")
     bio = models.TextField(blank=True, help_text="Short biography")
+    
+    # Extended Bio Information
+    detailed_bio = models.TextField(blank=True, help_text="Detailed biography for bio page")
+    research_interests = models.TextField(blank=True, help_text="Research interests (one per line)")
+    publications = models.TextField(blank=True, help_text="Key publications")
+    awards = models.TextField(blank=True, help_text="Awards and honors")
+    education = models.TextField(blank=True, help_text="Educational background")
+    
+    # Social Media Links
+    website = models.URLField(blank=True, help_text="Personal/Professional website")
+    linkedin = models.URLField(blank=True, help_text="LinkedIn profile URL")
+    twitter = models.CharField(max_length=100, blank=True, help_text="Twitter handle (without @)")
+    google_scholar = models.URLField(blank=True, help_text="Google Scholar profile URL")
+    orcid = models.CharField(max_length=100, blank=True, help_text="ORCID ID")
+    researchgate = models.URLField(blank=True, help_text="ResearchGate profile URL")
+    
+    # Page Settings
+    enable_bio_page = models.BooleanField(default=True, help_text="Enable dedicated bio page")
     is_active = models.BooleanField(default=True, help_text="Display on committee page")
+    
+    # Analytics
+    page_views = models.PositiveIntegerField(default=0, help_text="Number of bio page views")
+    last_viewed = models.DateTimeField(null=True, blank=True, help_text="Last time bio page was viewed")
+    
+    # Analytics
+    page_views = models.PositiveIntegerField(default=0, help_text="Number of bio page views")
+    last_viewed = models.DateTimeField(null=True, blank=True, help_text="Last time bio page was viewed")
     
     class Meta:
         ordering = ['hierarchy_level', 'order', 'name']
         
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+            while CommitteeMember.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+        
     def __str__(self):
         return f"{self.name} - {self.get_role_display()}"
+    
+    def get_absolute_url(self):
+        """Get the URL for this committee member's bio page"""
+        return reverse('conference:committee_bio', kwargs={'slug': self.slug})
     
     def get_hierarchy_level_name(self):
         """Get the custom hierarchy level name"""
@@ -131,6 +173,38 @@ class CommitteeMember(models.Model):
             'member': 'member',
         }
         return role_classes.get(self.role, 'member')
+    
+    def get_research_interests_list(self):
+        """Get list of research interests"""
+        if self.research_interests:
+            return [item.strip() for item in self.research_interests.splitlines() if item.strip()]
+        return []
+    
+    def get_social_links(self):
+        """Get dictionary of social links"""
+        links = {}
+        if self.website:
+            links['website'] = {'url': self.website, 'icon': 'fas fa-globe', 'label': 'Website'}
+        if self.linkedin:
+            links['linkedin'] = {'url': self.linkedin, 'icon': 'fab fa-linkedin', 'label': 'LinkedIn'}
+        if self.twitter:
+            links['twitter'] = {'url': f"https://twitter.com/{self.twitter.lstrip('@')}", 'icon': 'fab fa-twitter', 'label': 'Twitter'}
+        if self.email:
+            links['email'] = {'url': f"mailto:{self.email}", 'icon': 'fas fa-envelope', 'label': 'Email'}
+        if self.google_scholar:
+            links['google_scholar'] = {'url': self.google_scholar, 'icon': 'fas fa-graduation-cap', 'label': 'Google Scholar'}
+        if self.orcid:
+            links['orcid'] = {'url': f"https://orcid.org/{self.orcid}", 'icon': 'fab fa-orcid', 'label': 'ORCID'}
+        if self.researchgate:
+            links['researchgate'] = {'url': self.researchgate, 'icon': 'fab fa-researchgate', 'label': 'ResearchGate'}
+        return links
+    
+    def increment_page_views(self):
+        """Increment page views counter"""
+        from django.utils import timezone
+        self.page_views += 1
+        self.last_viewed = timezone.now()
+        self.save(update_fields=['page_views', 'last_viewed'])
 
 class ConferenceTrack(models.Model):
     TRACK_TYPES = [
@@ -215,6 +289,21 @@ class ImportantDate(models.Model):
     event = models.CharField(max_length=200)
     date = models.DateField()
     description = models.TextField(blank=True)
+    link_url = models.URLField(
+        max_length=500,
+        blank=True,
+        help_text='Optional URL for this event (e.g., registration page, submission portal)'
+    )
+    link_text = models.CharField(
+        max_length=100,
+        blank=True,
+        default='Learn More',
+        help_text='Text to display for the link button'
+    )
+    open_in_new_tab = models.BooleanField(
+        default=True,
+        help_text='Open link in new tab'
+    )
     order = models.IntegerField(default=0)
     
     class Meta:
@@ -249,6 +338,80 @@ class ConferenceSettings(models.Model):
     
     def __str__(self):
         return self.site_title
+
+class MarqueeText(models.Model):
+    """Marquee text displayed under home page slider"""
+    text = models.CharField(
+        max_length=500, 
+        default="International Conference on Energy and Intelligent Manufacturing Systems 2026 Welcomes You",
+        help_text="Text to display in the marquee"
+    )
+    is_enabled = models.BooleanField(
+        default=True,
+        help_text="Enable/disable marquee display"
+    )
+    background_color = models.CharField(
+        max_length=20,
+        default="#dc3545",
+        help_text="Background color (hex code, e.g., #dc3545)"
+    )
+    text_color = models.CharField(
+        max_length=20,
+        default="#ffffff",
+        help_text="Text color (hex code, e.g., #ffffff)"
+    )
+    animation_speed = models.IntegerField(
+        default=20,
+        help_text="Animation speed in seconds (lower is faster)"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Marquee Text"
+        verbose_name_plural = "Marquee Text"
+    
+    def __str__(self):
+        return f"Marquee: {self.text[:50]}..."
+    
+    @classmethod
+    def get_active(cls):
+        """Get the active marquee text"""
+        return cls.objects.filter(is_enabled=True).first()
+
+class ConferenceTopic(models.Model):
+    """Conference topics displayed on homepage"""
+    title = models.CharField(
+        max_length=200,
+        help_text="Topic title (e.g., 'Artificial Intelligence')"
+    )
+    description = models.TextField(
+        blank=True,
+        help_text="Brief description of the topic (optional)"
+    )
+    icon_class = models.CharField(
+        max_length=100,
+        default="fas fa-circle",
+        help_text="Font Awesome icon class (e.g., 'fas fa-robot', 'fas fa-microchip')"
+    )
+    display_order = models.IntegerField(
+        default=0,
+        help_text="Lower numbers appear first"
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Show/hide this topic"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['display_order', 'title']
+        verbose_name = "Conference Topic"
+        verbose_name_plural = "Conference Topics"
+    
+    def __str__(self):
+        return self.title
 
 class Sponsor(models.Model):
     PARTNERSHIP_TYPES = [
@@ -581,6 +744,21 @@ class Timeline(models.Model):
     is_public = models.BooleanField(default=True, help_text="Visible to public")
     icon = models.CharField(max_length=50, default='fas fa-calendar', help_text="FontAwesome icon class")
     color = models.CharField(max_length=7, default='#a0352f', help_text="Hex color code")
+    link_url = models.URLField(
+        max_length=500,
+        blank=True,
+        help_text='Optional URL for this timeline event (e.g., registration page, submission portal)'
+    )
+    link_text = models.CharField(
+        max_length=100,
+        blank=True,
+        default='Learn More',
+        help_text='Text to display for the link button'
+    )
+    open_in_new_tab = models.BooleanField(
+        default=True,
+        help_text='Open link in new tab'
+    )
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -779,13 +957,19 @@ class Speaker(models.Model):
     
     # Basic Information
     name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=250, unique=True, blank=True, help_text="URL-friendly version of name (auto-generated)")
     title = models.CharField(max_length=300, help_text="Professional title/position")
     organization = models.CharField(max_length=300, help_text="University/Company/Institution")
     country = models.CharField(max_length=100, blank=True)
     
     # Profile Information
     bio = models.TextField(help_text="Speaker biography")
+    detailed_bio = models.TextField(blank=True, help_text="Detailed biography for bio page")
     expertise = models.CharField(max_length=500, blank=True, help_text="Areas of expertise (comma-separated)")
+    research_interests = models.TextField(blank=True, help_text="Research interests (one per line)")
+    publications = models.TextField(blank=True, help_text="Key publications")
+    awards = models.TextField(blank=True, help_text="Awards and honors")
+    education = models.TextField(blank=True, help_text="Educational background")
     photo = models.ImageField(upload_to='speakers/', blank=True, null=True)
     
     # Speaker Details
@@ -800,37 +984,69 @@ class Speaker(models.Model):
     linkedin = models.URLField(blank=True)
     twitter = models.CharField(max_length=100, blank=True, help_text="Twitter handle (without @)")
     orcid = models.CharField(max_length=100, blank=True, help_text="ORCID ID")
+    google_scholar = models.URLField(blank=True, help_text="Google Scholar profile URL")
+    researchgate = models.URLField(blank=True, help_text="ResearchGate profile URL")
     
     # Display Settings
+    enable_bio_page = models.BooleanField(default=True, help_text="Enable dedicated bio page")
     is_featured = models.BooleanField(default=False, help_text="Show on homepage")
     is_published = models.BooleanField(default=True, help_text="Visible to public")
     display_order = models.PositiveIntegerField(default=0, help_text="Order of display (lower numbers first)")
+    
+    # Analytics
+    page_views = models.PositiveIntegerField(default=0, help_text="Number of bio page views")
+    last_viewed = models.DateTimeField(null=True, blank=True, help_text="Last time bio page was viewed")
     
     # Administrative
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+            while Speaker.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+    
     def __str__(self):
         return f"{self.name} ({self.get_speaker_type_display()})"
+    
+    def get_absolute_url(self):
+        """Get the URL for this speaker's bio page"""
+        return reverse('conference:speaker_bio', kwargs={'slug': self.slug})
     
     def get_expertise_list(self):
         """Get list of expertise areas"""
         return [item.strip() for item in self.expertise.split(',') if item.strip()]
     
+    def get_research_interests_list(self):
+        """Get list of research interests"""
+        if self.research_interests:
+            return [item.strip() for item in self.research_interests.splitlines() if item.strip()]
+        return []
+    
     def get_social_links(self):
         """Get dictionary of social links"""
         links = {}
         if self.website:
-            links['website'] = self.website
+            links['website'] = {'url': self.website, 'icon': 'fas fa-globe', 'label': 'Website'}
         if self.linkedin:
-            links['linkedin'] = self.linkedin
+            links['linkedin'] = {'url': self.linkedin, 'icon': 'fab fa-linkedin', 'label': 'LinkedIn'}
         if self.twitter:
-            links['twitter'] = f"https://twitter.com/{self.twitter.lstrip('@')}"
+            links['twitter'] = {'url': f"https://twitter.com/{self.twitter.lstrip('@')}", 'icon': 'fab fa-twitter', 'label': 'Twitter'}
         if self.email:
-            links['email'] = f"mailto:{self.email}"
+            links['email'] = {'url': f"mailto:{self.email}", 'icon': 'fas fa-envelope', 'label': 'Email'}
         if self.orcid:
-            links['orcid'] = f"https://orcid.org/{self.orcid}"
+            links['orcid'] = {'url': f"https://orcid.org/{self.orcid}", 'icon': 'fab fa-orcid', 'label': 'ORCID'}
+        if self.google_scholar:
+            links['google_scholar'] = {'url': self.google_scholar, 'icon': 'fas fa-graduation-cap', 'label': 'Google Scholar'}
+        if self.researchgate:
+            links['researchgate'] = {'url': self.researchgate, 'icon': 'fab fa-researchgate', 'label': 'ResearchGate'}
         return links
     
     def get_photo_url(self):
@@ -838,6 +1054,13 @@ class Speaker(models.Model):
         if self.photo and hasattr(self.photo, 'url'):
             return self.photo.url
         return '/static/images/default-person.svg'
+    
+    def increment_page_views(self):
+        """Increment page views counter"""
+        from django.utils import timezone
+        self.page_views += 1
+        self.last_viewed = timezone.now()
+        self.save(update_fields=['page_views', 'last_viewed'])
     
     class Meta:
         ordering = ['display_order', 'name']
@@ -1727,6 +1950,9 @@ class Award(models.Model):
     nomination_end = models.DateField(null=True, blank=True)
     announcement_date = models.DateField(null=True, blank=True)
     
+    # Nomination Link
+    nomination_link = models.URLField(blank=True, help_text='URL for Submit Nomination button (e.g., Google Form, external submission page)')
+    
     # Status
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='upcoming')
     is_featured = models.BooleanField(default=False)
@@ -1800,6 +2026,43 @@ class PastWinner(models.Model):
         return f"{self.winner_name} - {self.award_name} ({self.year})"
 
 
+class AwardGallery(models.Model):
+    """Gallery images for Awards page - ceremony photos, trophy images, etc."""
+    IMAGE_TYPE_CHOICES = [
+        ('ceremony', 'Award Ceremony'),
+        ('trophy', 'Trophy/Medal'),
+        ('winner', 'Winner Photo'),
+        ('event', 'Event Photo'),
+        ('banner', 'Banner/Hero Image'),
+        ('other', 'Other'),
+    ]
+    
+    title = models.CharField(max_length=200, help_text='Image title/caption')
+    image = models.ImageField(upload_to='awards/gallery/', help_text='Upload image for awards page')
+    image_type = models.CharField(max_length=20, choices=IMAGE_TYPE_CHOICES, default='ceremony')
+    description = models.TextField(blank=True, help_text='Optional description or caption')
+    
+    # Association
+    award = models.ForeignKey(Award, on_delete=models.CASCADE, related_name='gallery_images', 
+                             blank=True, null=True, help_text='Link to specific award (optional)')
+    year = models.IntegerField(default=2026, help_text='Conference year')
+    
+    # Display settings
+    display_order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True, help_text='Show on website')
+    show_on_hero = models.BooleanField(default=False, help_text='Show in hero/banner section')
+    
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Award Gallery Image'
+        verbose_name_plural = 'Award Gallery Images'
+        ordering = ['year', 'display_order', '-uploaded_at']
+    
+    def __str__(self):
+        return f"{self.title} ({self.get_image_type_display})"
+
+
 # =============================================================================
 # SITE SETTINGS - Logos, Images, Hero Slider Configuration
 # =============================================================================
@@ -1835,6 +2098,45 @@ class SiteSettings(models.Model):
     # Submit Paper Button
     submit_paper_url = models.URLField(blank=True, default='#submit-paper', help_text='URL for Submit Paper button (default: #submit-paper)')
     submit_paper_text = models.CharField(max_length=50, default='Submit Paper', help_text='Text for Submit Paper button')
+    
+    # Become Sponsor Button
+    sponsor_button_url = models.URLField(blank=True, default='/contact/', help_text='URL for Become a Sponsor button (default: /contact/)')
+    sponsor_button_text = models.CharField(max_length=50, default='Become a Sponsor', help_text='Text for Become a Sponsor button')
+    
+    # Contact Page Settings
+    # Venue Information
+    venue_name = models.CharField(max_length=200, default='Galgotias University', help_text='Conference venue name')
+    venue_address_line1 = models.CharField(max_length=200, default='Plot No. 2, Yamuna Expressway', help_text='Address line 1')
+    venue_address_line2 = models.CharField(max_length=200, default='Sector 17A, Greater Noida', help_text='Address line 2')
+    venue_address_line3 = models.CharField(max_length=200, default='Uttar Pradesh 203201, India', help_text='Address line 3 (City, State, Country)')
+    
+    # Contact Emails
+    general_email = models.EmailField(default='info@iceims.com', help_text='General inquiries email')
+    submissions_email = models.EmailField(default='submissions@iceims.com', help_text='Paper submissions email')
+    registration_email = models.EmailField(default='registration@iceims.com', help_text='Registration email')
+    
+    # Contact Phones
+    main_phone = models.CharField(max_length=50, default='+91 120 458 9500', help_text='Main office phone')
+    conference_phone = models.CharField(max_length=50, default='+91 120 458 9501', help_text='Conference desk phone')
+    
+    # Office Hours
+    office_hours_weekday = models.CharField(max_length=100, default='Monday - Friday: 9:00 AM - 6:00 PM', help_text='Weekday office hours')
+    office_hours_weekend = models.CharField(max_length=100, default='Saturday: 10:00 AM - 4:00 PM', help_text='Weekend office hours')
+    office_hours_timezone = models.CharField(max_length=50, default='Indian Standard Time (IST)', help_text='Timezone')
+    
+    # Google Form / Custom iframe
+    enable_contact_form = models.BooleanField(default=True, help_text='Show contact form on contact page')
+    use_custom_iframe = models.BooleanField(default=False, help_text='Use custom Google Form or iframe instead of default form')
+    custom_form_url = models.URLField(max_length=500, blank=True, help_text='Google Form embed URL or any custom form URL')
+    custom_form_height = models.IntegerField(default=800, help_text='iframe height in pixels (default: 800)')
+    
+    # Google Maps iframe
+    google_maps_embed_url = models.URLField(
+        max_length=500,
+        blank=True, 
+        default='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3510.760786121869!2d77.53913702536056!3d28.366080946130964!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cc7365a740e65%3A0xd0d60a62e55ab171!2sGalgotias%20University!5e0!3m2!1sen!2sin!4v1759061748281!5m2!1sen!2sin',
+        help_text='Google Maps embed URL for venue location'
+    )
     
     # Meta
     updated_at = models.DateTimeField(auto_now=True)
@@ -1973,6 +2275,40 @@ class SliderSettings(models.Model):
         return settings
 
 
+class VisitorCounter(models.Model):
+    """Track unique visitors to the website"""
+    ip_address = models.GenericIPAddressField(help_text="Visitor IP address")
+    user_agent = models.TextField(blank=True, help_text="Browser user agent")
+    session_key = models.CharField(max_length=255, unique=True, help_text="Unique session identifier")
+    first_visit = models.DateTimeField(auto_now_add=True, help_text="First visit timestamp")
+    last_visit = models.DateTimeField(auto_now=True, help_text="Last visit timestamp")
+    visit_count = models.IntegerField(default=1, help_text="Number of visits from this session")
+    
+    class Meta:
+        ordering = ['-first_visit']
+        verbose_name = "Visitor"
+        verbose_name_plural = "Visitors"
+        indexes = [
+            models.Index(fields=['session_key']),
+            models.Index(fields=['ip_address']),
+        ]
+    
+    def __str__(self):
+        return f"{self.ip_address} - {self.visit_count} visits"
+    
+    @classmethod
+    def get_total_visitors(cls):
+        """Get total unique visitors count"""
+        return cls.objects.count()
+    
+    @classmethod
+    def get_today_visitors(cls):
+        """Get today's visitors count"""
+        from django.utils import timezone
+        today = timezone.now().date()
+        return cls.objects.filter(first_visit__date=today).count()
+
+
 # =============================================================================
 # SIGNALS - Auto-parse tables when Guideline is saved
 # =============================================================================
@@ -2011,9 +2347,1171 @@ def auto_parse_guideline_table(sender, instance, created, **kwargs):
                 print(f"✅ Auto-parsed table for '{instance.title}': {table_data['total_rows']} rows × {table_data['total_columns']} columns")
         except Exception as e:
             print(f"❌ Error auto-parsing table for '{instance.title}': {str(e)}")
-            import traceback
-            traceback.print_exc()
-        finally:
-            # Clean up the flag
-            if hasattr(instance, '_parsing_table'):
-                delattr(instance, '_parsing_table')
+
+
+# =============================================================================
+# REGISTRATION MODELS
+# =============================================================================
+
+class RegistrationCategory(models.Model):
+    """Registration categories with pricing"""
+    PARTICIPANT_TYPES = [
+        ('indian_author_academia', 'Indian Author (Academia/Industry)'),
+        ('indian_student_author', 'Indian Student Author'),
+        ('indian_student_attendee', 'Indian Student Attendee (Non-Author)'),
+        ('indian_professional_attendee', 'Indian Professional Attendee (Non-Author)'),
+        ('tutorial_indian_student', 'Tutorial only (Indian Student)'),
+        ('foreign_author_academia', 'Foreign Author (Academia/Industry)'),
+        ('foreign_student_author', 'Foreign Student Author'),
+        ('foreign_student_attendee', 'Foreign Student Attendee (Non-Author)'),
+        ('foreign_professional_attendee', 'Foreign Professional Attendee (Non-Author)'),
+        ('tutorial_foreign_student', 'Tutorial only (Foreign Student)'),
+    ]
+    
+    CURRENCY_CHOICES = [
+        ('INR', 'Indian Rupee (₹)'),
+        ('USD', 'US Dollar ($)'),
+    ]
+    
+    category_type = models.CharField(max_length=100, choices=PARTICIPANT_TYPES, unique=True)
+    display_name = models.CharField(max_length=200, help_text='Display name for the category')
+    description = models.TextField(blank=True, help_text='Optional description')
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='INR')
+    
+    # Early Bird Rates
+    early_bird_ieee_member = models.DecimalField(max_digits=10, decimal_places=2, help_text='Early bird rate for IEEE members')
+    early_bird_non_ieee = models.DecimalField(max_digits=10, decimal_places=2, help_text='Early bird rate for non-IEEE members')
+    early_bird_deadline = models.DateField(help_text='Early bird registration deadline')
+    
+    # Standard Rates
+    standard_ieee_member = models.DecimalField(max_digits=10, decimal_places=2, help_text='Standard rate for IEEE members')
+    standard_non_ieee = models.DecimalField(max_digits=10, decimal_places=2, help_text='Standard rate for non-IEEE members')
+    
+    # Additional settings
+    is_active = models.BooleanField(default=True, help_text='Is this category currently available?')
+    display_order = models.IntegerField(default=0, help_text='Order in which to display (lower numbers first)')
+    requires_paper = models.BooleanField(default=False, help_text='Does this require a paper submission?')
+    requires_student_id = models.BooleanField(default=False, help_text='Does this require student ID verification?')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['display_order', 'category_type']
+        verbose_name = 'Registration Category'
+        verbose_name_plural = 'Registration Categories'
+    
+    def __str__(self):
+        return self.display_name
+    
+    def get_current_rate(self, is_ieee_member=False):
+        """Get current applicable rate based on date"""
+        from django.utils import timezone
+        today = timezone.now().date()
+        
+        if today <= self.early_bird_deadline:
+            return self.early_bird_ieee_member if is_ieee_member else self.early_bird_non_ieee
+        else:
+            return self.standard_ieee_member if is_ieee_member else self.standard_non_ieee
+
+
+class ConferenceRegistration(models.Model):
+    """Main registration model for conference participants"""
+    REGISTRATION_STATUS = [
+        ('pending', 'Pending Payment'),
+        ('payment_submitted', 'Payment Submitted - Under Review'),
+        ('confirmed', 'Confirmed'),
+        ('cancelled', 'Cancelled'),
+        ('refunded', 'Refunded'),
+    ]
+    
+    PAYMENT_METHOD = [
+        ('online', 'Online Payment'),
+        ('bank_transfer', 'Bank Transfer'),
+        ('upi', 'UPI'),
+        ('other', 'Other'),
+    ]
+    
+    TITLE_CHOICES = [
+        ('Dr.', 'Dr.'),
+        ('Prof.', 'Prof.'),
+        ('Mr.', 'Mr.'),
+        ('Ms.', 'Ms.'),
+        ('Mrs.', 'Mrs.'),
+    ]
+    
+    # Registration Info
+    registration_id = models.CharField(max_length=50, unique=True, editable=False)
+    category = models.ForeignKey(RegistrationCategory, on_delete=models.PROTECT, related_name='registrations')
+    status = models.CharField(max_length=30, choices=REGISTRATION_STATUS, default='pending')
+    
+    # Personal Information
+    title = models.CharField(max_length=10, choices=TITLE_CHOICES)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    alternate_phone = models.CharField(max_length=20, blank=True)
+    
+    # Professional Information
+    organization = models.CharField(max_length=200, help_text='University/Company name')
+    designation = models.CharField(max_length=100)
+    department = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100)
+    state = models.CharField(max_length=100, blank=True)
+    city = models.CharField(max_length=100)
+    address = models.TextField(blank=True)
+    postal_code = models.CharField(max_length=20, blank=True)
+    
+    # IEEE Membership
+    is_ieee_member = models.BooleanField(default=False, help_text='Are you an IEEE member?')
+    ieee_membership_id = models.CharField(max_length=50, blank=True, help_text='IEEE Membership Number')
+    
+    # Student Information (if applicable)
+    is_student = models.BooleanField(default=False)
+    student_id = models.CharField(max_length=50, blank=True)
+    student_id_document = models.FileField(upload_to='registrations/student_ids/', blank=True)
+    
+    # Paper Information
+    has_paper = models.BooleanField(default=False, help_text='Are you submitting a paper?')
+    paper_id = models.CharField(max_length=50, blank=True, help_text='Paper ID from submission system')
+    paper_title = models.CharField(max_length=500, blank=True)
+    additional_pages = models.IntegerField(default=0, help_text='Number of additional pages beyond limit')
+    
+    # Payment Information
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD, blank=True)
+    payment_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    currency = models.CharField(max_length=3, default='INR')
+    payment_date = models.DateField(null=True, blank=True)
+    transaction_id = models.CharField(max_length=100, blank=True)
+    payment_receipt = models.FileField(upload_to='registrations/receipts/', blank=True)
+    payment_notes = models.TextField(blank=True)
+    
+    # Additional Information
+    special_requirements = models.TextField(blank=True, help_text='Dietary restrictions, accessibility needs, etc.')
+    accommodation_required = models.BooleanField(default=False)
+    
+    # Admin fields
+    admin_notes = models.TextField(blank=True, help_text='Internal notes (not visible to participant)')
+    confirmed_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='confirmed_registrations')
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Conference Registration'
+        verbose_name_plural = 'Conference Registrations'
+        indexes = [
+            models.Index(fields=['registration_id']),
+            models.Index(fields=['email']),
+            models.Index(fields=['status']),
+        ]
+    
+    def __str__(self):
+        return f"{self.registration_id} - {self.get_full_name()}"
+    
+    def save(self, *args, **kwargs):
+        if not self.registration_id:
+            self.registration_id = self.generate_registration_id()
+        super().save(*args, **kwargs)
+    
+    def generate_registration_id(self):
+        """Generate unique registration ID"""
+        from django.utils import timezone
+        import random
+        import string
+        
+        year = timezone.now().year
+        random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        return f"ICEIMS{year}-{random_str}"
+    
+    def get_full_name(self):
+        """Return full name with title"""
+        return f"{self.title} {self.first_name} {self.last_name}"
+    
+    def calculate_total_amount(self):
+        """Calculate total registration amount including extra pages"""
+        base_amount = self.category.get_current_rate(self.is_ieee_member)
+        
+        # Add extra page charges
+        if self.additional_pages > 0:
+            if self.currency == 'USD':
+                extra_page_cost = 15 * self.additional_pages
+            else:  # INR
+                extra_page_cost = 1000 * self.additional_pages
+            return base_amount + extra_page_cost
+        
+        return base_amount
+    
+    def get_status_badge_class(self):
+        """Return Bootstrap class for status badge"""
+        status_classes = {
+            'pending': 'warning',
+            'payment_submitted': 'info',
+            'confirmed': 'success',
+            'cancelled': 'danger',
+            'refunded': 'secondary',
+        }
+        return status_classes.get(self.status, 'secondary')
+
+
+class RegistrationSettings(models.Model):
+    """Global registration settings"""
+    registration_open = models.BooleanField(default=True, help_text='Is registration currently open?')
+    registration_message = models.TextField(blank=True, help_text='Message to display on registration page')
+    
+    # Payment Links
+    pay_now_indian_link = models.URLField(max_length=500, blank=True, help_text='Payment link for Indian authors')
+    pay_now_international_link = models.URLField(max_length=500, blank=True, help_text='Payment link for International authors')
+    show_payment_buttons = models.BooleanField(default=True, help_text='Show Pay Now buttons on registration page')
+    
+    # Payment Details
+    bank_name = models.CharField(max_length=200, default='Punjab National Bank, Noida')
+    account_name = models.CharField(max_length=200, default='GU Conferences')
+    account_number = models.CharField(max_length=50, default='671700010025845')
+    ifsc_code = models.CharField(max_length=20, default='PUNB0671700')
+    swift_code = models.CharField(max_length=20, default='PUNBINBBMSN')
+    bank_address = models.TextField(blank=True, help_text='Bank branch address (optional)')
+    
+    # Important Information
+    important_info_title = models.CharField(max_length=200, default='Important Registration Information', help_text='Title for important information section')
+    important_info_content = models.TextField(
+        blank=True,
+        help_text='Important registration information (HTML allowed). Each point on a new line.',
+        default='''<li><i class="fas fa-file-alt text-primary me-3"></i><div><strong>Paper Submission:</strong> An author may register for a maximum of two papers, with the registration fee paid separately for each paper.</div></li>
+<li><i class="fas fa-money-bill-wave text-success me-3"></i><div><strong>Extra Page Charge:</strong> ₹1000/- INR per page (Indian author) and $15 per page (International author) will be chargeable during registration.</div></li>
+<li><i class="fas fa-calendar-check text-info me-3"></i><div><strong>Early Bird Deadline:</strong> Take advantage of early bird rates until the deadline.</div></li>
+<li><i class="fas fa-user-graduate text-warning me-3"></i><div><strong>Student Registration:</strong> Valid student ID required for student rates. Student presenters must be registered as authors.</div></li>
+<li><i class="fas fa-users text-secondary me-3"></i><div><strong>IEEE Membership:</strong> IEEE member rates apply to current IEEE members only. Membership verification required.</div></li>'''
+    )
+    show_important_info = models.BooleanField(default=True, help_text='Show important information section')
+    
+    # Contact Information
+    registration_email = models.EmailField(default='registration@iceims.com')
+    registration_phone = models.CharField(max_length=20, default='+91 120 458 9501')
+    
+    # Limits
+    max_papers_per_author = models.IntegerField(default=2, help_text='Maximum papers one author can register')
+    max_additional_pages = models.IntegerField(default=4, help_text='Maximum additional pages allowed')
+    
+    # Early Bird Settings
+    early_bird_deadline = models.DateField(null=True, blank=True)
+    show_early_bird_countdown = models.BooleanField(default=True)
+    
+    # Display Settings
+    show_account_details = models.BooleanField(default=True, help_text='Show bank account details section')
+    show_registration_process = models.BooleanField(default=True, help_text='Show registration process steps')
+    
+    # Form Mode Settings
+    use_google_form = models.BooleanField(
+        default=False,
+        help_text='Use Google Form instead of default registration form'
+    )
+    google_form_url = models.URLField(
+        max_length=1000,
+        blank=True,
+        help_text='Google Form embed URL (e.g., https://docs.google.com/forms/d/e/FORM_ID/viewform?embedded=true)'
+    )
+    google_form_height = models.IntegerField(
+        default=2000,
+        help_text='Height of Google Form iframe in pixels'
+    )
+    show_default_form = models.BooleanField(
+        default=True,
+        help_text='Show default registration form (disable if using only Google Form)'
+    )
+    form_mode_message = models.TextField(
+        blank=True,
+        help_text='Message to display above the registration form (supports HTML)'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Registration Settings'
+        verbose_name_plural = 'Registration Settings'
+    
+    def __str__(self):
+        return "Registration Settings"
+    
+    @classmethod
+    def get_settings(cls):
+        """Get or create settings singleton"""
+        settings, created = cls.objects.get_or_create(pk=1)
+        return settings
+
+
+class RegistrationFeesTable(models.Model):
+    """Fees table rows for registration page"""
+    PARTICIPANT_TYPE_CHOICES = [
+        ('indian_author', 'Indian Author (Academia/Industry)'),
+        ('indian_student_author', 'Indian Student Author'),
+        ('indian_attendee', 'Indian Attendee (Non-Author)'),
+        ('indian_student_attendee', 'Indian Student Attendee (Non-Author)'),
+        ('tutorial_indian', 'Tutorial only (Indian Student)'),
+        ('foreign_author', 'Foreign Author (Academia/Industry)'),
+        ('foreign_student_author', 'Foreign Student Author'),
+        ('foreign_attendee', 'Foreign Attendee (Non-Author)'),
+        ('foreign_student_attendee', 'Foreign Student Attendee (Non-Author)'),
+        ('tutorial_foreign', 'Tutorial only (Foreign Student)'),
+    ]
+    
+    participant_type = models.CharField(
+        max_length=100,
+        choices=PARTICIPANT_TYPE_CHOICES,
+        help_text='Type of participant'
+    )
+    display_name = models.CharField(
+        max_length=200,
+        help_text='Display name in fees table'
+    )
+    
+    # Early Bird Fees
+    early_bird_ieee = models.CharField(
+        max_length=50,
+        help_text='Early bird fee for IEEE members (e.g., ₹6000 or $200)'
+    )
+    early_bird_non_ieee = models.CharField(
+        max_length=50,
+        help_text='Early bird fee for non-IEEE members'
+    )
+    
+    # Regular Fees
+    regular_ieee = models.CharField(
+        max_length=50,
+        help_text='Regular fee for IEEE members'
+    )
+    regular_non_ieee = models.CharField(
+        max_length=50,
+        help_text='Regular fee for non-IEEE members'
+    )
+    
+    # Display settings
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Show this row in fees table'
+    )
+    display_order = models.IntegerField(
+        default=0,
+        help_text='Order in which to display (lower numbers first)'
+    )
+    is_highlighted = models.BooleanField(
+        default=False,
+        help_text='Highlight this row (different background color)'
+    )
+    notes = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text='Additional notes or conditions (optional)'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['display_order', 'participant_type']
+        verbose_name = 'Registration Fees Table Row'
+        verbose_name_plural = 'Registration Fees Table'
+    
+    def __str__(self):
+        return self.display_name
+
+
+class DownloadResource(models.Model):
+    """Downloadable resources and documents"""
+    
+    CATEGORY_CHOICES = [
+        ('call_for_papers', 'Call for Papers'),
+        ('brochure', 'Brochure'),
+        ('template', 'Template'),
+        ('presentation', 'Presentation'),
+        ('schedule', 'Schedule'),
+        ('proceedings', 'Proceedings'),
+        ('certificate', 'Certificate'),
+        ('guidelines', 'Guidelines'),
+        ('form', 'Form'),
+        ('report', 'Report'),
+        ('other', 'Other'),
+    ]
+    
+    title = models.CharField(max_length=200, help_text='Resource title')
+    description = models.TextField(help_text='Resource description')
+    category = models.CharField(
+        max_length=50,
+        choices=CATEGORY_CHOICES,
+        default='other',
+        help_text='Resource category'
+    )
+    
+    # File
+    file = models.FileField(
+        upload_to='downloads/',
+        help_text='Upload file (PDF, DOC, PPT, ZIP, etc.)'
+    )
+    file_type = models.CharField(
+        max_length=20,
+        blank=True,
+        help_text='File type (PDF, DOCX, PPTX, ZIP, etc.)'
+    )
+    file_size = models.CharField(max_length=50, blank=True, help_text='File size (e.g., 2.5 MB)')
+    
+    # Preview/Thumbnail
+    thumbnail = models.ImageField(
+        upload_to='downloads/thumbnails/',
+        blank=True,
+        null=True,
+        help_text='Thumbnail image (optional)'
+    )
+    
+    # Additional info
+    version = models.CharField(max_length=50, blank=True, help_text='Version (e.g., 1.0, 2023)')
+    author = models.CharField(max_length=200, default='ICEIMS Team', help_text='Author/Creator')
+    related_url = models.URLField(blank=True, help_text='Related URL (optional)')
+    
+    # Stats
+    downloads = models.IntegerField(default=0, help_text='Download count')
+    
+    # Status
+    is_active = models.BooleanField(default=True, help_text='Show on download page')
+    is_featured = models.BooleanField(default=False, help_text='Featured resource')
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-is_featured', '-created_at']
+        verbose_name = 'Download Resource'
+        verbose_name_plural = 'Download Resources'
+    
+    def __str__(self):
+        return self.title
+    
+    def increment_downloads(self):
+        """Increment download counter"""
+        self.downloads += 1
+        self.save(update_fields=['downloads'])
+    
+    def get_file_extension(self):
+        """Get file extension"""
+        if self.file:
+            return self.file.name.split('.')[-1].upper()
+        return 'FILE'
+    
+    def get_icon_class(self):
+        """Get Font Awesome icon based on file type"""
+        ext = self.get_file_extension().lower()
+        icon_map = {
+            'pdf': 'fa-file-pdf text-danger',
+            'doc': 'fa-file-word text-primary',
+            'docx': 'fa-file-word text-primary',
+            'ppt': 'fa-file-powerpoint text-warning',
+            'pptx': 'fa-file-powerpoint text-warning',
+            'xls': 'fa-file-excel text-success',
+            'xlsx': 'fa-file-excel text-success',
+            'zip': 'fa-file-archive text-secondary',
+            'rar': 'fa-file-archive text-secondary',
+            'txt': 'fa-file-alt text-muted',
+            'jpg': 'fa-file-image text-info',
+            'jpeg': 'fa-file-image text-info',
+            'png': 'fa-file-image text-info',
+        }
+        return icon_map.get(ext, 'fa-file text-secondary')
+
+
+class LoadingPageSettings(models.Model):
+    """Settings for customizable loading page"""
+    # Loading Text
+    loading_title = models.CharField(
+        max_length=200,
+        default='ICEIMS 2026',
+        help_text='Main title on loading page'
+    )
+    loading_subtitle = models.CharField(
+        max_length=300,
+        default='International Conference on Energy and Intelligent Manufacturing Systems',
+        help_text='Subtitle text'
+    )
+    loading_message = models.CharField(
+        max_length=200,
+        default='Preparing your experience...',
+        help_text='Loading message text'
+    )
+    
+    # Loading Animation Settings
+    ANIMATION_TYPES = [
+        ('spinner', 'Spinner'),
+        ('pulse', 'Pulse'),
+        ('dots', 'Dots'),
+        ('bar', 'Progress Bar'),
+        ('circular', 'Circular Progress'),
+    ]
+    animation_type = models.CharField(
+        max_length=20,
+        choices=ANIMATION_TYPES,
+        default='spinner',
+        help_text='Type of loading animation'
+    )
+    
+    # Colors
+    background_color = models.CharField(
+        max_length=7,
+        default='#a0352f',
+        help_text='Background color (hex code)'
+    )
+    text_color = models.CharField(
+        max_length=7,
+        default='#ffffff',
+        help_text='Text color (hex code)'
+    )
+    spinner_color = models.CharField(
+        max_length=7,
+        default='#ffffff',
+        help_text='Spinner/animation color (hex code)'
+    )
+    
+    # Display Settings
+    show_logo = models.BooleanField(default=True, help_text='Show conference logo')
+    logo = models.ImageField(upload_to='loading/', blank=True, null=True, help_text='Custom loading page logo')
+    show_progress_text = models.BooleanField(default=True, help_text='Show percentage text')
+    
+    # Duration Settings
+    minimum_duration = models.IntegerField(
+        default=1000,
+        help_text='Minimum loading duration in milliseconds (1000 = 1 second)'
+    )
+    fade_out_duration = models.IntegerField(
+        default=500,
+        help_text='Fade out animation duration in milliseconds'
+    )
+    
+    # Enable/Disable
+    is_active = models.BooleanField(default=True, help_text='Enable loading page')
+    
+    # Additional Elements
+    show_tagline = models.BooleanField(default=True, help_text='Show conference tagline')
+    tagline_text = models.CharField(
+        max_length=300,
+        default='November 20-22, 2026 | Galgotias University',
+        blank=True,
+        help_text='Conference tagline/dates'
+    )
+    
+    # Footer Settings
+    footer_text = models.CharField(
+        max_length=200,
+        default='Site maintained by Novatrail LLP',
+        help_text='Footer text on loading page'
+    )
+    footer_link = models.URLField(
+        max_length=500,
+        default='https://novatrail.in',
+        blank=True,
+        help_text='URL for footer link (e.g., https://novatrail.in)'
+    )
+    show_footer = models.BooleanField(
+        default=True,
+        help_text='Show footer text on loading page'
+    )
+    
+    # Custom CSS
+    custom_css = models.TextField(
+        blank=True,
+        help_text='Custom CSS for advanced styling (optional)'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Loading Page Settings'
+        verbose_name_plural = 'Loading Page Settings'
+    
+    def __str__(self):
+        return "Loading Page Settings"
+    
+    @classmethod
+    def get_settings(cls):
+        """Get or create settings singleton"""
+        settings, created = cls.objects.get_or_create(pk=1)
+        return settings
+
+
+class AboutPage(models.Model):
+    """About page content management"""
+    
+    # Hero Section
+    hero_title = models.CharField(
+        max_length=200,
+        default='About ICEIMS 2026',
+        help_text='Main title on about page'
+    )
+    hero_subtitle = models.CharField(
+        max_length=300,
+        default='International Conference on Energy and Intelligent Manufacturing Systems',
+        help_text='Subtitle below title'
+    )
+    hero_description = models.TextField(
+        default='Advancing the future of sustainable manufacturing and energy systems',
+        help_text='Brief description in hero section'
+    )
+    hero_image = models.ImageField(
+        upload_to='about/',
+        blank=True,
+        null=True,
+        help_text='Hero section background image (optional)'
+    )
+    
+    # Conference Overview Section
+    overview_title = models.CharField(
+        max_length=200,
+        default='Conference Overview',
+        help_text='Title for overview section'
+    )
+    overview_lead = models.TextField(
+        default='ICEIMS 2026 is a premier international conference that brings together researchers, academicians, industry professionals, and students to share knowledge and discuss the latest developments in Energy and Intelligent Manufacturing Systems.',
+        help_text='Lead paragraph (highlighted text)'
+    )
+    overview_content = models.TextField(
+        default='The conference aims to foster collaboration between academia and industry, promoting innovative solutions for sustainable manufacturing processes and intelligent energy systems. With a focus on cutting-edge research and practical applications, ICEIMS 2026 serves as a platform for knowledge exchange and networking among global experts.',
+        help_text='Main overview content'
+    )
+    
+    # Vision and Mission
+    vision_title = models.CharField(
+        max_length=200,
+        default='Our Vision',
+        help_text='Vision section title'
+    )
+    vision_content = models.TextField(
+        default='To be the leading global platform for advancing research and innovation in energy and intelligent manufacturing systems, fostering sustainable industrial development for a better future.',
+        help_text='Vision statement'
+    )
+    vision_icon = models.CharField(
+        max_length=50,
+        default='fas fa-eye',
+        help_text='FontAwesome icon class for vision'
+    )
+    
+    mission_title = models.CharField(
+        max_length=200,
+        default='Our Mission',
+        help_text='Mission section title'
+    )
+    mission_content = models.TextField(
+        default='To facilitate knowledge exchange, promote collaborative research, and bridge the gap between academic research and industrial applications in energy and manufacturing sectors.',
+        help_text='Mission statement'
+    )
+    mission_icon = models.CharField(
+        max_length=50,
+        default='fas fa-bullseye',
+        help_text='FontAwesome icon class for mission'
+    )
+    
+    # Statistics Section
+    show_statistics = models.BooleanField(
+        default=True,
+        help_text='Display conference statistics section'
+    )
+    stat_1_number = models.CharField(max_length=20, default='300+', help_text='First statistic number')
+    stat_1_label = models.CharField(max_length=100, default='Expected Participants', help_text='First statistic label')
+    stat_1_icon = models.CharField(max_length=50, default='fas fa-users', help_text='FontAwesome icon')
+    
+    stat_2_number = models.CharField(max_length=20, default='150+', help_text='Second statistic number')
+    stat_2_label = models.CharField(max_length=100, default='Research Papers', help_text='Second statistic label')
+    stat_2_icon = models.CharField(max_length=50, default='fas fa-file-alt', help_text='FontAwesome icon')
+    
+    stat_3_number = models.CharField(max_length=20, default='25+', help_text='Third statistic number')
+    stat_3_label = models.CharField(max_length=100, default='Countries', help_text='Third statistic label')
+    stat_3_icon = models.CharField(max_length=50, default='fas fa-globe', help_text='FontAwesome icon')
+    
+    stat_4_number = models.CharField(max_length=20, default='10+', help_text='Fourth statistic number')
+    stat_4_label = models.CharField(max_length=100, default='Keynote Speakers', help_text='Fourth statistic label')
+    stat_4_icon = models.CharField(max_length=50, default='fas fa-microphone', help_text='FontAwesome icon')
+    
+    # Additional Sections
+    show_objectives = models.BooleanField(
+        default=True,
+        help_text='Display conference objectives section'
+    )
+    show_university_info = models.BooleanField(
+        default=True,
+        help_text='Display university information section'
+    )
+    
+    # SEO and Meta
+    meta_description = models.TextField(
+        max_length=160,
+        blank=True,
+        help_text='Meta description for SEO (max 160 characters)'
+    )
+    meta_keywords = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text='Meta keywords for SEO (comma-separated)'
+    )
+    
+    # Status
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Enable/disable custom about page'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'About Page'
+        verbose_name_plural = 'About Page'
+    
+    def __str__(self):
+        return "About Page Settings"
+    
+    @classmethod
+    def get_settings(cls):
+        """Get or create settings singleton"""
+        settings, created = cls.objects.get_or_create(pk=1)
+        return settings
+
+
+class AboutObjective(models.Model):
+    """Conference objectives displayed on about page"""
+    title = models.CharField(max_length=200, help_text='Objective title')
+    description = models.TextField(help_text='Objective description')
+    icon = models.CharField(
+        max_length=50,
+        default='fas fa-check-circle',
+        help_text='FontAwesome icon class'
+    )
+    color = models.CharField(
+        max_length=20,
+        default='primary',
+        help_text='Bootstrap color class (primary, success, warning, info, danger)'
+    )
+    order = models.IntegerField(default=0, help_text='Display order')
+    is_active = models.BooleanField(default=True, help_text='Show this objective')
+    
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'About Page Objective'
+        verbose_name_plural = 'About Page Objectives'
+    
+    def __str__(self):
+        return self.title
+
+
+class SponsorsPageSettings(models.Model):
+    """Sponsors page content management"""
+    
+    # Hero Section
+    hero_title = models.CharField(
+        max_length=200,
+        default='Our Sponsors & Partners',
+        help_text='Main title on sponsors page'
+    )
+    hero_subtitle = models.TextField(
+        default='Proudly supported by industry leaders and academic institutions',
+        help_text='Subtitle text in hero section'
+    )
+    
+    # Contact Information
+    sponsorship_manager_name = models.CharField(
+        max_length=200,
+        default='Dr. Sarah Johnson',
+        help_text='Name of sponsorship contact person'
+    )
+    sponsorship_manager_email = models.EmailField(
+        default='sponsorship@iceims2026.org',
+        help_text='Email for sponsorship inquiries'
+    )
+    sponsorship_manager_phone = models.CharField(
+        max_length=50,
+        default='+1 (555) 123-4567',
+        help_text='Phone number for sponsorship contact'
+    )
+    
+    general_inquiry_email = models.EmailField(
+        default='partnerships@iceims2026.org',
+        help_text='General inquiry email'
+    )
+    general_inquiry_response_time = models.CharField(
+        max_length=100,
+        default='Response within 24 hours',
+        help_text='Expected response time'
+    )
+    
+    # CTA Buttons
+    contact_button_text = models.CharField(
+        max_length=100,
+        default='Contact Us Today',
+        help_text='Text for contact button'
+    )
+    contact_button_url = models.URLField(
+        max_length=500,
+        blank=True,
+        help_text='URL for contact button (leave blank to use contact page)'
+    )
+    
+    prospectus_button_text = models.CharField(
+        max_length=100,
+        default='Download Prospectus',
+        help_text='Text for prospectus download button'
+    )
+    prospectus_file = models.FileField(
+        upload_to='documents/',
+        blank=True,
+        null=True,
+        help_text='Upload sponsorship prospectus PDF'
+    )
+    
+    # Section Visibility
+    show_partnership_opportunities = models.BooleanField(
+        default=True,
+        help_text='Show partnership opportunities section'
+    )
+    show_why_sponsor = models.BooleanField(
+        default=True,
+        help_text='Show why sponsor section'
+    )
+    show_contact_section = models.BooleanField(
+        default=True,
+        help_text='Show sponsorship contact section'
+    )
+    
+    # SEO
+    meta_description = models.TextField(
+        max_length=160,
+        blank=True,
+        help_text='Meta description for SEO'
+    )
+    
+    # Status
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Enable custom sponsors page settings'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Sponsors Page Settings'
+        verbose_name_plural = 'Sponsors Page Settings'
+    
+    def __str__(self):
+        return "Sponsors Page Settings"
+    
+    @classmethod
+    def get_settings(cls):
+        """Get or create settings singleton"""
+        settings, created = cls.objects.get_or_create(pk=1)
+        return settings
+
+
+class PageVisitLog(models.Model):
+    """Detailed log of every page visit to the website"""
+    # Visitor Information
+    ip_address = models.GenericIPAddressField(help_text="Visitor IP address")
+    user_agent = models.TextField(blank=True, help_text="Browser user agent string")
+    
+    # Request Information
+    url_path = models.CharField(max_length=500, help_text="URL path visited")
+    full_url = models.TextField(blank=True, help_text="Full URL including query parameters")
+    http_method = models.CharField(max_length=10, default='GET', help_text="HTTP request method")
+    referrer = models.TextField(blank=True, help_text="Referrer URL")
+    
+    # Location & Device
+    country = models.CharField(max_length=100, blank=True, help_text="Country (if available)")
+    city = models.CharField(max_length=100, blank=True, help_text="City (if available)")
+    device_type = models.CharField(max_length=50, blank=True, help_text="Device type (desktop, mobile, tablet)")
+    browser = models.CharField(max_length=100, blank=True, help_text="Browser name")
+    os = models.CharField(max_length=100, blank=True, help_text="Operating system")
+    
+    # Timing
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True, help_text="Visit timestamp")
+    response_time = models.IntegerField(null=True, blank=True, help_text="Response time in milliseconds")
+    
+    # Session
+    session_key = models.CharField(max_length=255, blank=True, help_text="Session identifier")
+    is_authenticated = models.BooleanField(default=False, help_text="Was user logged in?")
+    username = models.CharField(max_length=150, blank=True, help_text="Username if authenticated")
+    
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = "Page Visit Log"
+        verbose_name_plural = "Page Visit Logs"
+        indexes = [
+            models.Index(fields=['-timestamp']),
+            models.Index(fields=['ip_address']),
+            models.Index(fields=['url_path']),
+            models.Index(fields=['timestamp', 'ip_address']),
+        ]
+    
+    def __str__(self):
+        return f"{self.ip_address} - {self.url_path} - {self.timestamp.strftime('%Y-%m-%d %H:%M:%S')}"
+    
+    @property
+    def browser_info(self):
+        """Get formatted browser information"""
+        parts = []
+        if self.browser:
+            parts.append(self.browser)
+        if self.os:
+            parts.append(self.os)
+        if self.device_type:
+            parts.append(self.device_type)
+        return ' / '.join(parts) if parts else 'Unknown'
+    
+    @property
+    def location_info(self):
+        """Get formatted location information"""
+        parts = []
+        if self.city:
+            parts.append(self.city)
+        if self.country:
+            parts.append(self.country)
+        return ', '.join(parts) if parts else 'Unknown'
+    
+    @classmethod
+    def get_total_visits(cls):
+        """Get total page visits count"""
+        return cls.objects.count()
+    
+    @classmethod
+    def get_today_visits(cls):
+        """Get today's page visits count"""
+        from django.utils import timezone
+        today = timezone.now().date()
+        return cls.objects.filter(timestamp__date=today).count()
+    
+    @classmethod
+    def get_unique_visitors_today(cls):
+        """Get unique visitors count for today"""
+        from django.utils import timezone
+        today = timezone.now().date()
+        return cls.objects.filter(timestamp__date=today).values('ip_address').distinct().count()
+    
+    @classmethod
+    def get_popular_pages(cls, limit=10, days=7):
+        """Get most visited pages"""
+        from django.utils import timezone
+        from django.db.models import Count
+        since = timezone.now() - timezone.timedelta(days=days)
+        return cls.objects.filter(timestamp__gte=since).values('url_path').annotate(
+            visit_count=Count('id')
+        ).order_by('-visit_count')[:limit]
+    
+    @classmethod
+    def get_visitor_stats_by_hour(cls, date=None):
+        """Get visitor stats grouped by hour for a specific date"""
+        from django.utils import timezone
+        from django.db.models import Count
+        if date is None:
+            date = timezone.now().date()
+        return cls.objects.filter(
+            timestamp__date=date
+        ).extra(
+            select={'hour': 'EXTRACT(hour FROM timestamp)'}
+        ).values('hour').annotate(
+            count=Count('id')
+        ).order_by('hour')
+
+
+class NetworkingPageSettings(models.Model):
+    """Settings for the networking page"""
+    # Hero Section
+    hero_title = models.CharField(max_length=200, default='Networking Events', help_text="Main hero title")
+    hero_subtitle = models.CharField(max_length=300, default='Connect, collaborate, and build lasting professional relationships', help_text="Hero subtitle")
+    hero_description = models.TextField(default='Structured networking opportunities throughout the conference', help_text="Hero description")
+    hero_background_image = models.ImageField(upload_to='networking/hero/', blank=True, null=True, help_text="Hero background image")
+    
+    # Page Settings
+    show_networking_events = models.BooleanField(default=True, help_text="Show networking events section")
+    show_networking_tips = models.BooleanField(default=True, help_text="Show networking tips section")
+    show_contact_exchange = models.BooleanField(default=True, help_text="Show contact exchange section")
+    
+    # SEO
+    meta_description = models.TextField(max_length=160, blank=True, help_text="Meta description for SEO")
+    
+    # Status
+    is_active = models.BooleanField(default=True, help_text="Is this settings active?")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Networking Page Settings"
+        verbose_name_plural = "Networking Page Settings"
+    
+    def __str__(self):
+        return "Networking Page Settings"
+    
+    @classmethod
+    def get_settings(cls):
+        """Get or create networking page settings"""
+        settings, created = cls.objects.get_or_create(id=1)
+        return settings
+
+
+class NetworkingEvent(models.Model):
+    """Individual networking events"""
+    EVENT_TYPE_CHOICES = [
+        ('reception', 'Reception'),
+        ('dinner', 'Dinner/Gala'),
+        ('coffee_break', 'Coffee Break'),
+        ('lunch', 'Lunch'),
+        ('workshop', 'Workshop'),
+        ('speed_networking', 'Speed Networking'),
+        ('panel', 'Panel Discussion'),
+        ('mixer', 'Social Mixer'),
+        ('tour', 'City Tour'),
+        ('other', 'Other'),
+    ]
+    
+    # Basic Information
+    title = models.CharField(max_length=200, help_text="Event title")
+    event_type = models.CharField(max_length=50, choices=EVENT_TYPE_CHOICES, default='reception', help_text="Type of event")
+    description = models.TextField(help_text="Event description")
+    
+    # Scheduling
+    day = models.CharField(max_length=100, help_text="Event day (e.g., 'Day 1', 'March 15, 2026')")
+    start_time = models.TimeField(help_text="Start time")
+    end_time = models.TimeField(help_text="End time")
+    duration = models.CharField(max_length=50, blank=True, help_text="Duration (auto-calculated or custom)")
+    
+    # Location
+    venue = models.CharField(max_length=200, blank=True, help_text="Event venue")
+    location_details = models.TextField(blank=True, help_text="Additional location details")
+    
+    # Visual
+    icon_class = models.CharField(max_length=100, default='fas fa-users', help_text="FontAwesome icon class (e.g., 'fas fa-cocktail')")
+    icon_color = models.CharField(max_length=50, default='#a0352f', help_text="Icon color (hex code)")
+    event_image = models.ImageField(upload_to='networking/events/', blank=True, null=True, help_text="Event image")
+    
+    # Registration
+    requires_registration = models.BooleanField(default=False, help_text="Does this event require registration?")
+    registration_url = models.URLField(blank=True, help_text="Registration URL")
+    max_attendees = models.IntegerField(null=True, blank=True, help_text="Maximum number of attendees")
+    
+    # Additional Info
+    dress_code = models.CharField(max_length=100, blank=True, help_text="Dress code (e.g., 'Business Casual')")
+    special_notes = models.TextField(blank=True, help_text="Special notes or instructions")
+    
+    # Display Settings
+    display_order = models.IntegerField(default=0, help_text="Display order (lower numbers appear first)")
+    is_active = models.BooleanField(default=True, help_text="Is this event active?")
+    is_featured = models.BooleanField(default=False, help_text="Feature this event prominently")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['display_order', 'day', 'start_time']
+        verbose_name = "Networking Event"
+        verbose_name_plural = "Networking Events"
+    
+    def __str__(self):
+        return f"{self.title} - {self.day}"
+    
+    @property
+    def time_range(self):
+        """Get formatted time range"""
+        return f"{self.start_time.strftime('%I:%M %p')} - {self.end_time.strftime('%I:%M %p')}"
+
+
+class NetworkingTip(models.Model):
+    """Networking tips to display on the page"""
+    title = models.CharField(max_length=200, help_text="Tip title")
+    description = models.TextField(help_text="Tip description")
+    icon_class = models.CharField(max_length=100, default='fas fa-lightbulb', help_text="FontAwesome icon class")
+    icon_color = models.CharField(max_length=50, default='#a0352f', help_text="Icon color (hex code)")
+    
+    display_order = models.IntegerField(default=0, help_text="Display order")
+    is_active = models.BooleanField(default=True, help_text="Is this tip active?")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['display_order']
+        verbose_name = "Networking Tip"
+        verbose_name_plural = "Networking Tips"
+    
+    def __str__(self):
+        return self.title
+
+
+class NetworkingOpportunity(models.Model):
+    """Special networking opportunities"""
+    OPPORTUNITY_TYPE_CHOICES = [
+        ('mentorship', 'Mentorship Program'),
+        ('industry_meetup', 'Industry Meetup'),
+        ('startup_pitch', 'Startup Pitch'),
+        ('collaboration', 'Collaboration Zone'),
+        ('roundtable', 'Roundtable Discussion'),
+        ('other', 'Other'),
+    ]
+    
+    title = models.CharField(max_length=200, help_text="Opportunity title")
+    opportunity_type = models.CharField(max_length=50, choices=OPPORTUNITY_TYPE_CHOICES, default='other')
+    description = models.TextField(help_text="Opportunity description")
+    
+    # Details
+    organizer = models.CharField(max_length=200, blank=True, help_text="Organizer or facilitator")
+    time_details = models.CharField(max_length=200, blank=True, help_text="When this opportunity is available")
+    location = models.CharField(max_length=200, blank=True, help_text="Location")
+    
+    # Visual
+    icon_class = models.CharField(max_length=100, default='fas fa-handshake', help_text="FontAwesome icon class")
+    icon_color = models.CharField(max_length=50, default='#a0352f', help_text="Icon color")
+    image = models.ImageField(upload_to='networking/opportunities/', blank=True, null=True)
+    
+    # Links
+    signup_url = models.URLField(blank=True, help_text="Sign-up or more info URL")
+    contact_email = models.EmailField(blank=True, help_text="Contact email")
+    
+    # Display
+    display_order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['display_order']
+        verbose_name = "Networking Opportunity"
+        verbose_name_plural = "Networking Opportunities"
+    
+    def __str__(self):
+        return self.title
+
+
+class SitemapLink(models.Model):
+    """Dynamic sitemap links manageable from admin"""
+    # Basic Information
+    name = models.CharField(max_length=200, help_text="Link name/title")
+    url = models.CharField(max_length=500, help_text="URL path (e.g., '/about/' or full URL)")
+    description = models.TextField(help_text="Brief description of the page")
+    
+    # Visual
+    icon = models.CharField(max_length=100, default='fa-link', help_text="FontAwesome icon class (e.g., 'fa-home')")
+    
+    # Display Settings
+    display_order = models.IntegerField(default=0, help_text="Display order (lower numbers appear first)")
+    is_active = models.BooleanField(default=True, help_text="Show this link in sitemap?")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['display_order', 'name']
+        verbose_name = "Sitemap Link"
+        verbose_name_plural = "Sitemap Links"
+    
+    def __str__(self):
+        return self.name
