@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
+from django.http import HttpResponse, JsonResponse, HttpResponseForbidden, FileResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -19,6 +19,8 @@ from .models import (
     MaintenanceMode, Notice, EmailLog, UniversityInfo, UniversityGallery,
     SponsorsPageSettings
 )
+import os
+from datetime import datetime
 
 def home(request):
     """Home page view with all conference information - Optimized"""
@@ -1831,6 +1833,148 @@ def get_activity_icon(log_entry):
     }
     
     return icon_map.get(model_name, 'fa-cog')
+
+# Database Download View
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def download_database(request):
+    """Download the SQLite database file - Superuser only"""
+    from django.conf import settings
+    
+    # Get the database file path
+    db_path = settings.DATABASES['default']['NAME']
+    
+    # Check if file exists
+    if not os.path.exists(db_path):
+        messages.error(request, 'Database file not found!')
+        return redirect('conference:admin_dashboard')
+    
+    # Create filename with timestamp
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f'db_backup_{timestamp}.sqlite3'
+    
+    # Open the file and create response
+    try:
+        db_file = open(db_path, 'rb')
+        response = FileResponse(db_file, content_type='application/x-sqlite3')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response['Content-Length'] = os.path.getsize(db_path)
+        
+        return response
+    except Exception as e:
+        messages.error(request, f'Error downloading database: {str(e)}')
+        return redirect('conference:admin_dashboard')
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def download_full_backup(request):
+    """Download complete backup of entire project - Superuser only"""
+    import zipfile
+    import shutil
+    from django.conf import settings
+    from pathlib import Path
+    import tempfile
+    
+    try:
+        # Create a temporary directory for the backup
+        temp_dir = tempfile.mkdtemp()
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        zip_filename = f'full_backup_{timestamp}.zip'
+        zip_path = os.path.join(temp_dir, zip_filename)
+        
+        # Get base directory
+        base_dir = settings.BASE_DIR
+        
+        # Patterns to exclude
+        exclude_patterns = [
+            '__pycache__',
+            '*.pyc',
+            '*.pyo',
+            '.git',
+            '.gitignore',
+            '.venv',
+            'venv',
+            'env',
+            '.env',
+            '*.log',
+            '.vscode',
+            '.idea',
+            'node_modules',
+            '.DS_Store',
+            'Thumbs.db',
+            '*.swp',
+            '*.swo',
+            '.pytest_cache',
+            'htmlcov',
+            '.coverage',
+            '*.egg-info',
+            'dist',
+            'build',
+        ]
+        
+        def should_exclude(path):
+            """Check if path should be excluded"""
+            path_str = str(path)
+            for pattern in exclude_patterns:
+                if pattern.startswith('*.'):
+                    # File extension pattern
+                    if path_str.endswith(pattern[1:]):
+                        return True
+                else:
+                    # Directory or filename pattern
+                    if pattern in path_str.split(os.sep):
+                        return True
+            return False
+        
+        # Create ZIP file
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            # Add all files from base directory
+            for root, dirs, files in os.walk(base_dir):
+                # Remove excluded directories from dirs list
+                dirs[:] = [d for d in dirs if not should_exclude(os.path.join(root, d))]
+                
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    if not should_exclude(file_path):
+                        # Calculate relative path
+                        arcname = os.path.relpath(file_path, base_dir)
+                        try:
+                            zipf.write(file_path, arcname)
+                        except Exception as e:
+                            # Skip files that can't be read
+                            print(f"Skipping {file_path}: {str(e)}")
+                            continue
+        
+        # Check if ZIP was created successfully
+        if not os.path.exists(zip_path):
+            messages.error(request, 'Failed to create backup archive!')
+            shutil.rmtree(temp_dir)
+            return redirect('conference:admin_dashboard')
+        
+        # Open the ZIP file and create response
+        zip_file = open(zip_path, 'rb')
+        response = FileResponse(zip_file, content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename="{zip_filename}"'
+        response['Content-Length'] = os.path.getsize(zip_path)
+        
+        # Schedule cleanup of temp directory after response is sent
+        # Note: The file will be deleted after the response is complete
+        def cleanup():
+            try:
+                zip_file.close()
+                shutil.rmtree(temp_dir)
+            except:
+                pass
+        
+        # Django will close the file after response is sent
+        # We'll rely on OS cleanup for temp directory
+        
+        return response
+        
+    except Exception as e:
+        messages.error(request, f'Error creating full backup: {str(e)}')
+        return redirect('conference:admin_dashboard')
 
 # User Management Views
 @login_required

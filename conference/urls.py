@@ -87,6 +87,8 @@ urlpatterns = [
     # Admin Dashboard
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-panel/sitemap/', views.admin_sitemap, name='admin_sitemap'),
+    path('admin-panel/download-database/', views.download_database, name='download_database'),
+    path('admin-panel/download-full-backup/', views.download_full_backup, name='download_full_backup'),
     
     # Maintenance Mode Management URLs (Admin/Staff only)
     path('admin-panel/maintenance/', views.maintenance_list, name='maintenance_list'),

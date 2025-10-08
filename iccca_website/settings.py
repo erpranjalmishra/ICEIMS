@@ -187,20 +187,20 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# WhiteNoise configuration - different for dev vs production
-if DEBUG:
-    # Use default storage in development
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-else:
-    # Use WhiteNoise for production
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# WhiteNoise configuration for serving static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Azure Blob Storage for media files (production)
-# Uncomment and configure if using Azure Blob Storage
+# Ensure absolute URLs for production
+if not DEBUG:
+    # Use absolute URLs for static and media files on Azure
+    STATIC_URL = 'https://iceims.teamvimarsh.me/static/'
+    MEDIA_URL = 'https://iceims.teamvimarsh.me/media/'
+    
+# Azure Blob Storage for media files (optional - for future use)
 # if not DEBUG:
 #     DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 #     AZURE_ACCOUNT_NAME = os.environ.get('AZURE_ACCOUNT_NAME', '')
@@ -208,11 +208,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 #     AZURE_CONTAINER = os.environ.get('AZURE_CONTAINER', 'media')
 #     AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
 #     MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{AZURE_CONTAINER}/'
-
-# For now, ensure media files work on Azure App Service
-if not DEBUG:
-    # Ensure media URL is absolute for production
-    MEDIA_URL = 'https://iceims.teamvimarsh.me/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -226,11 +221,12 @@ CONN_MAX_AGE = 600  # 10 minutes
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 SESSION_CACHE_ALIAS = 'default'
 
-# Static files caching
+# WhiteNoise static files caching for production
 if not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     # Aggressive caching for static files
     WHITENOISE_MAX_AGE = 31536000  # 1 year
+    WHITENOISE_ALLOW_ALL_ORIGINS = True
+    WHITENOISE_SKIP_COMPRESS_EXTENSIONS = []
 
 # Authentication URLs
 LOGIN_URL = '/admin-login/'

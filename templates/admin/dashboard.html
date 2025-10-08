@@ -1307,6 +1307,67 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Database Backup (Superuser Only) -->
+            {% if user.is_superuser %}
+            <div class="row g-3 mt-3">
+                <!-- Complete Backup -->
+                <div class="col-md-6">
+                    <div class="export-card bg-primary bg-opacity-10 border-primary">
+                        <h6><i class="fas fa-archive text-primary"></i> Complete Backup</h6>
+                        <p class="text-muted small mb-3">
+                            <i class="fas fa-info-circle text-info"></i> 
+                            Download complete project backup including:
+                        </p>
+                        <ul class="small text-muted mb-3">
+                            <li><i class="fas fa-code"></i> All source code files (.py, .html, .css, .js)</li>
+                            <li><i class="fas fa-database"></i> Complete database (SQLite)</li>
+                            <li><i class="fas fa-images"></i> All media files (uploads, images)</li>
+                            <li><i class="fas fa-folder"></i> Static files (CSS, JS, images)</li>
+                            <li><i class="fas fa-cog"></i> Configuration files</li>
+                        </ul>
+                        <a href="{% url 'conference:download_full_backup' %}" class="btn btn-primary w-100" onclick="return confirm('Download complete project backup? This may take a few moments and will create a large ZIP file containing all project files, database, and media.');">
+                            <i class="fas fa-download"></i> Download Complete Backup
+                        </a>
+                        <small class="text-muted d-block mt-2">
+                            <i class="fas fa-info-circle"></i> 
+                            ZIP file: full_backup_YYYYMMDD_HHMMSS.zip
+                        </small>
+                    </div>
+                </div>
+                
+                <!-- Database Only Backup -->
+                <div class="col-md-6">
+                    <div class="export-card bg-danger bg-opacity-10 border-danger">
+                        <h6><i class="fas fa-database text-danger"></i> Database Backup</h6>
+                        <p class="text-muted small mb-3">
+                            <i class="fas fa-exclamation-triangle text-warning"></i> 
+                            Download only the database backup (SQLite file). 
+                        </p>
+                        <ul class="small text-muted mb-3">
+                            <li><i class="fas fa-table"></i> All conference data</li>
+                            <li><i class="fas fa-users"></i> User accounts and profiles</li>
+                            <li><i class="fas fa-file-alt"></i> Papers and submissions</li>
+                            <li><i class="fas fa-cogs"></i> Settings and configurations</li>
+                            <li><i class="fas fa-clock"></i> Smaller file size, faster download</li>
+                        </ul>
+                        <a href="{% url 'conference:download_database' %}" class="btn btn-danger w-100" onclick="return confirm('Download the database backup? This file contains all sensitive data and should be stored securely.');">
+                            <i class="fas fa-download"></i> Download Database Only
+                        </a>
+                        <small class="text-muted d-block mt-2">
+                            <i class="fas fa-info-circle"></i> 
+                            SQLite file: db_backup_YYYYMMDD_HHMMSS.sqlite3
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert alert-warning mt-3" role="alert">
+                <i class="fas fa-shield-alt"></i> <strong>Security Notice:</strong> 
+                Backup files contain sensitive data. Store them securely and never share publicly. 
+                Use backups for disaster recovery, migration, or development environment setup.
+            </div>
+            {% endif %}
         </div>
         {% endif %}
         
